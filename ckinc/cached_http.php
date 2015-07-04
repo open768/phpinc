@@ -34,12 +34,29 @@ class cCachedHttp{
 	}
 
 	//*****************************************************************************
+	public static function getCachedUrltoFile($psURL){	
+		$sHash = cHash::hash($psURL);
+		cHash::$CACHE_EXPIRY = self::$CACHE_EXPIRY;		
+		$sPath = cHash::getPath($sHash);
+		
+		if (! cHash::exists($sHash)){
+			cHash::make_hash_folder( $sHash);
+			cHttp::$show_progress = true;
+			cHttp::fetch_to_file($psURL, $sPath, true, 60, true);
+			cHttp::$show_progress = false;
+		}
+		return $sPath;
+	}
+
+	//*****************************************************************************
 	public static function getCachedJson($psURL){	
 		return self::pr_do_get($psURL, true);
 	}
 	
 	//*****************************************************************************
-	public static function pr_do_get($psURL, $pbJson){
+	//*
+	//*****************************************************************************
+	private static function pr_do_get($psURL, $pbJson){
 
 		$sHash = cHash::hash($psURL);
 		cHash::$CACHE_EXPIRY = self::$CACHE_EXPIRY;

@@ -52,6 +52,7 @@ class cImageHighlight{
 		cDebug::write("cropping to $piX, $piY");
 		
 		$oDest = imagecreatetruecolor(self::CROP_WIDTH, self::CROP_HEIGHT);
+		cDebug::write("cropping ($piX, $piY), w=".self::CROP_WIDTH." h=".self::CROP_HEIGHT);
 		imagecopy($oDest, $poImg, 0,0, $piX, $piY, self::CROP_WIDTH, self::CROP_HEIGHT);
 		
 		//write out the file

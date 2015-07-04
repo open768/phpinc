@@ -42,6 +42,7 @@ class cHttp{
 		curl_setopt($oCurl, CURLOPT_FAILONERROR, 1);
 		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($oCurl, CURLOPT_BINARYTRANSFER, 1); 
+		curl_setopt($oCurl, CURLOPT_FOLLOWLOCATION, true);
 		
 		if (self::$show_progress)
 			curl_setopt($oCurl, CURLOPT_PROGRESSFUNCTION, '__progress_callback');
@@ -77,6 +78,7 @@ class cHttp{
 		curl_setopt($oCurl, CURLOPT_URL, $psUrl);
 		curl_setopt($oCurl, CURLOPT_FAILONERROR, 1);
 		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($oCurl, CURLOPT_FOLLOWLOCATION, true);
 
 		if (self::$show_progress)
 			curl_setopt($oCurl, CURLOPT_PROGRESSFUNCTION, '__progress_callback');
@@ -109,7 +111,7 @@ class cHttp{
 	}
 	
 	//*****************************************************************************
-	public static function fetch_to_file($psUrl, $psPath, $pbOverwrite=false, $piTimeOut=60){
+	public static function fetch_to_file($psUrl, $psPath, $pbOverwrite=false, $piTimeOut=60, $pbGzip=false){
 		//check whether the file exists
 		if (!$pbOverwrite &&file_exists($psPath)){
 			cDebug::write("file exists $psPath");
@@ -126,12 +128,14 @@ class cHttp{
 		curl_setopt($oCurl, CURLOPT_URL, $psUrl);
 		curl_setopt($oCurl, CURLOPT_FAILONERROR, 1);
 		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 0);
+		curl_setopt($oCurl, CURLOPT_FOLLOWLOCATION, true);
 		if (self::$show_progress)
 			curl_setopt($oCurl, CURLOPT_PROGRESSFUNCTION, '__progress_callback');
 			
 		//use gzip compression to save bandwidth
 		curl_setopt($oCurl, CURLOPT_HTTPHEADER, array('Accept-Encoding: gzip,deflate'));
-		curl_setopt($oCurl, CURLOPT_ENCODING, ''); 		//decode automatically
+		if (!$pbGzip)
+			curl_setopt($oCurl, CURLOPT_ENCODING, ''); 		//decode automatically
 		
 		if (CURL_USE_PROXY){
 			curl_setopt($oCurl, CURLOPT_PROXY, CURL_PROXY);
