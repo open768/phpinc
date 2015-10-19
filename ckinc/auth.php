@@ -18,7 +18,6 @@ class cAuth{
 	
 	//**********************************************************
 	public static function get_user(){
-		cHeader::start_session();
 		cDebug::write("getting user from facebook");		//twitter TBD
 		$sUser = cFacebook::getSessionUser();
 		cDebug::write("user is $sUser");
@@ -26,7 +25,6 @@ class cAuth{
 	}
 	
 	public static function get_user_id(){
-		cHeader::start_session();
 		$sUserID = cFacebook::getSessionUserID();
 		cDebug::write("user ID is $sUserID");
 		return $sUserID;

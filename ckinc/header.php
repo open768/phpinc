@@ -1,6 +1,5 @@
 <?php
 require_once("$phpinc/ckinc/debug.php");
-require_once("$phpinc/ckinc/session.php");
 
 class cHeader{
 	//*******************************************************************
@@ -44,16 +43,6 @@ class cHeader{
 			
 		cDebug::write("key:$psKey not found in GET or POST");
 		return null;
-	}
-	
-	//*******************************************************************
-	public static function start_session(){
-		cSession::start();
-	}
-	
-	//*******************************************************************
-	public static function show_session(){
-		cSession::info();
 	}
 }
 ?>
