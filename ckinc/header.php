@@ -1,5 +1,6 @@
 <?php
 require_once("$phpinc/ckinc/debug.php");
+require_once("$phpinc/ckinc/session.php");
 
 class cHeader{
 	//*******************************************************************
@@ -47,9 +48,12 @@ class cHeader{
 	
 	//*******************************************************************
 	public static function start_session(){
-		if (session_status() == PHP_SESSION_NONE) 	
-			if (!headers_sent())	//this is vitally important - any header work must preceed any html being sent
-				session_start();
+		cSession::start();
+	}
+	
+	//*******************************************************************
+	public static function show_session(){
+		cSession::info();
 	}
 }
 ?>

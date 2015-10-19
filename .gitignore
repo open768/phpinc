@@ -3,6 +3,9 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
+# project files
+\[backup\]/
 facebook/
 sbbcode/
 pds/pdsreader.php.orig
+test/
