@@ -1,4 +1,17 @@
 <?php
+/**************************************************************************
+Copyright (C) Chicken Katsu 2015
+
+This code is protected by copyright under the terms of the 
+Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
+http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+
+For licenses that allow for commercial use please contact cluck@chickenkatsu.co.uk
+
+// USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
+//
+**************************************************************************/
+
 require_once("$phpinc/ckinc/objstore.php");
 require_once("$phpinc/ckinc/indexes.php");
 require_once("$phpinc/ckinc/http.php");
@@ -10,8 +23,8 @@ class cImageHighlight{
 	const IMGHIGH_FILENAME = "[imgbox].txt";
 	const MOSAIC_COUNT_FILENAME = "[moscount].txt";
 	const THUMBS_FILENAME = "[thumbs].txt";
-	const THUMBS_FOLDER = "images/highs/";
-	const MOSAIC_FOLDER = "images/mosaics";
+	const THUMBS_FOLDER = "images/[highs]/";
+	const MOSAIC_FOLDER = "images/[mosaics]";
 	const CROP_WIDTH = 120;
 	const CROP_HEIGHT = 120;
 	const BORDER_WIDTH = 5;
@@ -21,6 +34,13 @@ class cImageHighlight{
 	//######################################################################
 	//# GETTERS functions
 	//######################################################################
+	// #######################################################################
+	// # TODO: TODO: TODO: TODO: TODO: TODO: TODO: TODO: TODO: TODO: TODO: 
+	// #	make this generic can use take any image as its input
+	// #	should need a "Key" and "image url" to do its work
+	// #	shouldnt be tied to curiosity
+	// #######################################################################
+	
 	static function get( $psSol, $psInstrument, $psProduct){
 		$sFolder = "$psSol/$psInstrument/$psProduct";
 		$aData = cObjStore::get_file( $sFolder, self::IMGHIGH_FILENAME);
@@ -41,13 +61,12 @@ class cImageHighlight{
 		}
 
 		cDebug::write("fetching image from '$sImageUrl'");
-		//$oMSLImg = imagecreatefromjpeg($sImageUrl);
 		$oMSLImg = cHttp::fetch_image($sImageUrl);
 		return $oMSLImg;
 	}
 	
 	//**********************************************************************
-	private static function pr_perform_crop($poImg, $piX, $piY, $psSol, $psInstrument, $psProduct, $psPath){
+	private static function pr_perform_crop($poImg, $piX, $piY, $psOutfile){
 		global $root;
 		cDebug::write("cropping to $piX, $piY");
 		
@@ -56,7 +75,7 @@ class cImageHighlight{
 		imagecopy($oDest, $poImg, 0,0, $piX, $piY, self::CROP_WIDTH, self::CROP_HEIGHT);
 		
 		//write out the file
-		$sFilename = "$root/$psPath";
+		$sFilename = "$root/$psOutfile";
 		$sFolder = dirname($sFilename);
 		if (!file_exists($sFolder)){
 			cDebug::write("creating folder: $sFolder");
@@ -88,8 +107,8 @@ class cImageHighlight{
 			//work through each checking if the thumbnail is present
 			for( $i=0 ; $i < count($aHighs["d"]); $i++){
 				//figure out where stuff should go 
-				$sThumbfile = self::THUMBS_FOLDER."$psSol/$psInstrument/$psProduct/$i.jpg";
-				$sReal = "$root/$sThumbfile";
+				$sOutThumbfile = self::THUMBS_FOLDER."$psSol/$psInstrument/$psProduct/$i.jpg";
+				$sReal = "$root/$sOutThumbfile";
 
 				// key that identifies the thumbnail uses coordinates
 				$oItem = $aHighs["d"][$i];
@@ -113,10 +132,10 @@ class cImageHighlight{
 				if ($iY < 0) $iY=0;
 
 				//perform the crop
-				self::pr_perform_crop($oMSLImg, $iX, $iY, $psSol, $psInstrument, $psProduct, $sThumbfile);
+				self::pr_perform_crop($oMSLImg, $iX, $iY, $sOutThumbfile);
 				
 				//update the structure
-				$aThumbs[$sKey] = $sThumbfile;
+				$aThumbs[$sKey] = $sOutThumbfile;
 				$bUpdated = true;
 			}
 		
@@ -263,6 +282,8 @@ class cImageHighlight{
 	
 	//**********************************************************************
 	static function get_sol_high_mosaic( $psSol){
+		global $root;
+		
 		$oData = self::get_all_highlights($psSol);
 		$iCount = self::pr_count_highlights($oData);
 		cDebug::write("there were $iCount highlights");
