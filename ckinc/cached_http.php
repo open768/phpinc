@@ -16,61 +16,80 @@ require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/hash.php");
 
 class cCachedHttp{
-	public static $CACHE_EXPIRY = 3600;  //(seconds)
-	private static $oCache = null;
-	private static $sCacheFile = null;
-	public static $fileHashing = true;
+	public $CACHE_EXPIRY = 3600;  //(seconds)
+	public $USE_CURL = true;
+	private $oCache = null;
+	private $sCacheFile = null;
+	public 	$fileHashing = true;
+	public 	$show_progress = false;
+	public  $HTTPS_CERT_FILENAME = null;
+
 
 
 	//*****************************************************************************
-	public static function deleteCachedURL($psURL){
+	public function deleteCachedURL($psURL){
 		$sHash = cHash::hash($psURL);
 		cHash::delete_hash($sHash);
 	}
 	
 	//*****************************************************************************
-	public static function getCachedUrl($psURL){	
-		return self::pr_do_get($psURL, false);
+	public function getCachedUrl($psURL){	
+		return $this->pr_do_get($psURL, false);
 	}
 
 	//*****************************************************************************
-	public static function getCachedUrltoFile($psURL){	
+	public function getXML($psURL){
+		cDebug::write("Getting XML from: $psURL");
+		$sXML = $this->getCachedUrl($psURL);
+		cDebug::write("converting string to XML: ");
+		$oXML = simplexml_load_string($sXML);
+		cDebug::write("finished conversion");
+		return $oXML;
+	}
+	
+	//*****************************************************************************
+	public function getCachedUrltoFile($psURL){	
 		$sHash = cHash::hash($psURL);
-		cHash::$CACHE_EXPIRY = self::$CACHE_EXPIRY;		
+		cHash::$CACHE_EXPIRY = $this->$CACHE_EXPIRY;		
 		$sPath = cHash::getPath($sHash);
 		
 		if (! cHash::exists($sHash)){
 			cHash::make_hash_folder( $sHash);
-			cHttp::$show_progress = true;
-			cHttp::fetch_to_file($psURL, $sPath, true, 60, true);
-			cHttp::$show_progress = false;
+			$oHttp = new cHttp();
+			$oHttp->show_progress = true;
+			$oHttp->fetch_to_file($psURL, $sPath, true, 60, true);
 		}
 		return $sPath;
 	}
 
 	//*****************************************************************************
-	public static function getCachedJson($psURL){	
-		return self::pr_do_get($psURL, true);
+	public function getCachedJson($psURL){	
+		return $this->pr_do_get($psURL, true);
 	}
 	
 	//*****************************************************************************
 	//*
 	//*****************************************************************************
-	private static function pr_do_get($psURL, $pbJson){
+	private function pr_do_get($psURL, $pbJson){
 
-		$sHash = cHash::hash($psURL);
-		cHash::$CACHE_EXPIRY = self::$CACHE_EXPIRY;
+		$oHttp = new cHttp();
+		$oHttp->USE_CURL = $this->USE_CURL;
+		$oHttp->show_progress = $this->show_progress;
+		$oHttp->HTTPS_CERT_FILENAME = $this->HTTPS_CERT_FILENAME;
+		
 		$oResponse = null;
 		
+		$sHash = cHash::hash($psURL);
+		cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;
 		if (cHash::exists($sHash)){
 			cDebug::extra_debug("cached");
 			$oResponse = cHash::get_obj($sHash);
 		}else{
 			cDebug::extra_debug("not cached");
 			if ($pbJson)
-				$oResponse = cHttp::getJson($psURL);
+				$oResponse = $oHttp->getJson($psURL);
 			else
-				$oResponse = cHttp::fetch_url($psURL);
+				$oResponse = $oHttp->fetch_url($psURL);
 				
 			if ($oResponse) 
 				cHash::put_obj($sHash, $oResponse, true);

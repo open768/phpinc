@@ -63,7 +63,8 @@ class cSpice{
 			cDebug::error("not a valid Kernel Family $psFamily");
 		
 		$sURL = self::NAIF_URL."/".self::$sMission."/kernels/$psFamily/$psKernel";
-		$sFile = cCachedHttp::getCachedUrltoFile($sURL);
+		$oCache = new cCachedHttp();
+		$sFile = $oCache->getCachedUrltoFile($sURL);
 		cDebug::write("Url is in File: $sFile");
 	}
 	

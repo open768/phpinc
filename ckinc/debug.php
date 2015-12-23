@@ -66,7 +66,18 @@ class cDebug{
 	public static function check_GET_or_POST(){
 		global $_GET, $_POST;
 		
-		self::$DEBUGGING = (isset($_GET["debug"]) || isset($_POST["debug"]));
+		if (isset($_GET["debug"]) || isset($_POST["debug"])){
+			self::$DEBUGGING = true;
+			self::write("Debugging is on");
+		}
+		
+		if (isset($_GET["debug2"]) || isset($_POST["debug2"])){
+			self::$EXTRA_DEBUGGING = true;
+			self::$DEBUGGING = true;
+		}elseif (self::$DEBUGGING){
+			self::write("for extra debugging use debug2");
+		}
+		
 	}
 	
 	

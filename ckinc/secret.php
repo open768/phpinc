@@ -23,6 +23,7 @@ class cSecret{
 	const AYAH_SCORING_KEY = "44a21c8f7c1c7c1909e0cd030955b2e9ccc392cd";
 	
 	const GOOGLE_TRACKING_ID = "UA-51550338-1";
+	const NASA_OPEN_MARS_API_KEY = "jDeinkexXcfc58NAte5iObILNQj1jZOyCaKFgVXd";
 }
 
 ?>

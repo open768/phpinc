@@ -18,7 +18,8 @@ class cHttpDirectory{
 	
 	public static function read_dir($sURL){
 		cDebug::write("Fetching URL: $sURL");
-		$sHTML = cCachedHttp::getCachedUrl($sURL);
+		$oCache = new cCachedHttp();
+		$sHTML = $oCache->getCachedUrl($sURL);
 				
 		//parse the data - find the table that contains the links
 		$oDom = new DOMDocument;

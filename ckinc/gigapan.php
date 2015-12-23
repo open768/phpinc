@@ -37,13 +37,13 @@
 		
 		//***********************************************************************************************
 		public static function get_gigapans($psUser, $piPage){
-			
-			cCachedHttp::$CACHE_EXPIRY=self::GIGAPAN_CACHE;
+			$oCache = new cCachedHttp();
+			$oCache->$CACHE_EXPIRY=self::GIGAPAN_CACHE;
 			
 			//get the json data
 			$sUrl = sprintf(self::USER_EXPR , $piPage, $psUser);
 			cDebug::write("getting $sUrl");
-			$oJson = cCachedHttp::getCachedJson($sUrl);
+			$oJson = $oCache->getCachedJson($sUrl);
 			if (!$oJson) cDebug::error("nothing returned at all - check PHP config");
 			
 			

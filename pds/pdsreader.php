@@ -34,11 +34,12 @@ class cPDS_Reader{
 		$sOutFile = "$psVolume.LBL";
 		
 		cDebug::write("fetching volume LBL $sLBLUrl");
-		$sFile = cHttp::large_url_path($sOutFile);
+		$oHttp = new cHttp();
+		$sFile = $oHttp->large_url_path($sOutFile);
 		if (!file_exists("$sFile.gz")){
 			cDebug::write("$sFile.gz doesnt exist" );
 			
-			$sLBLFile = cHttp::fetch_large_url($sLBLUrl, $sOutFile, false);
+			$sLBLFile = $oHttp->fetch_large_url($sLBLUrl, $sOutFile, false);
 			cDebug::write("fetched to $sLBLFile" );
 			
 			cDebug::write("compressing $sLBLFile");
@@ -72,7 +73,8 @@ class cPDS_Reader{
 			//--- fetch the raw LBL file
 			$sFolder = cHash::make_hash_folder($sHashUrl);
 			$sUrlFilename = cHash::getPath($sHashUrl);
-			cHttp::fetch_to_file($psUrl, $sUrlFilename, false);
+			$oHttp = new cHttp();
+			$oHttp->fetch_to_file($psUrl, $sUrlFilename, false);
 			
 			//---parse into a LBL obj
 			cDebug::write("Parsing http");
@@ -103,9 +105,10 @@ class cPDS_Reader{
 	
 	//**********************************************************************
 	public static function fetch_tab( $psUrl, $psOutFile){
-		$sFile = cHttp::large_url_path($psOutFile);
+		$oHttp = new cHttp();
+		$sFile = $oHttp->large_url_path($psOutFile);
 		if (!file_exists("$sFile.gz")){
-			$sFile = cHttp::fetch_large_url($psUrl, $psOutFile, false);
+			$sFile = $oHttp->fetch_large_url($psUrl, $psOutFile, false);
 			cGzip::compress_file($sFile);
 		}else
 			cDebug::write("file exists on disk $sFile.gz");
