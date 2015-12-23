@@ -38,8 +38,10 @@ class cHttp{
 	public  function fetch_url($psUrl){
 		if ($this->USE_CURL)
 			return $this->pr__fetch_curl_url($psUrl);
-		else
+		else{
+			$oHttp = new HttpRequest($psUrl, HttpRequest::METH_GET);
 			cDebug::error("non Curl fetch url not implemented");
+		}
 	}
 	
 	public function fetch_to_file($psUrl, $psPath, $pbOverwrite=false, $piTimeOut=60, $pbGzip=false){
@@ -54,52 +56,33 @@ class cHttp{
 	//#  CURL functions
 	//#
 	//############################################################################
-	private function pr__fetch_curl_image($psUrl){
-		$oCurl = curl_init();	
+	private function pr__curl_init($psUrl){
+		$oCurl = curl_init($psUrl);	
 		curl_setopt($oCurl, CURLOPT_URL, $psUrl);
 		curl_setopt($oCurl, CURLOPT_FAILONERROR, 1);
 		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($oCurl, CURLOPT_BINARYTRANSFER, 1); 
 		curl_setopt($oCurl, CURLOPT_FOLLOWLOCATION, true);
 		
-		if ($this->show_progress)
+		//use gzip compression to save bandwidth
+		curl_setopt($oCurl, CURLOPT_HTTPHEADER, array('Accept-Encoding: gzip,deflate'));
+		curl_setopt($oCurl, CURLOPT_ENCODING, ''); 		//decode automatically
+		
+		if ($this->show_progress){
 			$parent = $this;
 			curl_setopt(
 				$oCurl, 
 				CURLOPT_PROGRESSFUNCTION, 
 				function ($p_Resource, $p_dl_size, $p_dl, $p_ul_size) use (&$parent){$parent->__progress_callback($p_Resource, $p_dl_size, $p_dl, $p_ul_size);}
 				);
-			
-		if ($this->show_progress){
 			curl_setopt($oCurl, CURLOPT_NOPROGRESS, false); // needed to make progress function work
-			$this->show_progress = false;
+			$this->show_progress = false;				//cancel show progress, must be set every time
 		}
-		
-		$response = curl_exec($oCurl);
-		$iErr = curl_errno($oCurl);
-		if ($iErr!=0 ) {
-			print curl_error($oCurl)."<p>";
-			curl_close($oCurl);
-			throw new Exception("ERROR URL was: $psUrl <p>");
-		}else
-			curl_close($oCurl);
-		
-		$oImage = imagecreatefromstring($response);
-	
-		return  $oImage;
-	}
-	
-	//*****************************************************************************
-	private function pr__fetch_curl_url($psUrl){
-		global $root;
-		
-		cDebug::extra_debug("curl fetching url: $psUrl");
-		$oCurl = curl_init();	
-		curl_setopt($oCurl, CURLOPT_URL, $psUrl);
-		curl_setopt($oCurl, CURLOPT_FAILONERROR, 1);
-		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($oCurl, CURLOPT_FOLLOWLOCATION, true);
-		
+
+		if (cDebug::$EXTRA_DEBUGGING){
+			cDebug::write("enabling CURL_verbosity");
+			curl_setopt($oCurl, CURLOPT_VERBOSE, 1);
+		}
+
 		if ($this->HTTPS_CERT_FILENAME){
 			if (!file_exists($this->HTTPS_CERT_FILENAME))
 				cDebug::error("certificate doesnt exist ");
@@ -111,24 +94,38 @@ class cHttp{
 			curl_setopt($oCurl, CURLOPT_CAINFO, $sCertPath);
 			curl_setopt($oCurl, CURLOPT_CAPATH, $sCertPath); //broken
 		}
-
-		if ($this->show_progress)
-			curl_setopt($oCurl, CURLOPT_PROGRESSFUNCTION, '__progress_callback');
 		
-		//use gzip compression to save bandwidth
-		curl_setopt($oCurl, CURLOPT_HTTPHEADER, array('Accept-Encoding: gzip,deflate'));
-		curl_setopt($oCurl, CURLOPT_ENCODING, ''); 		//decode automatically
+		return $oCurl;
+	}
+	
+	//*****************************************************************************
+	private function pr__fetch_curl_image($psUrl){
+		$oCurl = $this->pr__curl_init($psUrl);	
 		
-		if ($this->show_progress){
-			curl_setopt($oCurl, CURLOPT_NOPROGRESS, false); // needed to make progress function work
-			$this->show_progress = false;
+		curl_setopt($oCurl, CURLOPT_BINARYTRANSFER, 1); 
+		$response = curl_exec($oCurl);
+		$iErr = curl_errno($oCurl);
+		if ($iErr!=0 ) {
+			print curl_error($oCurl)."<p>";
+			curl_close($oCurl);
+			throw new Exception("ERROR URL was: $psUrl <p>");
+		}else{
+			cDebug::extra_debug("no error reported by Curl");
+			curl_close($oCurl);
 		}
 		
-		if (cDebug::$EXTRA_DEBUGGING){
-			cDebug::write("enabling CURL_verbosity");
-			curl_setopt($oCurl, CURLOPT_VERBOSE, 1);
-		}
+		$oImage = imagecreatefromstring($response);
+	
+		return  $oImage;
+	}
+	
+	//*****************************************************************************
+	private function pr__fetch_curl_url($psUrl){
+		global $root;
 		
+		$oCurl = $this->pr__curl_init($psUrl);	
+		
+		cDebug::extra_debug("curl fetching url: $psUrl");
 		$response = curl_exec($oCurl);
 		$iErr = curl_errno($oCurl);
 		if ($iErr!=0 ) {
@@ -156,24 +153,8 @@ class cHttp{
 		$this->progress_count = 0;
 		
 		$fHandle = fopen($psPath, 'w');
-		$oCurl = curl_init();	
-		curl_setopt($oCurl, CURLOPT_URL, $psUrl);
-		curl_setopt($oCurl, CURLOPT_FAILONERROR, 1);
+		$oCurl = $this->pr__curl_init($psUrl);	
 		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 0);
-		curl_setopt($oCurl, CURLOPT_FOLLOWLOCATION, true);
-		if ($this->show_progress)
-			curl_setopt($oCurl, CURLOPT_PROGRESSFUNCTION, '__progress_callback');
-			
-		//use gzip compression to save bandwidth
-		curl_setopt($oCurl, CURLOPT_HTTPHEADER, array('Accept-Encoding: gzip,deflate'));
-		if (!$pbGzip)
-			curl_setopt($oCurl, CURLOPT_ENCODING, ''); 		//decode automatically
-		
-		if ($this->show_progress){
-			curl_setopt($oCurl, CURLOPT_NOPROGRESS, false); // needed to make progress function work
-			$this->show_progress = false;
-		}
-
 		curl_setopt($oCurl, CURLOPT_FILE, $fHandle);
 		$iErr = 0;
 		set_time_limit($piTimeOut);
