@@ -80,6 +80,13 @@ class cDebug{
 		
 	}
 	
+	public static function stacktrace(){
+		echo "<pre>";
+		debug_print_backtrace();
+		echo "</pre>";
+
+	}
+	
 	
 	
 }
