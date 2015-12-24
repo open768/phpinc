@@ -35,7 +35,7 @@ class cNasaOpenMarsAPI{
 
 	private static function pr__KEY_Querystring($psPrefix){
 		if (!self::$API_KEY){
-				cDebug::error("API key is missing");
+				cDebug::error("API key not set in cNasaOpenMarsAPI");
 		}
 		
 		return ( $psPrefix.self::API_KEY_FIELD."=".self::$API_KEY);

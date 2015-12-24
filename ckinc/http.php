@@ -40,10 +40,8 @@ class cHttp{
 	public  function fetch_url($psUrl){
 		if ($this->USE_CURL)
 			return $this->pr__fetch_curl_url($psUrl);
-		else{
-			$oHttp = new HttpRequest($psUrl, HttpRequest::METH_GET);
-			cDebug::error("non Curl fetch url not implemented");
-		}
+		else
+			return file_get_contents($psUrl);
 	}
 	
 	public function fetch_to_file($psUrl, $psPath, $pbOverwrite=false, $piTimeOut=60, $pbGzip=false){
