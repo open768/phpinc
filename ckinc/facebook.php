@@ -1,5 +1,5 @@
 <?php
-require_once("$root/php/curiosity/curiosity.php");
+require_once("$phpinc/curiosity/curiosity.php");
 require_once("$phpinc/ckinc/pichighlight.php");
 require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/common.php");

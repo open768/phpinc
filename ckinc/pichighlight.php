@@ -16,7 +16,7 @@ require_once("$phpinc/ckinc/objstore.php");
 require_once("$phpinc/ckinc/indexes.php");
 require_once("$phpinc/ckinc/http.php");
 require_once("$phpinc/ckinc/hash.php");
-require_once("$root/php/curiosity/curiosity.php");
+require_once("$phpinc/curiosity/curiosity.php");
 
 class cImageHighlight{
 	const INDEX_SUFFIX = "Highlite";
