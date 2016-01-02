@@ -1,6 +1,6 @@
 <?php
 /**************************************************************************
-Copyright (C) Chicken Katsu 2014 
+Copyright (C) Chicken Katsu 2014 -2015
 
 This code is protected by copyright under the terms of the 
 Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
@@ -78,6 +78,7 @@ class cCachedHttp{
 		$oHttp->HTTPS_CERT_FILENAME = $this->HTTPS_CERT_FILENAME;
 		
 		$oResponse = null;
+		cDebug::write("getting url:$psURL");
 		
 		$sHash = cHash::hash($psURL);
 		cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;
