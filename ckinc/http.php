@@ -12,7 +12,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 **************************************************************************/
 require_once("$phpinc/ckinc/curl.php");
 class cHttp{
-	const LARGE_URL_DIR = "[cache]/[Largeurls]";
+	public $LARGE_URL_DIR = "[cache]/[Largeurls]";
 	public $progress_len = 0;
 	public $progress_count = 0;
 	public $show_progress = false;

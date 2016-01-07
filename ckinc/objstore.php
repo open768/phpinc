@@ -9,12 +9,15 @@ cObjStore::$rootFolder= "$root/[objdata]";
 
 class cObjStore{
 	public static $rootFolder = "";
+	public static $OBJDATA_REALM = null;
 	
 	//#####################################################################
 	//# PRIVATES
 	//#####################################################################
 	private static function pr_get_folder_path( $psFolder){
-		$sOut = self::$rootFolder."/".OBJDATA_REALM;
+		if (self::$OBJDATA_REALM == null)
+			cDebug::error("OBJDATA_REALM not set in objstore");
+		$sOut = self::$rootFolder."/".self::$OBJDATA_REALM;
 		if ($psFolder) $sOut.= "/$psFolder";
 		return $sOut;
 	}

@@ -15,7 +15,6 @@ require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/http.php");
 require_once("$phpinc/ckinc/objstore.php");
 require_once("$phpinc/ckinc/gz.php");
-require_once("$root/php/static/static.php");
 require_once("$phpinc/ckinc/common.php");
 require_once("$phpinc/ckinc/hash.php");
 require_once("$phpinc/pds/lbl.php");
@@ -117,21 +116,23 @@ class cPDS_Reader{
 	}
 	
 	//**********************************************************************
-	private static function pr__write_TAB_columns($psID, $piTabIndex, $paData){
-		cDebug::write("writing out tab file $piTabIndex");
-		$sFolder = self::TAB_ID.$psID.$piTabIndex;
+	private static function pr__write_TAB_columns($psInstr, $piTabIndex, $paData){
+		$sFolder = self::TAB_ID.$psInstr.$piTabIndex;
+		cDebug::write("writing out tab file $sFolder");
 		$sHash = cHash::hash($sFolder);
 		cHash::put_obj($sHash, $paData, true);
 	}
 	
 	//**********************************************************************
-	public static function get_TAB_columns( $poLBL, $psTabFile, $aColNames, $psID){
+	// parse the column data from the TAB files into output files
+	// cant return  an array as these are HUGE files that eat up all available memory
+	// so chunks the data into files
+	public static function write_TAB_columns( $poLBL, $psTabFile, $aColNames, $psInstr){
 		$iTabIndex=0;
 		$iTabLine=0;
 		
 		// get the columns to be used for indexing
 		$aCols = self::pr__get_tab_columns($poLBL, $aColNames);
-		set_time_limit( 30 );
 		
 		//open the tab file
 		$aOut = [];
@@ -147,54 +148,53 @@ class cPDS_Reader{
 				//chunk the data
 				$iTabLine++;
 				if ($iTabLine >= self::MAX_TAB_LINES){
-					self::pr__write_TAB_columns($psID,$iTabIndex, $aOut);
+					self::pr__write_TAB_columns($psInstr,$iTabIndex, $aOut);
 					cDebug::write("processed $iCount lines");
 					unset($aOut);
 					$aOut=[];
 					gc_collect_cycles();
 					$iTabLine=0;
 					$iTabIndex++;
-					set_time_limit( 30 );
 				}
 				$iCount ++;
 			}
 			
-			self::pr__write_TAB_columns($psID,$iTabIndex, $aOut);
+			self::pr__write_TAB_columns($psInstr,$iTabIndex, $aOut);
 			
 		}catch (Exception $e){
 			cDebug::error ($e->getMessage());
 		}
 		gzclose($fHandle);
-		cDebug::write("finishing get_TAB_columns");
 		
 		cDebug::write("Processed $iCount lines -  into $iTabIndex files");
-		cObjStore::put_file(self::TAB_FOLDER, $psID, $iTabIndex);
+		cDebug::write("writing count file");
+		cObjStore::put_file(self::TAB_FOLDER, $psInstr, $iTabIndex);
 
 		return $iTabIndex;
 	}
 	
 	//**********************************************************************
-	public static function get_tab_col_count($psID){
-		return cObjStore::get_file(self::TAB_FOLDER, $psID);
+	public static function get_tab_data_count($psInstr){
+		return cObjStore::get_file(self::TAB_FOLDER, $psInstr);
 	}
 	
 	//**********************************************************************
-	public static function delete_tab_col_files($psID){
-		$iCount = self::get_tab_col_count($psID);
+	public static function delete_tab_col_files($psInstr){
+		$iCount = self::get_tab_data_count($psInstr);
 		if ($iCount == null) return;
 		
 		for ($i=0; $i <= $iCount; $i++){
-			$sFolder = self::TAB_ID.$psID.$i;
+			$sFolder = self::TAB_ID.$psInstr.$i;
 			$sHash = cHash::hash($sFolder);
 			cHash::delete_hash($sHash);
 		}
-		cObjStore::kill_file(self::TAB_FOLDER, $psID);
+		cObjStore::kill_file(self::TAB_FOLDER, $psInstr);
 
 	}
 
 	//**********************************************************************
-	public static function get_tab_col_file($psID, $piIndex){
-		$sFolder = self::TAB_ID.$psID.$piIndex;
+	public static function get_tab_col_file($psInstr, $piIndex){
+		$sFolder = self::TAB_ID.$psInstr.$piIndex;
 		$sHash = cHash::hash($sFolder);
 		return cHash::get_obj($sHash);
 	}

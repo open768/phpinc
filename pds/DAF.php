@@ -16,7 +16,7 @@ require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/http.php");
 require_once("$phpinc/ckinc/objstore.php");
 require_once("$phpinc/ckinc/gz.php");
-require_once("$root/php/static/static.php");
+require_once("$phpinc/curiosity/static.php");
 require_once("$phpinc/ckinc/common.php");
 require_once("$phpinc/ckinc/hash.php");
 

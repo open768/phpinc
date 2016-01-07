@@ -113,7 +113,7 @@ class cCuriosityPDS{
 			$aExploded["processing code"] 
 		);
 		
-		cDebug::write("PDS regex: $sRegex");
+		cDebug::extra_debug("PDS regex: $sRegex");
 		return $sRegex;
 	}
 	
@@ -154,7 +154,6 @@ class cCuriosityPDS{
 	//**********************************************************************
 	public static function get_pds_data($psSol, $psInstrument){
 		$sFolder = self::pr__get_objstore_Folder($psSol,$psInstrument);
-		cDebug::write("looking in folder: ". $sFolder);
 		return cObjStore::get_file($sFolder, cIndexes::get_filename(cIndexes::INSTR_PREFIX, self::PDS_SUFFIX));
 	}
 	
@@ -192,16 +191,18 @@ class cCuriosityPDS{
 					$oMatch["p"] = $sKey;
 					break;
 				}
-			}elseif ($sKey == $psProduct){
-				cDebug::write("found matching product $sKey");
-				$oMatch=$oData;
-				$oMatch["p"] = $psProduct;
-				break;
+			}else{
+				if ($sKey === $psProduct){
+					cDebug::write("found matching product $sKey");
+					$oMatch=$oData;
+					$oMatch["p"] = $psProduct;
+					break;
+				}
 			}
 		}
 		
 		if ($oMatch == null){
-			cDebug::write("no matches found with $sPDSRegex in the following products");
+			cDebug::write("no matches found within the following products");
 			cDebug::vardump($aProducts);
 		}
 		return $oMatch;
