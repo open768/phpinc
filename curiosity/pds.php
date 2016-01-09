@@ -19,20 +19,15 @@ require_once("$phpinc/curiosity/instrument.php");
 require_once("$phpinc/curiosity/pdsindexer.php");
 require_once("$phpinc/pds/lbl.php");
 require_once("$phpinc/pds/pdsreader.php");
+require_once("$phpinc/pds/pds.php");
 
 
 //##########################################################################
 class cCuriosityPDS{
-	const OBJDATA_TOP_FOLDER = "[pds]";
-	const PDS_MAP_FILENAME="[pds].map";
-	const max_released = 449;
-	const LBL_CACHE = 12628000; //a long time
-	
 	const SHORT_REGEX = "/^(\d{4})(\D{2})(\d{4})(\d{3})(\d{3})(\D)(\d{1})_(\D{4})/";
 	const PICNO_REGEX = "/^(\d{4})(\D{2})(\d{6})(\d{3})(\d{2})(\d{5})(\D)(\d{2})_(\D{4})/";
 	const PICNO_FORMAT = "%04d%s%06d%03d%02d%05d%s%02d_%s";
 	const PICNO_REGEX_FORMAT = "/%04d%s%06d%03d\d{7}.*%s/";
-	const PDS_SUFFIX = "PDS";
 	const PRODUCT_TYPE_PICNO = 0;
 	const PRODUCT_TYPE_SHORT = 1;
 	const PRODUCT_TYPE_UNKNOWN = -1;
@@ -144,18 +139,6 @@ class cCuriosityPDS{
 		return $sPDSProduct;
 	}
 	
-	//**********************************************************************
-	private static function pr__get_objstore_Folder($psSol, $psInstrument){
-		$sFolder = self::OBJDATA_TOP_FOLDER."/$psSol/$psInstrument";
-		cDebug::write("PDS folder: $sFolder");
-		return $sFolder;
-	}
-	
-	//**********************************************************************
-	public static function get_pds_data($psSol, $psInstrument){
-		$sFolder = self::pr__get_objstore_Folder($psSol,$psInstrument);
-		return cObjStore::get_file($sFolder, cIndexes::get_filename(cIndexes::INSTR_PREFIX, self::PDS_SUFFIX));
-	}
 	
 	//**********************************************************************
 	public static function search_pds($psSol, $psInstument, $psProduct){
@@ -172,7 +155,7 @@ class cCuriosityPDS{
 			$sPDSRegex = self::get_pds_productRegex($psProduct);
 		
 		//-----retrive PDS stuff ----------------
-		$aData = self::get_pds_data($psSol, $psInstument );
+		$aData = cPDS::get_pds_data($psSol, $psInstument );
 		if ($aData === null){
 			cDebug::write("no pds data found for $psSol, $psInstument ");
 			return null;
@@ -219,13 +202,5 @@ class cCuriosityPDS{
 		return $aMapping[$psInstrument];
 	}
 	
-	//**********************************************************************
-	public function get_pds_product($psUrl){
-		$oData = cPDS_Reader::fetch_lbl($psUrl);
-		//extract what we want from the file
-		
-		//delete the PDS file - we dont need all of it
-		return $oData;
-	}
 }
 ?>
