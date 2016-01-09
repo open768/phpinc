@@ -51,5 +51,9 @@ class cPDS{
 			}
 	}
 	
+	//**********************************************************************
+	public static function kill_index_files(){
+		cObjStore::kill_folder(self::OBJDATA_TOP_FOLDER);
+	}
 }
 ?>

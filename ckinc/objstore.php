@@ -4,6 +4,7 @@
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 require_once("$phpinc/ckinc/gz.php");
+require_once("$phpinc/ckinc/common.php");
 
 cObjStore::$rootFolder= "$root/[objdata]";
 
@@ -25,6 +26,13 @@ class cObjStore{
 	//#####################################################################
 	//# PUBLIC
 	//#####################################################################
+	public static function kill_folder($psFolder){
+		$sPath = self::pr_get_folder_path( $psFolder);
+		cDebug::write("killing folder $sPath");
+		cCommon::delTree($sPath);
+	}
+	
+	//********************************************************************
 	public static function kill_file( $psFolder, $psFile){
 		$num_args = func_num_args();
 		if ($num_args != 2) cDebug::error("kill_file: incorrect number of arguments - expected 2 got $num_args ");
@@ -48,7 +56,7 @@ class cObjStore{
 		//cDebug::write("looking for file:$psFile in folder:$psFolder");
 		$sFolder = self::pr_get_folder_path( $psFolder);
 		if (!is_dir($sFolder)){
-			cDebug::write("no objstore data at all in folder: $psFolder");
+			cDebug::extra_debug("no objstore data at all in folder: $psFolder");
 			return $aData;
 		}
 		
@@ -69,7 +77,7 @@ class cObjStore{
 		//check that the folder exists
 		$folder = self::pr_get_folder_path( $psFolder);
 		if (!file_exists($folder)){
-			cDebug::write("creating folder: $folder");
+			cDebug::extra_debug("creating folder: $folder");
 			mkdir($folder, 0700, true);
 		}
 		

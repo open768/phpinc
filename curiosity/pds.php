@@ -154,10 +154,10 @@ class cCuriosityPDS{
 		}else
 			$sPDSRegex = self::get_pds_productRegex($psProduct);
 		
-		//-----retrive PDS stuff ----------------
+		//-----retrive PDS stuff for instrument----------------
 		$aData = cPDS::get_pds_data($psSol, $psInstument );
 		if ($aData === null){
-			cDebug::write("no pds data found for $psSol, $psInstument ");
+			cDebug::write("no pds data found for $psSol, $psInstrument ");
 			return null;
 		}	
 			

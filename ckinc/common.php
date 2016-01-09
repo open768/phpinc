@@ -27,4 +27,20 @@ class cCommon{
 		if (!is_object($poThing)) cDebug::error("not an object");
 		return get_object_vars($poThing); 
 	}
+	
+	//code for following function based on http://php.net/manual/en/function.rmdir.php
+	public static function delTree($psDir) { 
+		$aFiles = array_diff(scandir($psDir), array('.','..')); 
+		foreach ($aFiles as $sfile) { 
+			try{
+				if (is_dir("$psDir/$sfile") && !is_link($psDir))
+					self::delTree("$psDir/$sfile");
+				else
+					unlink("$psDir/$sfile"); 
+			}
+			catch (Exception $e){}
+		} 
+		cDebug::write("removing $psDir");
+		rmdir($psDir); 
+	} 
 }
