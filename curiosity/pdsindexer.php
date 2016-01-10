@@ -16,13 +16,11 @@ require_once("$phpinc/ckinc/indexes.php");
 require_once("$phpinc/ckinc/gz.php");
 require_once("$phpinc/pds/pdsreader.php");
 require_once("$phpinc/pds/pds.php");
-require_once("$phpinc/curiosity/pds.php");
+require_once("$phpinc/curiosity/curiositypds.php");
 
 
 //##########################################################################
 class cCuriosityPdsIndexer{
-	private static $PDS_COL_NAMES = ["PATH_NAME", "FILE_NAME", "MSL:INPUT_PRODUCT_ID", "INSTRUMENT_ID", "PLANET_DAY_NUMBER", "PRODUCT_ID", "IMAGE_TIME"];
-	const MSL_PDS_URL = null;
 	
 	//**********************************************************************
 	public static function index_everything(){
@@ -46,17 +44,17 @@ class cCuriosityPdsIndexer{
 	public static function run_indexer( $psVolume, $psIndex){
 		cDebug::write("<b>running indexer</b>");
 		$oPDSReader = new cPDS_Reader;
-		$oPDSReader->TAB_PRODUCT_COLUMN = "MSL:INPUT_PRODUCT_ID";
-		$oPDSReader->PDS_URL = self::MSL_PDS_URL;
+		$oPDSReader->set_product_column("MSL:INPUT_PRODUCT_ID");
+		$oPDSReader->PDS_URL = cCuriosityPDS::MSL_PDS_URL;
 		
 		//-------------------------------------------------------------------------------
 		//get the LBL file to understand how to parse the file 
-		$oLBL = $oPDSReader->fetch_volume_lbl(self::MSL_PDS_URL, $psVolume, $psIndex);
+		$oLBL = $oPDSReader->fetch_volume_lbl($psVolume, $psIndex);
 		if (cDebug::$EXTRA_DEBUGGING) $oLBL->__dump();
 		
 		//-------------------------------------------------------------------------------
 		//get the TAB file
-		$oPDSReader->fetch_tab($oLBL,$psVolume,self::$PDS_COL_NAMES );
+		$oPDSReader->fetch_tab($oLBL,$psVolume );
 		
 		cDebug::write("Done OK");
 	}

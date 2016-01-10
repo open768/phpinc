@@ -31,7 +31,7 @@ class cCuriosityPDS{
 	const PRODUCT_TYPE_PICNO = 0;
 	const PRODUCT_TYPE_SHORT = 1;
 	const PRODUCT_TYPE_UNKNOWN = -1;
-
+	const MSL_PDS_URL = "http://pds-imaging.jpl.nasa.gov/data/msl";
 
 	//*****************************************************************************
 	//* see http://pds-imaging.jpl.nasa.gov/data/msl/MSLMST_0005/DOCUMENT/MSL_MMM_EDR_RDR_DPSIS.PDF pg23 PICNO
@@ -79,7 +79,7 @@ class cCuriosityPDS{
 		elseif (preg_match(self::PICNO_REGEX, $psProduct, $aMatches))
 			$iProduct_type = self::PRODUCT_TYPE_PICNO;
 		
-		cDebug::write("Product $psProduct is of type $iProduct_type");
+		cDebug::extra_debug("Product $psProduct is of type $iProduct_type");
 		return $iProduct_type;
 	}
 	
@@ -103,8 +103,7 @@ class cCuriosityPDS{
 			$aExploded["sol"],
 			$aExploded["instrument"] , 
 			$aExploded["seqid"] ,
-			$aExploded["seq line"] ,
-			
+			$aExploded["seq line"] ,		
 			$aExploded["processing code"] 
 		);
 		
@@ -141,21 +140,24 @@ class cCuriosityPDS{
 	
 	
 	//**********************************************************************
-	public static function search_pds($psSol, $psInstument, $psProduct){
+	public static function search_pds($psSol, $psInstrument, $psProduct){
 		$bIsRegex = true;
 		$aProducts = [];
+		$sI01Product = null;
 		
-		cDebug::write("looking for $psSol, $psInstument, $psProduct");
+		cDebug::write("looking for $psSol, $psInstrument, $psProduct");
 		
 		//---- convert to PDS format ------------------
 		if (self::get_product_type($psProduct) == self::PRODUCT_TYPE_PICNO){
-			cDebug::write("product is allread a PICNO");
+			cDebug::write("product is a PICNO");
+			$sI01Product = str_replace("E01_","I01_",$psProduct);
+			cDebug::write("could also be $sI01Product");
 			$bIsRegex = false;
 		}else
 			$sPDSRegex = self::get_pds_productRegex($psProduct);
 		
 		//-----retrive PDS stuff for instrument----------------
-		$aData = cPDS::get_pds_data($psSol, $psInstument );
+		$aData = cPDS::get_pds_data($psSol, $psInstrument );
 		if ($aData === null){
 			cDebug::write("no pds data found for $psSol, $psInstrument ");
 			return null;
@@ -166,19 +168,17 @@ class cCuriosityPDS{
 		$oMatch = null;
 		$sProducts = "<br>";
 		foreach ($aData as $sKey=>$oData){
-			array_push($aProducts, $sKey);
+			$aProducts[] = $sKey;
 			if ($bIsRegex){
 				if ( preg_match($sPDSRegex, $sKey)){
 					cDebug::write("got a match with $sKey");
-					$oMatch=$oData;
-					$oMatch["p"] = $sKey;
+					$oMatch=["p"=>$sKey, "s"=>$psSol, "i"=>$psInstrument, "d"=>$oData];
 					break;
 				}
 			}else{
-				if ($sKey === $psProduct){
+				if ($sKey === $psProduct || $sKey === $sI01Product){
 					cDebug::write("found matching product $sKey");
-					$oMatch=$oData;
-					$oMatch["p"] = $psProduct;
+					$oMatch=["p"=>$psProduct, "s"=>$psSol, "i"=>$psInstrument, "d"=>$oData];
 					break;
 				}
 			}
@@ -187,7 +187,16 @@ class cCuriosityPDS{
 		if ($oMatch == null){
 			cDebug::write("no matches found within the following products");
 			cDebug::vardump($aProducts);
+		}else{
+			//enrich object to create the full url
+			$oMatch["u"] = self::MSL_PDS_URL."/".$oMatch["d"]["v"]."/".$oMatch["d"]["p"].$oMatch["d"]["f"];
+			
+			//and have a guess at the RDR image
+			$rdr_path = str_replace("DATA/EDR/SURFACE","EXTRAS/RDR/SURFACE/FULL",$oMatch["d"]["p"] );
+			$rdr_file = str_replace("_XXXX.LBL","_DRCX.JPG", $oMatch["d"]["f"]);
+			$oMatch["rdr"] = self::MSL_PDS_URL."/".$oMatch["d"]["v"]."/".$rdr_path.$rdr_file;
 		}
+		
 		return $oMatch;
 	}
 	
