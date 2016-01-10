@@ -24,7 +24,7 @@ class cCuriosityPdsIndexer{
 	
 	//**********************************************************************
 	public static function index_everything(){
-		for ($i=1; $i<6;$i++){
+		for ($i=1; $i<10; $i++){
 			//if ($i>1)	self::run_indexer( "MSLMHL_000$i", "EDRINDEX");
 			//self::run_indexer( "MSLMRD_000$i", "EDRINDEX");
 			self::run_indexer( "MSLMST_000$i", "EDRINDEX");

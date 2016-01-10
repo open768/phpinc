@@ -195,6 +195,12 @@ class cCuriosityPDS{
 			$rdr_path = str_replace("DATA/EDR/SURFACE","EXTRAS/RDR/SURFACE/FULL",$oMatch["d"]["p"] );
 			$rdr_file = str_replace("_XXXX.LBL","_DRCX.JPG", $oMatch["d"]["f"]);
 			$oMatch["rdr"] = self::MSL_PDS_URL."/".$oMatch["d"]["v"]."/".$rdr_path.$rdr_file;
+			
+			//and have a guess at Notebook link
+			//$sNotebook = "https://an.rsl.wustl.edu/msl/mslbrowser/br2.aspx?tab=solsumm&p=" . $psProduct;
+			$sNB_product = str_replace("_DXXX","_XXXX", $psProduct);
+			$sNotebook = "https://an.rsl.wustl.edu/msl/mslbrowser/product.aspx?B1=$sNB_product&xw=1";
+			$oMatch["notebook"] = $sNotebook ;
 		}
 		
 		return $oMatch;
