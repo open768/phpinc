@@ -3,7 +3,6 @@ require_once("$phpinc/ckinc/debug.php");
 
 class cSession{
 	public static $THROW_ON_SESSION_ERROR = false;
-	public static $started_session = false;
 	const SESSION_FOLDER = "[sessions]";
 	
 	//*******************************************************************

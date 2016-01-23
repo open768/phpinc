@@ -106,6 +106,7 @@ class cHash{
 		if (self::exists($psHash)){
 			if (self::$show_cache_hit) cDebug::write("exists in cache");
 			$sFile = self::getPath($psHash);
+			cDebug::extra_debug("$sFile");
 			$oResponse = cGzip::readObj($sFile);
 		}else
 			if (self::$show_cache_hit) cDebug::write("doesnt exist in cache");

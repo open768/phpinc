@@ -83,7 +83,7 @@ class cCachedHttp{
 		$sHash = cHash::hash($psURL);
 		cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;
 		if (cHash::exists($sHash)){
-			cDebug::extra_debug("cached");
+			cDebug::extra_debug("cached: $sHash");
 			$oResponse = cHash::get_obj($sHash);
 		}else{
 			cDebug::extra_debug("not cached");

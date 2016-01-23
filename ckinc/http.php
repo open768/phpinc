@@ -21,7 +21,6 @@ class cHttp{
 	
 	//*****************************************************************************
 	public function getJson($psURL){
-		cDebug::extra_debug("getting Json");
 		$response = $this->fetch_url($psURL);
 		$oResponse = json_decode($response);
 		
@@ -38,6 +37,7 @@ class cHttp{
 	
 	//*****************************************************************************
 	public  function fetch_url($psUrl){
+		cDebug::extra_debug("fetch_url: $psUrl");
 		if ($this->USE_CURL)
 			return $this->pr__fetch_curl_url($psUrl);
 		else
