@@ -16,6 +16,7 @@ require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/hash.php");
 
 class cCachedHttp{
+	const INFINITE = -1;
 	public $CACHE_EXPIRY = 3600;  //(seconds)
 	public $USE_CURL = true;
 	private $oCache = null;
