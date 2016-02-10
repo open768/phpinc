@@ -17,16 +17,88 @@ require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/http.php");
 require_once("$phpinc/ckinc/cached_http.php");
 require_once("$phpinc/ckinc/hash.php");
+require_once("$phpinc/ckinc/objstore.php");
 require_once("$phpinc/phpquery/phpQuery-onefile.php");
 
-class cInstrumentManifest{
-	public $longName = null;
+//#####################################################################
+//#####################################################################
+class cRoverManifest{
 	public $sols = [];
+	
+	public function add(  $piSol, $psInstr, $piCount, $psUrl){
+		$sKey = (string) $piSol;
+		if (!array_key_exists($sKey, $this->sols)) $this->sols[$sKey] = new cRoverManifestSol();
+		$oEntry = $this->sols[$sKey];
+		$oEntry->add($psInstr, $piCount, $psUrl);
+	}
 }
-class cSolManifestEntry{
-	public $count;
-	public $sol;
-	public $url;
+
+class cRoverManifestSol{
+	public $instruments = [];
+	
+	public function add($psInstr, $piCount, $psUrl){
+		if (!array_key_exists($psInstr, $this->instruments)) $this->instruments[$psInstr] = new cRoverManifestInstrument();
+		$oEntry = $this->instruments[$psInstr];
+		$oEntry->count = $piCount;
+		$oEntry->url = $psUrl;
+	}
+}
+
+class cRoverManifestInstrument{
+	public $count = -1;
+	public $url = null;
+}
+
+//#####################################################################
+//#####################################################################
+class cSpiritInstruments{
+	static $Instruments = null;
+	static $instrument_map = null;
+	
+	//********************************************************************
+	public static function getInstruments(){
+		if (! self::$Instruments){
+			// build instrument list
+			self::$Instruments = [ 
+				["name"=>"FHAZ",	"colour"=>"red",		"abbr"=>"F",	"caption"=>"Front Hazcam"],
+				["name"=>"RHAZ",	"colour"=>"green",		"abbr"=>"R",	"caption"=>"Rear Hazcam"],
+				["name"=>"NAVCAM",	"colour"=>"steelblue",	"abbr"=>"N",	"caption"=>"Navigation Camera"],
+				["name"=>"PANCAM",	"colour"=>"lime",		"abbr"=>"P",	"caption"=>"Panoramic Camera"],
+				["name"=>"MI_IM",	"colour"=>"blue",		"abbr"=>"M",	"caption"=>"Microscopic Imager"],
+				["name"=>"ENT",		"colour"=>"white",		"abbr"=>"E",	"caption"=>"Entry"],
+				["name"=>"DES",		"colour"=>"yellow",		"abbr"=>"D",	"caption"=>"Descent"],
+				["name"=>"LAND",	"colour"=>"cyan",		"abbr"=>"L",	"caption"=>"Landing"],
+				["name"=>"EDL",		"colour"=>"tomato",		"abbr"=>"EDL",	"caption"=>"Entry, Descent, and Landing"]
+			];
+			// build associative array
+			self::$instrument_map = [];
+			foreach (self::$Instruments as $oInstr){
+				self::$instrument_map[$oInstr["name"]] = $oInstr;
+				self::$instrument_map[$oInstr["abbr"]] = $oInstr;
+			}
+			
+		}
+		return self::$Instruments;
+	}
+	
+	//*****************************************************************************
+	public static function getAbbrev($psName){
+		self::getInstruments();
+		if (array_key_exists($psName,self::$instrument_map))
+			return self::$instrument_map[$psName]["abbr"];
+		
+		foreach (self::$Instruments as $aInstrument)
+			if ($aInstrument["caption"] == $psName)
+				return $aInstrument["abbr"];
+			
+		cDebug::error("unknown Instrument: $psName");
+	}
+	
+	//*****************************************************************************
+	public static function getInstrumentName($psAbbr){
+		self::getInstruments();
+		return  self::$instrument_map[$psAbbr]["name"];
+	}
 }
 
 //#####################################################################
@@ -35,12 +107,17 @@ class cSpiritRover{
 	const BASE_URL = "http://mars.nasa.gov/mer/gallery/all/";
 	const MANIFEST_URL = "spirit.html";
 	const USE_CURL = false;
+	const MANIFEST_PATH = "[manifest]";
+	const MANIFEST_FILE = "sols";
 
 	//#####################################################################
 	//# PUBLIC functions
 	//#####################################################################
 	public static function get_manifest(){
-		$aManifest = [];
+		
+		//---------if its in the objstore return it
+		$aManifest = cObjStore::get_file( self::MANIFEST_PATH, self::MANIFEST_FILE);
+		if ($aManifest) return $aManifest;
 		
 		//------------------------------------------------------
 		$oHttp = new cCachedHttp();
@@ -53,43 +130,45 @@ class cSpiritRover{
 		$oDoc = phpQuery::newDocument($sHTML);
 		
 		//------------------------------------------------------
-		cDebug::write("locating instruments");
+		$oManifest = new cRoverManifest();
+		
+		//------------------------------------------------------
 		//find all selects with name solfile.
+		cDebug::write("locating instruments");
 		$oResults = $oDoc["select[name='solFile']"];
-		$oResults->each(function($oSelect) use(&$aManifest){
-			$oInstrument = new cInstrumentManifest();
+		$oResults->each(function($oSelect) use(&$oManifest){
 			$oSelectPQ = pq($oSelect);
 			
 			//get the label
 			$sLabel = pq($oSelectPQ)->parent()["label"]->html();
+			if (preg_match("/(.*):/", $sLabel, $aMatches))
+				$sLabel = $aMatches[1];
 			cDebug::write("Instrument found: $sLabel");
-			$oInstrument->longName = $sLabel;
+			$sAbbr = cSpiritInstruments::getAbbrev($sLabel);
 			
 			//iterate the Items in the select
-			$oSelectPQ["option"]->each( function ($oOption) use (&$oInstrument){
-				$oEntry = new cSolManifestEntry();
+			$oSelectPQ["option"]->each( function ($oOption) use (&$oManifest, $sAbbr){
 				$oOptionPQ = pq($oOption);
-				$oEntry->url = $oOptionPQ->attr("value");
+				$sUrl = $oOptionPQ->attr("value");
 				
 				$sTmp = $oOptionPQ->html();
 				preg_match("/Sol (\d+) \((\d+)/", $sTmp, $aMatches);
 				$iSol = (int)$aMatches[1];
-				$oEntry->sol = $iSol;
-				$oEntry->count = (int)$aMatches[2];
-				
-				$oInstrument->sols[$iSol]=$oEntry;
+				$iCount = (int)$aMatches[2];
+				$oManifest->add($iSol, $sAbbr, $iCount, $sUrl);
 			});
-			
-			// add instrument manifest to manifest
-			$aManifest[] = $oInstrument;
 		});
 		
+		ksort($oManifest->sols);
+		
 		//------------------------------------------------------
-		return json_encode($aManifest);
+		cObjStore::put_file( self::MANIFEST_PATH, self::MANIFEST_FILE, $oManifest);
+		return $oManifest;
 	}
 	
-	public static function get_sol(){
-	}
+	//#####################################################################
+	//# PRIVATE functions
+	//#####################################################################
 }
 
 ?>
