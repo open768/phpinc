@@ -15,7 +15,6 @@ uses phpQuery https://code.google.com/archive/p/phpquery/ which is Licensed unde
 **************************************************************************/
 require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/http.php");
-require_once("$phpinc/ckinc/cached_http.php");
 require_once("$phpinc/ckinc/hash.php");
 require_once("$phpinc/ckinc/objstore.php");
 require_once("$phpinc/phpquery/phpQuery-onefile.php");
@@ -47,6 +46,12 @@ class cRoverManifestSol{
 class cRoverManifestInstrument{
 	public $count = -1;
 	public $url = null;
+}
+
+class cRoverImageDetails{
+	public $source = null;
+	public $thumbnail = null;
+	public $image = null;
 }
 
 //#####################################################################
@@ -99,6 +104,12 @@ class cSpiritInstruments{
 		self::getInstruments();
 		return  self::$instrument_map[$psAbbr]["name"];
 	}
+
+	//*****************************************************************************
+	public static function getDetails($psAbbr){
+		self::getInstruments();
+		return  self::$instrument_map[$psAbbr];
+	}
 }
 
 //#####################################################################
@@ -108,24 +119,137 @@ class cSpiritRover{
 	const MANIFEST_URL = "spirit.html";
 	const USE_CURL = false;
 	const MANIFEST_PATH = "[manifest]";
-	const MANIFEST_FILE = "sols";
+	const DETAILS_PATH = "[details]";
+	const MANIFEST_FILE = "manifest";
+	const SOLS_FILE = "sols";
 
 	//#####################################################################
 	//# PUBLIC functions
 	//#####################################################################
-	public static function get_manifest(){
+	public static function get_sol($piSol){
+		//---------if its in the objstore return it
+		$oSol =  cObjStore::get_file( self::MANIFEST_PATH, $piSol);
+		if ($oSol) return $oSol;
+		
+		//------------------------------------------------------
+		$oManifest = self::pr__get_manifest();
+		$aSols = $oManifest->sols;
+		if (!array_key_exists((string)$piSol, $aSols)) cDebug::error("Sol $piSol not found");
+		$oSol = $aSols[(string)$piSol];
+
+		//------------------------------------------------------
+		cObjStore::put_file( self::MANIFEST_PATH, $piSol, $oSol);
+		return $oSol;
+	}
+
+	//*****************************************************************************
+	public static function get_sols(){
+		//---------if its in the objstore return it
+		$aSols =  cObjStore::get_file( self::MANIFEST_PATH, self::SOLS_FILE);
+		if ($aSols) return $aSols;
+		
+		//------------------------------------------------------
+		$oManifest = self::pr__get_manifest();
+		$aSols = array_keys($oManifest->sols);
+
+		//------------------------------------------------------
+		cObjStore::put_file( self::MANIFEST_PATH, self::SOLS_FILE, $aSols);
+		return $aSols;
+	}
+	
+	//*****************************************************************************
+	public static function get_details($psSol, $psInstr){
+		$sPath  = self::DETAILS_PATH."/$psSol";
+		$oDetails =  cObjStore::get_file( $sPath, $psInstr);
+		if ($oDetails) return $oDetails;
+		
+		//------------------------------------------------------
+		$oDetails = self::pr__get_details($psSol, $psInstr);
+		cObjStore::put_file( $sPath, $psInstr, $oDetails);
+		return $oDetails;
+	}
+	
+	//#####################################################################
+	//# PRIVATE functions
+	//#####################################################################
+	private static function pr__get_url( $psUrl){
+		$oHttp = new cHttp();
+		$oHttp->USE_CURL = self::USE_CURL;
+		return  $oHttp->fetch_url($psUrl);
+	}
+	
+	//*****************************************************************************
+	private static function pr__get_details($psSol, $psInstr){
+		//find the url where to get the instrument details from
+		$oSol = self::get_sol($psSol);
+		$aInstruments = $oSol->instruments;
+		if (!array_key_exists( $psInstr, $aInstruments)) cDebug::error("instrument $psInstr doesnt exist for sol $psSol");
+		$oInstr = $aInstruments[$psInstr];
+		$sFragment = $oInstr->url;
+		cDebug::extra_debug("url is $sFragment");
+		
+		//------------------------------------------------------
+		$sHTML = self::pr__get_url(self::BASE_URL.$sFragment);
+		cDebug::extra_debug("building query object");
+		$oDoc = phpQuery::newDocument($sHTML);
+		
+		//------------------------------------------------------
+		cDebug::extra_debug("querying images");
+		$oResults = $oDoc["a:has(img[src$=THM.JPG])"];
+		if ($oResults->length == 0) cDebug::error("nothing found");
+		cDebug::extra_debug("found  $oResults->length matches");
+
+		$aResults = [];
+		$oResults->each( function($oMatch) use (&$aResults){
+			$oPQ = pq($oMatch);
+			$sDetailFragment = $oPQ->attr("href");	
+			cDebug::extra_debug("href url is $sDetailFragment<br>");
+			
+			$oImages = $oPQ->children('img[src$=THM.JPG]');
+			if ($oImages->length == 0) cDebug::error("no images found");				
+			cDebug::extra_debug("found $oImages->length images");
+			
+			$oImg = $oImages->eq(0);
+			$sThumbUrl = $oImg->attr('src');
+			cDebug::extra_debug("thumbnail  is '$sThumbUrl'<br>");
+			
+			$oImgUrl = self::pr__get_detail_image($sDetailFragment);
+			cDebug::extra_debug("image  '$oImgUrl'");
+			
+			$oDetail = new cRoverImageDetails;
+			$oDetail->source = $sDetailFragment;
+			$oDetail->thumbnail = $sThumbUrl;
+			$oDetail->image = $oImgUrl;
+			$aResults[] = $oDetail;
+		});
+		
+		return $aResults;
+	}
+	
+	//*****************************************************************************
+	private static function pr__get_detail_image($psFragmentUrl){
+		//------------------------------------------------------
+		$sPageUrl = self::BASE_URL.$psFragmentUrl;
+		$sHTML = self::pr__get_url($sPageUrl);
+		cDebug::extra_debug("building query object");
+		$oDoc = phpQuery::newDocument($sHTML);
+		
+		$oResults = $oDoc["a:contains('View Full Image')"];
+		if ($oResults->length == 0) cDebug::error('couldnt find details');
+		$sUrl = $oResults->eq(0)->attr('href');
+
+		return dirname($psFragmentUrl)."/$sUrl";
+	}
+			
+	//*****************************************************************************
+	private static function pr__get_manifest(){
 		
 		//---------if its in the objstore return it
 		$aManifest = cObjStore::get_file( self::MANIFEST_PATH, self::MANIFEST_FILE);
 		if ($aManifest) return $aManifest;
 		
 		//------------------------------------------------------
-		$oHttp = new cCachedHttp();
-		$oHttp->USE_CURL = self::USE_CURL;
-		$oHttp->CACHE_EXPIRY = cHash::FOREVER;
-		$sHTML = $oHttp->getCachedUrl(self::BASE_URL.self::MANIFEST_URL);
-		
-		//------------------------------------------------------
+		$sHTML = self::pr__get_url(self::BASE_URL.self::MANIFEST_URL);
 		cDebug::write("building query object");
 		$oDoc = phpQuery::newDocument($sHTML);
 		
@@ -164,11 +288,6 @@ class cSpiritRover{
 		//------------------------------------------------------
 		cObjStore::put_file( self::MANIFEST_PATH, self::MANIFEST_FILE, $oManifest);
 		return $oManifest;
-	}
-	
-	//#####################################################################
-	//# PRIVATE functions
-	//#####################################################################
-}
+	}}
 
 ?>

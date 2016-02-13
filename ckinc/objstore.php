@@ -74,15 +74,20 @@ class cObjStore{
 		$num_args = func_num_args();
 		if ($num_args != 3) cDebug::error("put_file: incorrect number of arguments - expected 3 got $num_args ");
 		
+		//check that there is something to write
+		if ($poData == null) cDebug::error("put_file: no data to write");
+		
 		//check that the folder exists
-		$folder = self::pr_get_folder_path( $psFolder);
-		if (!file_exists($folder)){
-			cDebug::extra_debug("creating folder: $folder");
-			mkdir($folder, 0700, true);
+		$sFolder = self::pr_get_folder_path( $psFolder);
+		if (!file_exists($sFolder)){
+			cDebug::extra_debug("creating folder: $sFolder");
+			mkdir($sFolder, 0700, true);
 		}
+		cDebug::extra_debug("folder exists: $sFolder");
+
 		
 		//write out the file
-		$sFile = "$folder/$psFile";
+		$sFile = "$sFolder/$psFile";
 		cDebug::write("writing to: $sFile");
 		
 		cGzip::writeObj($sFile, $poData);
