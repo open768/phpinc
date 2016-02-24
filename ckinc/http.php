@@ -18,7 +18,18 @@ class cHttp{
 	public $show_progress = false;
 	public $HTTPS_CERT_FILENAME = null;
 	public $USE_CURL = true;
+	private $authenticate = false;
+	private $username = null;
+	private $password = null;
 	
+	//*****************************************************************************
+	public function set_credentials($psUserName, $psPassword){
+		$this->authenticate = true;
+		cDebug::extra_debug("setting credentials: user=$psUserName pass=$psPassword");
+		$this->username = $psUserName;
+		$this->password = $psPassword;
+	}
+
 	//*****************************************************************************
 	public function getJson($psURL){
 		$response = $this->fetch_url($psURL);
@@ -37,14 +48,16 @@ class cHttp{
 	
 	//*****************************************************************************
 	public  function fetch_url($psUrl){
-		cDebug::extra_debug("fetch_url: $psUrl");
+		cDebug::extra_debug(__CLASS__.".".__FUNCTION__);
+		cDebug::extra_debug($psUrl);
 		if ($this->USE_CURL)
 			return $this->pr__fetch_curl_url($psUrl);
 		else
-			return file_get_contents($psUrl);
+			return $this->pr__fetch_basic_url($psUrl);
 	}
 	
 	public function fetch_to_file($psUrl, $psPath, $pbOverwrite=false, $piTimeOut=60, $pbGzip=false){
+		cDebug::extra_debug(__CLASS__.".".__FUNCTION__);
 		if ($this->USE_CURL)
 			return $this->pr__fetch_curl_to_file($psUrl, $psPath, $pbOverwrite, $piTimeOut, $pbGzip);
 		else
@@ -74,6 +87,31 @@ class cHttp{
 		$sPath = $this->large_url_path($psFilename);
 		$this->show_progress = true;
 		return $this->fetch_to_file($psUrl, $sPath, $pbOverwrite, 600);
+	}
+	
+	//############################################################################
+	//#
+	//############################################################################
+	private function pr__fetch_basic_url($psUrl){
+		cDebug::extra_debug(__CLASS__.".".__FUNCTION__);
+		$sHTML = null;
+
+		$oContext = null;
+		if ($this->authenticate){
+			$sCredentials = base64_encode($this->username.":".$this->password);
+			$oContext = stream_context_create([
+				"http" => ["header" => "Authorization: Basic $sCredentials"],
+				"ssl"=> ["verify_peer"=>false,"verify_peer_name"=>false]
+			]);
+		}else
+			$oContext = stream_context_create([
+				"ssl"=> ["verify_peer"=>false,"verify_peer_name"=>false]
+			]);
+		
+		$sHTML = file_get_contents($psUrl, false, $oContext);
+
+		cDebug::extra_debug($sHTML);
+		return $sHTML;
 	}
 	
 	//############################################################################

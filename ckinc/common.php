@@ -15,6 +15,9 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 require_once("$phpinc/ckinc/debug.php");
 
 class cCommon{
+	public static $SHOW_PROGRESS=TRUE;
+	
+	//**************************************************************************
 	public static function write_json($poThing){
 		if (cDebug::$DEBUGGING){
 			cDebug::write("json output:");
@@ -23,11 +26,13 @@ class cCommon{
 			echo json_encode($poThing );
 	}
 	
+	//**************************************************************************
 	public static function serialise($poThing){
 		if (!is_object($poThing)) cDebug::error("not an object");
 		return get_object_vars($poThing); 
 	}
 	
+	//**************************************************************************
 	//code for following function based on http://php.net/manual/en/function.rmdir.php
 	public static function delTree($psDir) { 
 		$aFiles = array_diff(scandir($psDir), array('.','..')); 
@@ -43,4 +48,14 @@ class cCommon{
 		cDebug::write("removing $psDir");
 		rmdir($psDir); 
 	} 
+	
+	//**************************************************************************
+	public static function flushprint($psWhat){
+		
+		if (self::$SHOW_PROGRESS){
+			print $psWhat;
+			flush();ob_flush();
+		}
+	}
+
 }
