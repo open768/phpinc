@@ -47,13 +47,14 @@ class cDebug{
 	
 	//**************************************************************************
 	public static function vardump( $poThing){
-		if (self::$DEBUGGING){
+		if (self::$EXTRA_DEBUGGING){
 			echo "<table border=1 width=100%><tr><td><PRE>";
 			var_dump($poThing);
 			echo "</PRE></td></tr></table>";
 			ob_flush();
 			flush();
-		}
+		}else
+			self::write("vardump only available in debug2");
 	}
 
 	//**************************************************************************

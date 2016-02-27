@@ -93,6 +93,8 @@ class cHttp{
 	//#
 	//############################################################################
 	private function pr__fetch_basic_url($psUrl){
+		global $http_response_header;
+		
 		cDebug::extra_debug(__CLASS__.".".__FUNCTION__);
 		$sHTML = null;
 
@@ -108,7 +110,11 @@ class cHttp{
 				"ssl"=> ["verify_peer"=>false,"verify_peer_name"=>false]
 			]);
 		
-		$sHTML = file_get_contents($psUrl, false, $oContext);
+		$sHTML = @file_get_contents($psUrl, false, $oContext);
+			if(!strpos($http_response_header[0], "200")){
+				cDebug::vardump($http_response_header);
+				cDebug::error($http_response_header[0]);
+			}
 
 		cDebug::extra_debug($sHTML);
 		return $sHTML;
