@@ -1,59 +1,12 @@
 <?php
-require_once("$phpinc/curiosity/curiosity.php");
-require_once("$phpinc/ckinc/pichighlight.php");
 require_once("$phpinc/ckinc/debug.php");
+require_once("$phpinc/ckinc/secret.php");
 require_once("$phpinc/ckinc/common.php");
 require_once("$phpinc/facebook/autoload.php");
 use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
 use Facebook\GraphUser;	
 	
-//###########################################################################
-//#
-//###########################################################################
-class cFacebookTags{
-//*******************************************************************
-	public static function make_fb_detail_tags(){
-		cDebug::check_GET_or_POST();
-
-		$sSol = $_GET["s"] ;
-		$sInstrument = $_GET["i"];	
-		$sProduct = $_GET["p"];
-		
-		cDebug::write("getting product details for $sSol, $sInstrument, $sProduct");
-		$oInstrumentData = cCuriosity::getProductDetails($sSol, $sInstrument, $sProduct);	
-		cDebug::vardump($oInstrumentData);
-		?>
-		<html><head>
-			<title>Curiosity Browser Detail </title>
-			<meta property="og:title" content="Curiosity Browser Detail" />
-			<meta property="og:image" content="<?=$oInstrumentData["d"]["i"]?>" />
-			<meta property="og:description" content="for sol:<?=$sSol?>, instrument:<?=$sInstrument?>, product:<?=$sProduct?>. Data courtesy MSSS/MSL/NASA/JPL-Caltech." />
-			<meta property="og:url" content="http://www.mars-browser.co.uk<?=$_SERVER["REQUEST_URI"]?>" />
-		</head></html>
-		<?php
-	}
-	
-	//*******************************************************************
-	public static function make_fb_sol_high_tags(){
-		cDebug::check_GET_or_POST();
-
-		$sSol = $_GET["s"] ;
-		
-		cDebug::write("getting highlight details for $sSol");
-		$sFilename  = cImageHighlight::get_sol_high_mosaic($sSol);	
-		cDebug::write("<img src='$sFilename'>");
-		?>
-		<html><head>
-			<title>Curiosity Browser Highlights</title>
-			<meta property="og:title" content="Curiosity Browser - Highlights" />
-			<meta property="og:image" content="<?=$sFilename?>" />
-			<meta property="og:description" content="Highlights for sol:<?=$sSol?>, Image Data courtesy MSSS/MSL/NASA/JPL-Caltech." />
-			<meta property="og:url" content="http://www.mars-browser.co.uk<?=$_SERVER["REQUEST_URI"]?>" />
-		</head></html>
-		<?php
-	}
-}
 
 //###########################################################################
 //#
@@ -133,7 +86,8 @@ class cFacebook{
 		cObjStore::put_file(self::FB_USER_FOLDER,$psUserID, $poData);
 		
 		//add to list of FB users (using hash to obfuscate for security)
-		$sAllUsersFile = "AllFBusers".cSecret::FB_SECRET;
+		$aFBApp = self::getAppID();
+		$sAllUsersFile = "AllFBusers".$aFBApp["S"];
 		$aFBUsers = cHash::get($sAllUsersFile);
 		if (!$aFBUsers) $aFBUsers = [];
 		$aFBUsers[$psUserID] = 1;
@@ -141,18 +95,19 @@ class cFacebook{
 	}
 	
 	//*******************************************************************
-	public static function getUserIDDetails($psUserID, $psToken){
-		//initialise facebook
+	public static function getAppID(){
 		if (cHeader::is_localhost()){
-			$fbAppID = cSecret::FB_DEV_APP;
-			$fbAppSecret = cSecret::FB_DEV_SECRET;
 			cDebug::write("using development credentials for localhost");
-		}else{
-			$fbAppID = cSecret::FB_APP;
-			$fbAppSecret = cSecret::FB_SECRET;
-		}
-		FacebookSession::setDefaultApplication($fbAppID, $fbAppSecret);
-		cDebug::write("FBAPP: $fbAppID");
+			return ["I"=>cSecret::FB_DEV_APP, "S"=>cSecret::FB_DEV_SECRET];
+		}else
+			return  ["I"=>cSecret::FB_APP, "S"=>cSecret::FB_SECRET];
+	}
+	
+	//*******************************************************************
+	public static function getUserIDDetails($psUserID, $psToken){
+		$aFBApp = self::getAppID();
+		FacebookSession::setDefaultApplication($aFBApp["I"], $aFBApp["S"]);
+		cDebug::write("FBAPP: ".$aFBApp["I"]);
 				
 		$oSession = new FacebookSession($psToken);
 		try {
