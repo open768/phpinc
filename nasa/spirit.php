@@ -18,41 +18,7 @@ require_once("$phpinc/ckinc/http.php");
 require_once("$phpinc/ckinc/hash.php");
 require_once("$phpinc/ckinc/objstore.php");
 require_once("$phpinc/phpquery/phpQuery-onefile.php");
-
-//#####################################################################
-//#####################################################################
-class cRoverManifest{
-	public $sols = [];
-	
-	public function add(  $piSol, $psInstr, $piCount, $psUrl){
-		$sKey = (string) $piSol;
-		if (!array_key_exists($sKey, $this->sols)) $this->sols[$sKey] = new cRoverManifestSol();
-		$oEntry = $this->sols[$sKey];
-		$oEntry->add($psInstr, $piCount, $psUrl);
-	}
-}
-
-class cRoverManifestSol{
-	public $instruments = [];
-	
-	public function add($psInstr, $piCount, $psUrl){
-		if (!array_key_exists($psInstr, $this->instruments)) $this->instruments[$psInstr] = new cRoverManifestInstrument();
-		$oEntry = $this->instruments[$psInstr];
-		$oEntry->count = $piCount;
-		$oEntry->url = $psUrl;
-	}
-}
-
-class cRoverManifestInstrument{
-	public $count = -1;
-	public $url = null;
-}
-
-class cRoverImageDetails{
-	public $source = null;
-	public $thumbnail = null;
-	public $image = null;
-}
+require_once("$phpinc/nasa/rover.php");
 
 //#####################################################################
 //#####################################################################
@@ -114,61 +80,11 @@ class cSpiritInstruments{
 
 //#####################################################################
 //#####################################################################
-class cSpiritRover{
+class cSpiritRover extends cRoverManifest{
 	const BASE_URL = "http://mars.nasa.gov/mer/gallery/all/";
 	const MANIFEST_URL = "spirit.html";
 	const USE_CURL = false;
-	const MANIFEST_PATH = "[manifest]";
-	const DETAILS_PATH = "[details]";
-	const MANIFEST_FILE = "manifest";
-	const SOLS_FILE = "sols";
 
-	//#####################################################################
-	//# PUBLIC functions
-	//#####################################################################
-	public static function get_sol($piSol){
-		//---------if its in the objstore return it
-		$oSol =  cObjStore::get_file( self::MANIFEST_PATH, $piSol);
-		if ($oSol) return $oSol;
-		
-		//------------------------------------------------------
-		$oManifest = self::pr__get_manifest();
-		$aSols = $oManifest->sols;
-		if (!array_key_exists((string)$piSol, $aSols)) cDebug::error("Sol $piSol not found");
-		$oSol = $aSols[(string)$piSol];
-
-		//------------------------------------------------------
-		cObjStore::put_file( self::MANIFEST_PATH, $piSol, $oSol);
-		return $oSol;
-	}
-
-	//*****************************************************************************
-	public static function get_sols(){
-		//---------if its in the objstore return it
-		$aSols =  cObjStore::get_file( self::MANIFEST_PATH, self::SOLS_FILE);
-		if ($aSols) return $aSols;
-		
-		//------------------------------------------------------
-		$oManifest = self::pr__get_manifest();
-		$aSols = array_keys($oManifest->sols);
-
-		//------------------------------------------------------
-		cObjStore::put_file( self::MANIFEST_PATH, self::SOLS_FILE, $aSols);
-		return $aSols;
-	}
-	
-	//*****************************************************************************
-	public static function get_details($psSol, $psInstr){
-		$sPath  = self::DETAILS_PATH."/$psSol";
-		$oDetails =  cObjStore::get_file( $sPath, $psInstr);
-		if ($oDetails) return $oDetails;
-		
-		//------------------------------------------------------
-		$oDetails = self::pr__get_details($psSol, $psInstr);
-		cObjStore::put_file( $sPath, $psInstr, $oDetails);
-		return $oDetails;
-	}
-	
 	//#####################################################################
 	//# PRIVATE functions
 	//#####################################################################
@@ -179,9 +95,26 @@ class cSpiritRover{
 	}
 	
 	//*****************************************************************************
-	private static function pr__get_details($psSol, $psInstr){
+	private static function pr__get_detail_image($psFragmentUrl){
+		//------------------------------------------------------
+		$sPageUrl = self::BASE_URL.$psFragmentUrl;
+		$sHTML = self::pr__get_url($sPageUrl);
+		cDebug::extra_debug("building query object");
+		$oDoc = phpQuery::newDocument($sHTML);
+		
+		$oResults = $oDoc["a:contains('View Full Image')"];
+		if ($oResults->length == 0) cDebug::error('couldnt find details');
+		$sUrl = $oResults->eq(0)->attr('href');
+
+		return dirname($psFragmentUrl)."/$sUrl";
+	}
+
+	//#####################################################################
+	//# implement abstract functions
+	//#####################################################################
+	protected function pr_generate_details($psSol, $psInstr){
 		//find the url where to get the instrument details from
-		$oSol = self::get_sol($psSol);
+		$oSol = $this->get_sol($psSol);
 		$aInstruments = $oSol->instruments;
 		if (!array_key_exists( $psInstr, $aInstruments)) cDebug::error("instrument $psInstr doesnt exist for sol $psSol");
 		$oInstr = $aInstruments[$psInstr];
@@ -216,7 +149,7 @@ class cSpiritRover{
 			$oImgUrl = self::pr__get_detail_image($sDetailFragment);
 			cDebug::extra_debug("image  '$oImgUrl'");
 			
-			$oDetail = new cRoverImageDetails;
+			$oDetail = new cRoverImage;
 			$oDetail->source = $sDetailFragment;
 			$oDetail->thumbnail = $sThumbUrl;
 			$oDetail->image = $oImgUrl;
@@ -225,42 +158,23 @@ class cSpiritRover{
 		
 		return $aResults;
 	}
-	
-	//*****************************************************************************
-	private static function pr__get_detail_image($psFragmentUrl){
-		//------------------------------------------------------
-		$sPageUrl = self::BASE_URL.$psFragmentUrl;
-		$sHTML = self::pr__get_url($sPageUrl);
-		cDebug::extra_debug("building query object");
-		$oDoc = phpQuery::newDocument($sHTML);
-		
-		$oResults = $oDoc["a:contains('View Full Image')"];
-		if ($oResults->length == 0) cDebug::error('couldnt find details');
-		$sUrl = $oResults->eq(0)->attr('href');
-
-		return dirname($psFragmentUrl)."/$sUrl";
-	}
 			
 	//*****************************************************************************
-	private static function pr__get_manifest(){
-		
-		//---------if its in the objstore return it
-		$aManifest = cObjStore::get_file( self::MANIFEST_PATH, self::MANIFEST_FILE);
-		if ($aManifest) return $aManifest;
+	protected function pr_generate_manifest(){
 		
 		//------------------------------------------------------
+		cDebug::write("fetching page from NASA");
 		$sHTML = self::pr__get_url(self::BASE_URL.self::MANIFEST_URL);
 		cDebug::write("building query object");
 		$oDoc = phpQuery::newDocument($sHTML);
 		
 		//------------------------------------------------------
-		$oManifest = new cRoverManifest();
-		
-		//------------------------------------------------------
 		//find all selects with name solfile.
 		cDebug::write("locating instruments");
 		$oResults = $oDoc["select[name='solFile']"];
-		$oResults->each(function($oSelect) use(&$oManifest){
+		$oParent = $this;
+		
+		$oResults->each(function($oSelect) use(&$oParent){
 			$oSelectPQ = pq($oSelect);
 			
 			//get the label
@@ -271,7 +185,7 @@ class cSpiritRover{
 			$sAbbr = cSpiritInstruments::getAbbrev($sLabel);
 			
 			//iterate the Items in the select
-			$oSelectPQ["option"]->each( function ($oOption) use (&$oManifest, $sAbbr){
+			$oSelectPQ["option"]->each( function ($oOption) use (&$oParent, $sAbbr){
 				$oOptionPQ = pq($oOption);
 				$sUrl = $oOptionPQ->attr("value");
 				
@@ -279,15 +193,10 @@ class cSpiritRover{
 				preg_match("/Sol (\d+) \((\d+)/", $sTmp, $aMatches);
 				$iSol = (int)$aMatches[1];
 				$iCount = (int)$aMatches[2];
-				$oManifest->add($iSol, $sAbbr, $iCount, $sUrl);
+				$oParent->add($iSol, $sAbbr, $iCount, $sUrl);
 			});
 		});
-		
-		ksort($oManifest->sols);
-		
-		//------------------------------------------------------
-		cObjStore::put_file( self::MANIFEST_PATH, self::MANIFEST_FILE, $oManifest);
-		return $oManifest;
-	}}
+	}
+}
 
 ?>

@@ -16,6 +16,9 @@ class cDebug{
 	public static $DEBUGGING=false;
 	public static $EXTRA_DEBUGGING=false;
 	
+	public static function is_debugging(){
+		return (self::$DEBUGGING || self::$EXTRA_DEBUGGING);
+	}
 	
 	public static function on($pbExtraDebugging = false){
 		self::$DEBUGGING=true;
@@ -44,17 +47,17 @@ class cDebug{
 			flush();
 		}
 	}
-	
+		
 	//**************************************************************************
-	public static function vardump( $poThing){
-		if (self::$EXTRA_DEBUGGING){
+	public static function vardump( $poThing, $pbForce=false){
+		if (self::$EXTRA_DEBUGGING || (self::$DEBUGGING && $pbForce)){
 			echo "<table border=1 width=100%><tr><td><PRE>";
 			var_dump($poThing);
 			echo "</PRE></td></tr></table>";
 			ob_flush();
 			flush();
 		}else
-			self::write("vardump only available in debug2");
+			self::write(__FUNCTION__." only available in debug2");
 	}
 
 	//**************************************************************************
@@ -82,9 +85,13 @@ class cDebug{
 	}
 	
 	public static function stacktrace(){
-		echo "<pre>";
-		debug_print_backtrace();
-		echo "</pre>";
+		if (self::$EXTRA_DEBUGGING || (self::$DEBUGGING && $pbForce)){
+			echo "<pre>";
+			debug_print_backtrace();
+			echo "</pre>";
+		}else
+			self::write(__FUNCTION__." only available in debug2");
+
 
 	}
 	

@@ -21,7 +21,7 @@ class cCommon{
 	public static function write_json($poThing){
 		if (cDebug::$DEBUGGING){
 			cDebug::write("json output:");
-			cDebug::vardump($poThing);
+			cDebug::vardump($poThing,true);
 		}else
 			echo json_encode($poThing );
 	}
