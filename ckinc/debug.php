@@ -15,6 +15,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 class cDebug{
 	public static $DEBUGGING=false;
 	public static $EXTRA_DEBUGGING=false;
+	private static $ENTER_DEPTH = 0;
 	
 	public static function is_debugging(){
 		return (self::$DEBUGGING || self::$EXTRA_DEBUGGING);
@@ -62,7 +63,11 @@ class cDebug{
 
 	//**************************************************************************
 	public static function error($psText){
-		self::write("<b><font size='+2'>error: $psText</font>");
+		$aCaller = self::get_caller(1);
+		$sFunc = $aCaller['function'];
+		$sClass = $aCaller['class'];
+		$sLine = $aCaller['line'];
+		self::write("<b><font size='+2'>in <font color='brick'>$sClass:$sFunc (line $sLine)</font> error: <font color='brick'>$psText</font></font></b><pre>");
 		throw new Exception($psText);
 	}
 	
@@ -91,10 +96,30 @@ class cDebug{
 			echo "</pre>";
 		}else
 			self::write(__FUNCTION__." only available in debug2");
-
-
 	}
 	
+	public static function enter( ){
+		if (self::$EXTRA_DEBUGGING){
+			$aCaller = self::get_caller(1);
+			$sFunc = $aCaller['function'];
+			$sClass = $aCaller['class'];
+			$padding = 
+			self::extra_debug("Enter ".str_repeat("----", self::$ENTER_DEPTH). "> $sClass.$sFunc");
+			self::$ENTER_DEPTH++;
+		}
+	}
+
+	public static function leave(){
+		if (self::$EXTRA_DEBUGGING){
+			self::$ENTER_DEPTH--;
+			$aCaller = self::get_caller(1);
+			$sFunc = $aCaller['function'];
+			$sClass = $aCaller['class'];
+			self::extra_debug("Leave ".str_repeat("----", self::$ENTER_DEPTH). "> $sClass.$sFunc");
+		}
+	}
 	
-	
+	public static function get_caller( $piLimit=0){
+		return debug_backtrace(0,$piLimit+2)[$piLimit+1];
+	}
 }

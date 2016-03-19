@@ -13,6 +13,10 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 uses phpQuery https://code.google.com/archive/p/phpquery/ which is Licensed under the MIT license
 
 **************************************************************************/
+require_once("$phpinc/ckinc/debug.php");
+require_once("$phpinc/ckinc/http.php");
+require_once("$phpinc/ckinc/objstore.php");
+
 class cRoverConstants{
 	const MANIFEST_PATH = "[manifest]";
 	const DETAILS_PATH = "[details]";
@@ -49,31 +53,48 @@ class cRoverSols{
 //#####################################################################
 //#####################################################################
 abstract class cRoverManifest{
+	public static $BASE_URL = null;
+	public $MISSION = null;
+	const USE_CURL = false;
+
+	//#####################################################################
+	//# PRIVATE functions
+	//#####################################################################
+	protected static function pr__get_url( $psUrl){
+		$oHttp = new cHttp();
+		$oHttp->USE_CURL = self::USE_CURL;
+		return  $oHttp->fetch_url($psUrl);
+	}
+
 	private $oSols = null;
 	protected abstract function pr_generate_manifest();
 	protected abstract function pr_generate_details($psSol, $psInstr);
 	
 	//*************************************************************************************************
+	function __construct() {
+		if (!$this->MISSION) cDebug::error("MISSION not set");
+		$sPath = $this->MISSION."/".cRoverConstants::MANIFEST_PATH;
+		$this->oSols = cObjStore::get_file( $sPath, cRoverConstants::MANIFEST_FILE);
+		if (!$this->oSols){
+			cDebug::write("generating manifest");
+			$this->pr_generate_manifest();
+			cObjStore::put_file( $sPath, cRoverConstants::MANIFEST_FILE, $this->oSols);
+		}
+	}
+		
+	//*************************************************************************************************
 	public function get_details($psSol, $psInstr){
-		$sPath  = cRoverConstants::DETAILS_PATH."/$psSol";
+		$sPath  = $this->MISSION."/".cRoverConstants::DETAILS_PATH."/$psSol";
 		$oDetails =  cObjStore::get_file( $sPath, $psInstr);
 		if ($oDetails) return $oDetails;
 		
 		//------------------------------------------------------
+		cDebug::write("generating details");
 		$oDetails = $this->pr_generate_details($psSol, $psInstr);
 		cObjStore::put_file( $sPath, $psInstr, $oDetails);
 		return $oDetails;
 	}
 	
-	//*************************************************************************************************
-	function __construct() {
-		$this->oSols = cObjStore::get_file( cRoverConstants::MANIFEST_PATH, cRoverConstants::MANIFEST_FILE);
-		if (!$this->oSols){
-			$this->pr_generate_manifest();
-			cObjStore::put_file( cRoverConstants::MANIFEST_PATH, cRoverConstants::MANIFEST_FILE, $this->oSols);
-		}
-	}
-		
 	//*************************************************************************************************
 	public function add(  $piSol, $psInstr, $piCount, $psUrl){
 		if (!$this->oSols) $this->oSols = new cRoverSols();
@@ -82,8 +103,11 @@ abstract class cRoverManifest{
 	
 	//*************************************************************************************************
 	public function get_sol_numbers(){
+		cDebug::enter(__CLASS__, __FUNCTION__);
 		if (!$this->oSols) cDebug::error("no sols");
-		return $this->oSols->get_sol_numbers();
+		$aSols = $this->oSols->get_sol_numbers();
+		cDebug::leave();
+		return $aSols;
 	}
 	
 	//*************************************************************************************************
@@ -108,6 +132,63 @@ class cRoverSol{
 
 //#####################################################################
 //#####################################################################
+abstract class cRoverInstruments{
+	private $aInstruments = [];
+	private $aInstrument_map = [];
+	
+	protected abstract function prAddInstruments();
+	
+	//********************************************************************
+	public  function getInstruments(){
+		cDebug::enter();
+		if (count($this->aInstruments)==0) 	$this->prAddInstruments();
+		cDebug::leave();
+		return $this->aInstruments;
+	}
+	
+	//*****************************************************************************
+	protected function pr_add($psName, $psAbbreviation ,$psCaption ,$psColour){
+		$aInstr = ["name"=>$psName,"colour"=>$psColour, "abbr"=>$psAbbreviation,	"caption"=>$psCaption];
+		$this->aInstruments[] = $aInstr;
+		$this->aInstrumentMap[$psName] = $aInstr;
+		$this->aInstrumentMap[$psAbbreviation] = $aInstr;
+	}
+
+	//*****************************************************************************
+	public  function getAbbreviation($psName){
+		cDebug::enter();
+		$this->getInstruments();
+		if (array_key_exists($psName,$this->aInstrumentMap)){
+			cDebug::leave();
+			return $this->aInstrumentMap[$psName]["abbr"];
+		}
+		
+		foreach ($this->aInstruments as $aInstrument)
+			if ($aInstrument["caption"] == $psName){
+				cDebug::leave();
+				return $aInstrument["abbr"];
+			}
+			
+		cDebug::error("unknown Instrument: $psName");
+	}
+	
+	//*****************************************************************************
+	public  function getInstrumentName($psAbbr){
+		cDebug::enter();
+		$this->getInstruments();
+		cDebug::leave();
+		return  $this->aInstrumentMap[$psAbbr]["name"];
+	}
+
+	//*****************************************************************************
+	public  function getDetails($psAbbr){
+		cDebug::enter();
+		$this->getInstruments();
+		cDebug::leave();
+		return  $this->aInstrumentMap[$psAbbr];
+	}
+}
+
 class cRoverInstrument{
 	public $count = -1;
 	public $url = null;

@@ -48,12 +48,16 @@ class cHttp{
 	
 	//*****************************************************************************
 	public  function fetch_url($psUrl){
-		cDebug::extra_debug(__CLASS__.".".__FUNCTION__);
+		cDebug::enter();
 		cDebug::extra_debug($psUrl);
+		
 		if ($this->USE_CURL)
-			return $this->pr__fetch_curl_url($psUrl);
+			$sHTML = $this->pr__fetch_curl_url($psUrl);
 		else
-			return $this->pr__fetch_basic_url($psUrl);
+			$sHTML = $this->pr__fetch_basic_url($psUrl);
+		
+		cDebug::leave();
+		return $sHTML;
 	}
 	
 	public function fetch_to_file($psUrl, $psPath, $pbOverwrite=false, $piTimeOut=60, $pbGzip=false){
@@ -116,7 +120,6 @@ class cHttp{
 				cDebug::error($http_response_header[0]);
 			}
 
-		cDebug::extra_debug($sHTML);
 		return $sHTML;
 	}
 	

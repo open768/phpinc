@@ -15,104 +15,45 @@ uses phpQuery https://code.google.com/archive/p/phpquery/ which is Licensed unde
 **************************************************************************/
 require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/http.php");
-require_once("$phpinc/ckinc/hash.php");
-require_once("$phpinc/ckinc/objstore.php");
 require_once("$phpinc/phpquery/phpQuery-onefile.php");
 require_once("$phpinc/nasa/rover.php");
 
 //#####################################################################
 //#####################################################################
-class cSpiritInstruments{
-	static $Instruments = null;
-	static $instrument_map = null;
+class cSpiritInstruments extends cRoverInstruments{
 	
-	//********************************************************************
-	public static function getInstruments(){
-		if (! self::$Instruments){
-			// build instrument list
-			self::$Instruments = [ 
-				["name"=>"FHAZ",	"colour"=>"red",		"abbr"=>"F",	"caption"=>"Front Hazcam"],
-				["name"=>"RHAZ",	"colour"=>"green",		"abbr"=>"R",	"caption"=>"Rear Hazcam"],
-				["name"=>"NAVCAM",	"colour"=>"steelblue",	"abbr"=>"N",	"caption"=>"Navigation Camera"],
-				["name"=>"PANCAM",	"colour"=>"lime",		"abbr"=>"P",	"caption"=>"Panoramic Camera"],
-				["name"=>"MI_IM",	"colour"=>"blue",		"abbr"=>"M",	"caption"=>"Microscopic Imager"],
-				["name"=>"ENT",		"colour"=>"white",		"abbr"=>"E",	"caption"=>"Entry"],
-				["name"=>"DES",		"colour"=>"yellow",		"abbr"=>"D",	"caption"=>"Descent"],
-				["name"=>"LAND",	"colour"=>"cyan",		"abbr"=>"L",	"caption"=>"Landing"],
-				["name"=>"EDL",		"colour"=>"tomato",		"abbr"=>"EDL",	"caption"=>"Entry, Descent, and Landing"]
-			];
-			// build associative array
-			self::$instrument_map = [];
-			foreach (self::$Instruments as $oInstr){
-				self::$instrument_map[$oInstr["name"]] = $oInstr;
-				self::$instrument_map[$oInstr["abbr"]] = $oInstr;
-			}
-			
-		}
-		return self::$Instruments;
+	protected function prAddInstruments(){
+		self::pr_add("FHAZ",	"F",	"Front Hazcam",	"red");
+		self::pr_add("RHAZ",	"R",	"Rear Hazcam",	"green");
+		self::pr_add("NAVCAM",	"N",	"Navigation Camera",	"steelblue");
+		self::pr_add("PANCAM",	"P",	"Panoramic Camera",	"lime");
+		self::pr_add("MI_IM",	"M",	"Microscopic Imager",	"blue");
+		self::pr_add("ENT",		"E",	"Entry",	"white");
+		self::pr_add("DES",		"D",	"Descent",	"yellow");
+		self::pr_add("LAND",	"L",	"Landing",	"cyan");
+		self::pr_add("EDL",		"EDL",	"Entry, Descent, and Landing",	"tomato");
 	}
 	
-	//*****************************************************************************
-	public static function getAbbrev($psName){
-		self::getInstruments();
-		if (array_key_exists($psName,self::$instrument_map))
-			return self::$instrument_map[$psName]["abbr"];
-		
-		foreach (self::$Instruments as $aInstrument)
-			if ($aInstrument["caption"] == $psName)
-				return $aInstrument["abbr"];
-			
-		cDebug::error("unknown Instrument: $psName");
-	}
-	
-	//*****************************************************************************
-	public static function getInstrumentName($psAbbr){
-		self::getInstruments();
-		return  self::$instrument_map[$psAbbr]["name"];
-	}
-
-	//*****************************************************************************
-	public static function getDetails($psAbbr){
-		self::getInstruments();
-		return  self::$instrument_map[$psAbbr];
-	}
 }
 
 //#####################################################################
 //#####################################################################
 class cSpiritRover extends cRoverManifest{
-	const BASE_URL = "http://mars.nasa.gov/mer/gallery/all/";
 	const MANIFEST_URL = "spirit.html";
-	const USE_CURL = false;
-
-	//#####################################################################
-	//# PRIVATE functions
-	//#####################################################################
-	private static function pr__get_url( $psUrl){
-		$oHttp = new cHttp();
-		$oHttp->USE_CURL = self::USE_CURL;
-		return  $oHttp->fetch_url($psUrl);
+	
+	function __construct(){
+		self::$BASE_URL = "http://mars.nasa.gov/mer/gallery/all/";
+		$this->MISSION = "SPIRIT";
+		parent::__construct();
 	}
 	
-	//*****************************************************************************
-	private static function pr__get_detail_image($psFragmentUrl){
-		//------------------------------------------------------
-		$sPageUrl = self::BASE_URL.$psFragmentUrl;
-		$sHTML = self::pr__get_url($sPageUrl);
-		cDebug::extra_debug("building query object");
-		$oDoc = phpQuery::newDocument($sHTML);
-		
-		$oResults = $oDoc["a:contains('View Full Image')"];
-		if ($oResults->length == 0) cDebug::error('couldnt find details');
-		$sUrl = $oResults->eq(0)->attr('href');
-
-		return dirname($psFragmentUrl)."/$sUrl";
-	}
 
 	//#####################################################################
 	//# implement abstract functions
 	//#####################################################################
 	protected function pr_generate_details($psSol, $psInstr){
+		cDebug::enter();
+		
 		//find the url where to get the instrument details from
 		$oSol = $this->get_sol($psSol);
 		$aInstruments = $oSol->instruments;
@@ -122,18 +63,20 @@ class cSpiritRover extends cRoverManifest{
 		cDebug::extra_debug("url is $sFragment");
 		
 		//------------------------------------------------------
-		$sHTML = self::pr__get_url(self::BASE_URL.$sFragment);
-		cDebug::extra_debug("building query object");
+		cDebug::write("fetching nasa url");
+		$sHTML = self::pr__get_url(self::$BASE_URL.$sFragment);
+		
+		cDebug::write("extracting data");
 		$oDoc = phpQuery::newDocument($sHTML);
 		
 		//------------------------------------------------------
-		cDebug::extra_debug("querying images");
+		cDebug::extra_debug("querying for images");
 		$oResults = $oDoc["a:has(img[src$=THM.JPG])"];
 		if ($oResults->length == 0) cDebug::error("nothing found");
 		cDebug::extra_debug("found  $oResults->length matches");
 
 		$aResults = [];
-		$oResults->each( function($oMatch) use (&$aResults){
+		$oResults->each( function($oMatch) use (&$aResults, $sFragment){
 			$oPQ = pq($oMatch);
 			$sDetailFragment = $oPQ->attr("href");	
 			cDebug::extra_debug("href url is $sDetailFragment<br>");
@@ -146,27 +89,31 @@ class cSpiritRover extends cRoverManifest{
 			$sThumbUrl = $oImg->attr('src');
 			cDebug::extra_debug("thumbnail  is '$sThumbUrl'<br>");
 			
-			$oImgUrl = self::pr__get_detail_image($sDetailFragment);
-			cDebug::extra_debug("image  '$oImgUrl'");
+			$sImgUrl = preg_replace("/-THM/","",$sThumbUrl);
+			cDebug::extra_debug("image  '$sImgUrl'");
 			
 			$oDetail = new cRoverImage;
-			$oDetail->source = $sDetailFragment;
+			$oDetail->source = $sFragment;
 			$oDetail->thumbnail = $sThumbUrl;
-			$oDetail->image = $oImgUrl;
+			$oDetail->image = $sImgUrl;
+			
 			$aResults[] = $oDetail;
 		});
 		
+		cDebug::leave();
 		return $aResults;
 	}
 			
 	//*****************************************************************************
 	protected function pr_generate_manifest(){
+		cDebug::enter();
 		
 		//------------------------------------------------------
 		cDebug::write("fetching page from NASA");
-		$sHTML = self::pr__get_url(self::BASE_URL.self::MANIFEST_URL);
+		$sHTML = self::pr__get_url(self::$BASE_URL.self::MANIFEST_URL);
 		cDebug::write("building query object");
 		$oDoc = phpQuery::newDocument($sHTML);
+		$oInstruments = new cSpiritInstruments();
 		
 		//------------------------------------------------------
 		//find all selects with name solfile.
@@ -174,7 +121,7 @@ class cSpiritRover extends cRoverManifest{
 		$oResults = $oDoc["select[name='solFile']"];
 		$oParent = $this;
 		
-		$oResults->each(function($oSelect) use(&$oParent){
+		$oResults->each(function($oSelect) use(&$oParent,$oInstruments){
 			$oSelectPQ = pq($oSelect);
 			
 			//get the label
@@ -182,7 +129,7 @@ class cSpiritRover extends cRoverManifest{
 			if (preg_match("/(.*):/", $sLabel, $aMatches))
 				$sLabel = $aMatches[1];
 			cDebug::write("Instrument found: $sLabel");
-			$sAbbr = cSpiritInstruments::getAbbrev($sLabel);
+			$sAbbr = $oInstruments->getAbbreviation($sLabel);
 			
 			//iterate the Items in the select
 			$oSelectPQ["option"]->each( function ($oOption) use (&$oParent, $sAbbr){
@@ -196,6 +143,7 @@ class cSpiritRover extends cRoverManifest{
 				$oParent->add($iSol, $sAbbr, $iCount, $sUrl);
 			});
 		});
+		cDebug::leave();
 	}
 }
 
