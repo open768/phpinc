@@ -37,8 +37,9 @@
 		
 		//***********************************************************************************************
 		public static function get_gigapans($psUser, $piPage){
+			cDebug::enter();
 			$oCache = new cCachedHttp();
-			$oCache->$CACHE_EXPIRY=self::GIGAPAN_CACHE;
+			$oCache->CACHE_EXPIRY=self::GIGAPAN_CACHE;
 			
 			//get the json data
 			$sUrl = sprintf(self::USER_EXPR , $piPage, $psUser);
@@ -70,6 +71,7 @@
 				]
 			];
 			
+			cDebug::leave();
 			return $aData;
 		}
 	}

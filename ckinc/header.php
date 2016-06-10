@@ -14,10 +14,24 @@ class cHeader{
 			if ($sPath === "$sThis.html"){
 				$sRedir = "$sThis.php?". $aRef["query"];
 				$_SERVER['HTTP_REFERER'] = null;
-				header("Location: $sRedir");
+				self::redirect($sRedir);
 				exit;
 			}
 		}
+	}
+	
+	//*******************************************************************
+	public static function redirect($psUrl){
+		if (cDebug::is_debugging()){
+			cDebug::write("Redirect stopped: $psUrl");
+			exit;
+		}
+		if (headers_sent()){
+			?><script language="javascript">
+				document.location = "<?=$psUrl?>";
+			</script><?php
+		}else	
+			header("Location: $psUrl");
 	}
 	
 	//*******************************************************************
@@ -35,23 +49,68 @@ class cHeader{
 	
 	//*******************************************************************
 	public static function get($psKey){
+		$sValue = null;
 		if (isset( $_GET[$psKey]))
-			return ($_GET[$psKey]);
-			
-		if (isset( $_POST[$psKey]))
-			return ($_POST[$psKey]);
-			
-		cDebug::write("key:$psKey not found in GET or POST");
-		return null;
+			$sValue = $_GET[$psKey];
+		else if (isset( $_POST[$psKey]))
+			$sValue = $_POST[$psKey];
+		else
+			cDebug::extra_debug("key:$psKey not found in GET or POST");
+		
+		while (strstr($sValue,"%")){
+			$sDecoded = urldecode($sValue);	//reverse proxy double encodes strings
+			if ($sDecoded == $sValue) 
+				break;
+			$sValue = $sDecoded;
+		}
+		return $sValue;
 	}
 	
+	//*******************************************************************
 	//from http://snipplr.com/view.php?codeview&id=2734
 	public static function get_server()
 	{
-		$s = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
-		$protocol = substr(strtolower($_SERVER["SERVER_PROTOCOL"]), 0, strpos(strtolower($_SERVER["SERVER_PROTOCOL"]), "/")) . $s;
-		$port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":".$_SERVER["SERVER_PORT"]);
-		return $protocol . "://" . $_SERVER['SERVER_NAME'] . $port;
+		$sServerName = ( empty($_SERVER["HTTP_X_FORWARDED_SERVER"])?$_SERVER['SERVER_NAME']:$_SERVER["HTTP_X_FORWARDED_SERVER"]);
+		$sPort = ( empty($_SERVER["HTTP_X_FORWARDED_PORT"])?$_SERVER['SERVER_PORT']:$_SERVER["HTTP_X_FORWARDED_PORT"]);
+	
+		if (!empty ($_SERVER["HTTP_X_FORWARDED_PROTO"] ))
+			$sProto = $_SERVER["HTTP_X_FORWARDED_PROTO"];
+		else{
+			$aSplit = explode("/", $_SERVER['SERVER_PROTOCOL']);
+			$sProto = $aSplit[0];
+		}
+		$sProto = strtolower($sProto);
+		
+		if ($sProto == "https") {
+			$sPort = ($sPort=="443"?"":":$sPort");
+		}else{
+			$sPort = ($sPort=="80"?"":":$sPort");
+		}
+
+
+		return $sProto . "://$sServerName$sPort";
+	}
+	
+	//*******************************************************************
+	public static function get_page_url(){
+		$sServer = self::get_server();
+		
+		return $sServer.$_SERVER["SCRIPT_NAME"];
+	}
+	
+
+	//*******************************************************************
+	public static function set_download_filename($psFilename){
+		if (cDebug::is_debugging()){
+			cDebug::write("download file would have been set to $psFilename");
+			return;
+		}
+		
+		if (headers_sent()) cDebug::error("Cant set filename, headers sent");
+		header("Content-type: text/csv");
+		header("Content-Disposition: attachment;filename=$psFilename");
+		header("Pragma: no-cache");
+		header("Expires: 0");
 	}
 }
 ?>

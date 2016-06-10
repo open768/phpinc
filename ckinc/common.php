@@ -13,13 +13,25 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 **************************************************************************/
 
 require_once("$phpinc/ckinc/debug.php");
+require_once("$phpinc/ckinc/header.php");
 
 class cCommon{
 	public static $SHOW_PROGRESS=TRUE;
+	const SECONDS_IN_MONTH = 31*24*60*60;
+	const ENGLISH_DATE_FORMAT = "d/m/Y H:i";
+	const EXCEL_DATE_FORMAT = "Y-m-d H:i:s";
+	const RGRAPH_DATE_FORMAT = "Y-m-d\TH:i:s";
+	const MINS_IN_HOUR = 60;
+	const HOUR_IN_DAY = 24;
+	const MINS_IN_DAY = self::HOUR_IN_DAY * self::MINS_IN_HOUR;
+	const DAY_IN_WEEK = 7;
+	const MINS_IN_WEEK = self::MINS_IN_DAY * self::DAY_IN_WEEK;
+	const MINS_IN_MONTH = self::MINS_IN_DAY * 31;
+	const PROGRESS_CHAR = "&#8667;";
 	
 	//**************************************************************************
 	public static function write_json($poThing){
-		if (cDebug::$DEBUGGING){
+		if (cDebug::is_debugging()){
 			cDebug::write("json output:");
 			cDebug::vardump($poThing,true);
 		}else
@@ -50,12 +62,34 @@ class cCommon{
 	} 
 	
 	//**************************************************************************
-	public static function flushprint($psWhat){
+	public static function flushprint($psWhat=self::PROGRESS_CHAR){
 		
 		if (self::$SHOW_PROGRESS){
 			print $psWhat;
 			flush();ob_flush();
 		}
 	}
+	
+	//**************************************************************************
+	public static function echo($psWhat){
+		echo "$psWhat\n";
+		if (cDebug::is_debugging()) echo "<br>";
+	}
 
+	//**************************************************************************
+	public static function get_session($psKey){	
+		global $_SESSION;
+		
+		if(isset($_SESSION[$psKey]))
+			return $_SESSION[$psKey];
+		else
+			return "";
+	}
+	
+	//**************************************************************************
+	public static function reformat_date($psDate, $psOldFormat, $psNewFormat){
+		$oDate = DateTime::createFromFormat($psOldFormat, $psDate);
+		return $oDate->format($psNewFormat);
+	}
+	
 }

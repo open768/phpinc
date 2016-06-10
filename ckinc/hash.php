@@ -27,32 +27,9 @@ class cHash{
 	public static $show_hashes = false;
 	public static $show_cache_hit = false;
 	
-	//************************************************************************
-	public static function hash($psAnything){
-		//unique md5 - impossible that the reverse hash is the same as hash
-		return  md5($psAnything).md5(strrev($psAnything));
-	}
-	
-	//************************************************************************
-	public static function delete_hash($psHash){
-		if (self::exists($psHash)){
-			$sFile = self::getPath($psHash);
-			cDebug::write("deleting hash $psHash");
-			unlink($sFile);
-		}
-	}
-	
-	//************************************************************************
-	public static function get_folder($psHash){
-		global $root;
-		
-		$d1=substr($psHash,0,2);
-		$d2=substr($psHash,2,2);
-		return "$root/".self::HASH_FOLDER."/$d1/$d2";
-	}
-	
-	//************************************************************************
-	public static function exists($psHash){
+	//####################################################################
+	//####################################################################
+	private static function pr__exists_hash($psHash){
 		$sFile = self::getPath($psHash);
 		$bExists = file_exists($sFile);
 		if (self::$show_hashes) cDebug::write("hash: $bExists - $psHash");
@@ -69,6 +46,32 @@ class cHash{
 		
 		return $bExists;
 	}
+	
+	//####################################################################
+	//####################################################################
+	public static function hash($psAnything){
+		//unique md5 - impossible that the reverse hash is the same as hash
+		return  md5($psAnything).md5(strrev($psAnything));
+	}
+	
+	//************************************************************************
+	public static function delete_hash($psHash){
+		if (self::pr__exists_hash($psHash)){
+			$sFile = self::getPath($psHash);
+			cDebug::write("deleting hash $psHash");
+			unlink($sFile);
+		}
+	}
+	
+	//************************************************************************
+	public static function get_folder($psHash){
+		global $root;
+		
+		$d1=substr($psHash,0,2);
+		$d2=substr($psHash,2,2);
+		return "$root/".self::HASH_FOLDER."/$d1/$d2";
+	}
+	
 	
 	//************************************************************************
 	public static function getPath($psHash){
@@ -92,7 +95,7 @@ class cHash{
 	//************************************************************************
 	public static function put_obj( $psHash, $poObj, $pbOverwrite=false){
 		$sFile = self::getPath($psHash);
-		if (!$pbOverwrite && self::exists($psHash))
+		if (!$pbOverwrite && self::pr__exists_hash($psHash))
 			cDebug::error("hash exists: $psHash");
 		else{
 			self::make_hash_folder($psHash);
@@ -103,7 +106,7 @@ class cHash{
 	//************************************************************************
 	public static function get_obj( $psHash){
 		$oResponse = null;
-		if (self::exists($psHash)){
+		if (self::pr__exists_hash($psHash)){
 			if (self::$show_cache_hit) cDebug::write("exists in cache");
 			$sFile = self::getPath($psHash);
 			cDebug::extra_debug("$sFile");
@@ -124,5 +127,11 @@ class cHash{
 	public static function put($psAnything, $poObj, $pbOverwrite=false){
 		$sHash = self::hash($psAnything);
 		return self::put_obj($sHash, $poObj, $pbOverwrite);
+	}
+	
+	//************************************************************************
+	public static function exists($psAnything){
+		$sHash = self::hash($psAnything);
+		return self::pr__exists_hash($sHash);
 	}
 }

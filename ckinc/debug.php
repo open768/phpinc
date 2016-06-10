@@ -13,12 +13,18 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 **************************************************************************/
 
 class cDebug{
-	public static $DEBUGGING=false;
-	public static $EXTRA_DEBUGGING=false;
+	private static $DEBUGGING=false;
+	private static $EXTRA_DEBUGGING=false;
+	public static $IGNORE_CACHE = false;
+	
 	private static $ENTER_DEPTH = 0;
 	
 	public static function is_debugging(){
-		return (self::$DEBUGGING || self::$EXTRA_DEBUGGING);
+		return (self::$DEBUGGING || self::is_extra_debugging());
+	}
+	
+	public static function is_extra_debugging(){
+		return self::$EXTRA_DEBUGGING;
 	}
 	
 	public static function on($pbExtraDebugging = false){
@@ -41,7 +47,7 @@ class cDebug{
 		}
 	}
 	public static function write($poThing){
-		if (self::$DEBUGGING){
+		if (self::is_debugging()){
 			$sDate = date('d-m-Y H:i:s');
 			echo "<p><font color=red><code>$sDate: $poThing</code></font><p>";
 			ob_flush();
@@ -63,10 +69,14 @@ class cDebug{
 
 	//**************************************************************************
 	public static function error($psText){
-		$aCaller = self::get_caller(1);
-		$sFunc = $aCaller['function'];
-		$sClass = $aCaller['class'];
-		$sLine = $aCaller['line'];
+		try{
+			$aCaller = self::get_caller(1);
+			$sFunc = $aCaller['function'];
+			$sClass = $aCaller['class'];
+			$sLine = $aCaller['line'];
+		}
+		catch (Exception $e)
+		{}
 		self::write("<b><font size='+2'>in <font color='brick'>$sClass:$sFunc (line $sLine)</font> error: <font color='brick'>$psText</font></font></b><pre>");
 		throw new Exception($psText);
 	}
@@ -76,17 +86,25 @@ class cDebug{
 		global $_GET, $_POST;
 		
 		if (isset($_GET["debug"]) || isset($_POST["debug"])){
-			self::$DEBUGGING = true;
+			self::on();
 			self::write("Debugging is on");
 		}
 		
+		
 		if (isset($_GET["debug2"]) || isset($_POST["debug2"])){
-			self::$EXTRA_DEBUGGING = true;
-			self::$DEBUGGING = true;
+			self::on(true);
+			self::write("Extra debugging is on");
 		}elseif (self::$DEBUGGING){
 			self::write("for extra debugging use debug2");
 		}
 		
+		if (isset($_GET["nocache"]) || isset($_POST["nocache"])){
+			if (!self::$DEBUGGING) self::error("cant use nocache without debug");
+				
+			self::$IGNORE_CACHE = true;
+			self::write("ignore cache is on");
+		}else
+			self::write("nocache option is available");
 	}
 	
 	public static function stacktrace(){
@@ -104,7 +122,7 @@ class cDebug{
 			$sFunc = $aCaller['function'];
 			$sClass = $aCaller['class'];
 			$padding = 
-			self::extra_debug("Enter ".str_repeat("----", self::$ENTER_DEPTH). "> $sClass.$sFunc");
+			self::extra_debug("<font color='grey' face='courier' size=2>Enter ".str_repeat("----", self::$ENTER_DEPTH). "> $sClass.$sFunc</font>");
 			self::$ENTER_DEPTH++;
 		}
 	}
@@ -115,11 +133,11 @@ class cDebug{
 			$aCaller = self::get_caller(1);
 			$sFunc = $aCaller['function'];
 			$sClass = $aCaller['class'];
-			self::extra_debug("Leave ".str_repeat("----", self::$ENTER_DEPTH). "> $sClass.$sFunc");
+			self::extra_debug("<font color='grey' face='courier' size=2>Leave ".str_repeat("----", self::$ENTER_DEPTH). "> $sClass.$sFunc</font>");
 		}
 	}
 	
 	public static function get_caller( $piLimit=0){
-		return debug_backtrace(0,$piLimit+2)[$piLimit+1];
+		return @debug_backtrace(0,$piLimit+2)[$piLimit+1];
 	}
 }

@@ -25,7 +25,7 @@ class cHttp{
 	//*****************************************************************************
 	public function set_credentials($psUserName, $psPassword){
 		$this->authenticate = true;
-		cDebug::extra_debug("setting credentials: user=$psUserName pass=$psPassword");
+		cDebug::extra_debug("setting credentials: user=$psUserName pass=**********");
 		$this->username = $psUserName;
 		$this->password = $psPassword;
 	}
@@ -124,6 +124,41 @@ class cHttp{
 	}
 	
 	//############################################################################
+	//#  URL Building functions
+	//############################################################################
+	public static function build_qs($psBase, $psQueryParam, $psQueryValue = null){
+		if ($psQueryParam == "") return $psBase;
+
+		$sUrl = $psBase;
+		if ($sUrl == null) $sUrl = "";
+		if (($sUrl !== "") && (substr($sUrl, -1) !== "?"))	$sUrl .= "&";
+		$sUrl .= $psQueryParam;
+		if ($psQueryValue) $sUrl .= "=$psQueryValue";
+		
+		return $sUrl;
+	}
+	
+	public static function build_url($psBase, $psQueryParam, $psQueryValue = null){
+		if (($psBase == null) || ($psBase == "")) cDebug::error("base url cant be empty");
+		$sUrl = $psBase;
+		if (strpos($sUrl,"?")==false) 	$sUrl .= "?";
+		$sUrl = self::build_qs($sUrl, $psQueryParam, $psQueryValue);
+			
+		return $sUrl;
+	}
+
+	//*******************************************************************
+	public static function page_matches($psUrl){
+		$sPageUrl = cHeader::get_page_url();
+		
+		$aCurrent = (object) parse_url( $sPageUrl);
+		$aInput = (object) parse_url($psUrl);
+		
+		//fudged for reverse proxy
+		return (strpos($aInput->path, $aCurrent->path) >=0);
+	}
+	
+	//############################################################################
 	//#
 	//#  CURL functions
 	//#
@@ -134,7 +169,7 @@ class cHttp{
 		$oCurl->setopt( CURLOPT_FAILONERROR, 1);
 		$oCurl->setopt( CURLOPT_RETURNTRANSFER, 1);
 		$oCurl->setopt( CURLOPT_FOLLOWLOCATION, true);
-		if (cDebug::$EXTRA_DEBUGGING){
+		if (cDebug::is_extra_debugging()){
 			cDebug::extra_debug("enabling CURL_verbosity");
 			$oCurl->setopt( CURLOPT_VERBOSE, 1);
 		}
