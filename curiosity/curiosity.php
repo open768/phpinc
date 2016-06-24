@@ -12,7 +12,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 **************************************************************************/
 
 require_once("$phpinc/ckinc/cached_http.php");
-require_once("$phpinc/ckinc/mission.php");
+require_once("$phpinc/space/mission.php");
 require_once("$phpinc/curiosity/instrument.php");
 require_once("$phpinc/curiosity/curiositypds.php");
 

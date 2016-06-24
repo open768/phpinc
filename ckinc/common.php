@@ -92,4 +92,8 @@ class cCommon{
 		return $oDate->format($psNewFormat);
 	}
 	
+	public static function strip_non_printing($psIn){
+		return preg_replace('/[\x00-\x1F\x80-\x9F]/u', '', $psIn);
+	}
+	
 }

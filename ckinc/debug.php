@@ -16,6 +16,8 @@ class cDebug{
 	private static $DEBUGGING=false;
 	private static $EXTRA_DEBUGGING=false;
 	public static $IGNORE_CACHE = false;
+	const DEBUG_STR = "debug";
+	const DEBUG2_STR = "debug2";
 	
 	private static $ENTER_DEPTH = 0;
 	
@@ -85,13 +87,13 @@ class cDebug{
 	public static function check_GET_or_POST(){
 		global $_GET, $_POST;
 		
-		if (isset($_GET["debug"]) || isset($_POST["debug"])){
+		if (isset($_GET[self::DEBUG_STR]) || isset($_POST[self::DEBUG_STR])){
 			self::on();
 			self::write("Debugging is on");
 		}
 		
 		
-		if (isset($_GET["debug2"]) || isset($_POST["debug2"])){
+		if (isset($_GET[self::DEBUG2_STR]) || isset($_POST[self::DEBUG2_STR])){
 			self::on(true);
 			self::write("Extra debugging is on");
 		}elseif (self::$DEBUGGING){

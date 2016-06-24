@@ -56,21 +56,11 @@ abstract class cRoverManifest{
 	public static $BASE_URL = null;
 	public $MISSION = null;
 	const USE_CURL = false;
-
-	//#####################################################################
-	//# PRIVATE functions
-	//#####################################################################
-	protected static function pr__get_url( $psUrl){
-		$oHttp = new cHttp();
-		$oHttp->USE_CURL = self::USE_CURL;
-		return  $oHttp->fetch_url($psUrl);
-	}
-
 	private $oSols = null;
-	protected abstract function pr_generate_manifest();
-	protected abstract function pr_generate_details($psSol, $psInstr);
-	
-	//*************************************************************************************************
+
+	//#####################################################################
+	//# constructor
+	//#####################################################################
 	function __construct() {
 		if (!$this->MISSION) cDebug::error("MISSION not set");
 		$sPath = $this->MISSION."/".cRoverConstants::MANIFEST_PATH;
@@ -82,7 +72,15 @@ abstract class cRoverManifest{
 		}
 	}
 		
-	//*************************************************************************************************
+	//#####################################################################
+	//# abstract functions
+	//#####################################################################
+	protected abstract function pr_generate_manifest();
+	protected abstract function pr_generate_details($psSol, $psInstr);
+	
+	//#####################################################################
+	//# PUBLIC functions
+	//#####################################################################
 	public function get_details($psSol, $psInstr){
 		$sPath  = $this->MISSION."/".cRoverConstants::DETAILS_PATH."/$psSol";
 		$oDetails =  cObjStore::get_file( $sPath, $psInstr);
@@ -103,7 +101,7 @@ abstract class cRoverManifest{
 	
 	//*************************************************************************************************
 	public function get_sol_numbers(){
-		cDebug::enter(__CLASS__, __FUNCTION__);
+		cDebug::enter();
 		if (!$this->oSols) cDebug::error("no sols");
 		$aSols = $this->oSols->get_sol_numbers();
 		cDebug::leave();
@@ -115,6 +113,16 @@ abstract class cRoverManifest{
 		if (!$this->oSols) cDebug::error("no sols");
 		return $this->oSols->get_sol($piSol);
 	}
+
+	//#####################################################################
+	//# PRIVATE functions
+	//#####################################################################
+	protected static function pr__get_url( $psUrl){
+		$oHttp = new cHttp();
+		$oHttp->USE_CURL = self::USE_CURL;
+		return  $oHttp->fetch_url($psUrl);
+	}
+
 }
 
 //#####################################################################
