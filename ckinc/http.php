@@ -32,8 +32,10 @@ class cHttp{
 
 	//*****************************************************************************
 	public function getJson($psURL){
+		cDebug::enter();
 		$response = $this->fetch_url($psURL);
 		$oResponse = json_decode($response);
+		cDebug::leave();
 		
 		return $oResponse;
 	}
