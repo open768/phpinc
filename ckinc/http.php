@@ -98,10 +98,10 @@ class cHttp{
 	//############################################################################
 	//#
 	//############################################################################
-	private function pr__fetch_basic_url($psUrl){
+	private function pr__fetch_basic_url($psUrl , $pbAllowNull = true){
 		global $http_response_header;
 		
-		cDebug::extra_debug(__CLASS__.".".__FUNCTION__);
+		cDebug::enter();
 		$sHTML = null;
 
 		$oContext = null;
@@ -116,12 +116,21 @@ class cHttp{
 				"ssl"=> ["verify_peer"=>false,"verify_peer_name"=>false]
 			]);
 		
-		$sHTML = @file_get_contents($psUrl, false, $oContext);
-			if(!strpos($http_response_header[0], "200")){
-				cDebug::vardump($http_response_header);
-				cDebug::error($http_response_header[0]);
-			}
-
+		try{
+			$sHTML = file_get_contents($psUrl, false, $oContext);
+		}catch(Exception $e){
+			cDebug::error("couldnt get url $psUrl : $e");
+		}
+		
+		if(!strpos($http_response_header[0], "200")){
+			cDebug::vardump($http_response_header);
+			cDebug::error($http_response_header[0]);
+		}
+		
+		if ($sHTML == null && !$pbAllowNull)
+			cDebug::error("null response received : ");
+		
+		cDebug::leave();
 		return $sHTML;
 	}
 	

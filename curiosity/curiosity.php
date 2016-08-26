@@ -12,8 +12,9 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 **************************************************************************/
 
 require_once("$phpinc/ckinc/cached_http.php");
-require_once("$phpinc/space/mission.php");
+require_once("$phpinc/ckinc/mission.php");
 require_once("$phpinc/curiosity/instrument.php");
+require_once("$phpinc/curiosity/static.php");
 require_once("$phpinc/curiosity/curiositypds.php");
 
 
@@ -194,6 +195,7 @@ class cCuriosity implements iMission{
 	
 	//*****************************************************************************
 	public static function getSolData($psSol, $psInstrument=null, $pbThumbs=false){
+		cDebug::enter();
 		$oJson = self::getAllSolData($psSol);
 		$oInstrument = new cInstrument($psInstrument);
 		
@@ -205,6 +207,8 @@ class cCuriosity implements iMission{
 			if (( !$psInstrument) || ($sInstrument === $psInstrument))
 				$oInstrument->add($oItem, $pbThumbs);
 		}
+		
+		cDebug::leave();
 		return $oInstrument;
 	}
 	
@@ -267,6 +271,7 @@ class cCuriosity implements iMission{
 	//*****************************************************************************
 	public static function getLocalThumbnail($psSol, $psInstrument, $psProduct){
 		global $root;
+		cDebug::enter();
 		$sRelative = self::LOCAL_THUMB_FOLDER."/$psSol/$psInstrument/$psProduct.jpg";
 		$sPath = "$root/$sRelative";
 		
@@ -307,12 +312,14 @@ class cCuriosity implements iMission{
 		
 		cDebug::write("<img src='../../$sRelative'>");
 		$oDetails = [ "s"=>$psSol, "i"=>$psInstrument, "p"=>$psProduct, "u"=>$sRelative];
+		cDebug::leave();
 		return $oDetails;
 	}
 
 	//*****************************************************************************
 	private static function pr__GetInstrumentImageDetails( $paInstrumentImages, $psProduct){
 		$oDetails =null;
+		cDebug::enter();
 
 		cDebug::write("looking for $psProduct");
 		$iCount = count($paInstrumentImages);
@@ -326,6 +333,7 @@ class cCuriosity implements iMission{
 		}
 		//if nothing found
 
+		cDebug::leave();
 		if ($oDetails == null )	
 			return null;
 		else
@@ -334,11 +342,11 @@ class cCuriosity implements iMission{
 	
 	//*****************************************************************************
 	public static function getProductDetails($psSol, $psInstrument, $psProduct){
-		
+		cDebug::enter();
 		//check if the instrument might be an abbreviation
 		$sInstr = cInstrument::getInstrumentName($psInstrument);
 		$aOutput = ["s"=>$psSol, "i"=>$sInstr, "p"=>$psProduct, "d"=>null, "max"=>null, "item"=>null, "migrate"=>null];
-;
+
 		//get the data
 		$oInstrumentData = self::getSolData($psSol, $sInstr);
 		$aInstrumentImages=$oInstrumentData->data;
@@ -354,17 +362,16 @@ class cCuriosity implements iMission{
 			}else{
 				cDebug::vardump($oPDSData );
 				$aOutput["migrate"] = $oPDSData["p"];
-				//start the migration
+				//**** TODO **** start the migration
 			}
 		}else{
 			$aOutput["d"] = $oDetails["d"];
 			$aOutput["max"] = $oDetails["max"];
 			$aOutput["item"] = $oDetails["item"];
 		}
-
-		
 			
 		//return the result
+		cDebug::leave();
 		return $aOutput;
 	}
 }

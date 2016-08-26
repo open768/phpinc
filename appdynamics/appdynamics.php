@@ -96,6 +96,7 @@ function cDetails_sorter($po1, $po2){
 class cAppDyn{
 	const APPDYN_LOGO = 'adlogo.jpg';
 	public static $SHOW_PROGRESS = true;
+	private static $maAppNodes = null;
 	
 	private static function pr_flushprint($psChar = cCommon::PROGRESS_CHAR){
 		if (self::$SHOW_PROGRESS) cCommon::flushprint($psChar);
@@ -128,6 +129,11 @@ class cAppDyn{
 		return $aServices;
 	}
 	
+	//*****************************************************************
+	public static function GET_wildcardData( $psApp, $psMetric, $poTimes){
+		return cAppdynCore::GET_MetricData($psApp, $psMetric, $poTimes,"true",false,true);
+	}
+	
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* applications
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -137,6 +143,8 @@ class cAppDyn{
 
 	//*****************************************************************
 	public static function GET_AppNodes($piAppID){
+		if (self::$maAppNodes != null) return self::$maAppNodes;
+		
 		$aResponse = cAppDynCore::GET("$piAppID/nodes?");
 		
 		$aOutput = [];
@@ -146,6 +154,8 @@ class cAppDyn{
 			$aOutput[(string)$iMachineID][] = $oNode;
 		}
 		ksort($aOutput );
+		self::$maAppNodes = $aOutput;
+		
 		return $aOutput;
 	}
 	
@@ -181,7 +191,7 @@ class cAppDyn{
 		$sMetricPath= cAppDynMetric::webrumPages();
 		return cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricPath, false);
 	}
-	
+		
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* Databases
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -270,31 +280,7 @@ class cAppDyn{
 		return $aResults;
 	}
 	
-	//*****************************************************************
-	public static function GET_TransCalls($psApp, $psTier, $psTrans, $poTimes, $psRollup){
-		$sMetricpath = cAppdynMetric::transCallsPerMin($psTier, $psTrans);
-		$oData = cAppdynCore::GET_MetricData($psApp, $sMetricpath, $poTimes,$psRollup);
-		return $oData;
-	}
 
-	//*****************************************************************
-	public static function GET_TransResponse($psApp, $psTier, $psTrans, $poTimes, $psRollup){
-		cDebug::enter();
-		$sMetricpath = cAppdynMetric::transResponseTimes($psTier, $psTrans);
-		cDebug::extra_debug("metric <i>$sMetricpath</i>");
-		$oData = cAppdynCore::GET_MetricData($psApp, $sMetricpath, $poTimes,$psRollup,false,true);
-		cDebug::leave();
-		return $oData;
-	}
-
-	//*****************************************************************
-	public static function GET_TransErrors($psApp, $psTier, $psTrans, $poTimes, $psRollup){
-		
-		$sMetricpath = cAppdynMetric::transErrors($psTier, $psTrans);
-		cDebug::extra_debug("metric $sMetricpath");
-		$oData = cAppdynCore::GET_MetricData($psApp, $sMetricpath, $poTimes,$psRollup);
-		return $oData;
-	}
 
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* tiers
@@ -587,11 +573,11 @@ class cAppDyn{
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	// Snapshots
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_snaphot_info($psApp, $psTierID, $psTransID, $poTimes){
+	public static function GET_snaphot_info($psApp, $psTransID, $poTimes){
 		$psApp = rawurlencode($psApp);
 		$sUrl = cHttp::build_url("$psApp/request-snapshots", cAppdynUtil::controller_time_command($poTimes));
 		$sUrl = cHttp::build_url($sUrl, "application_name", $psApp);
-		$sUrl = cHttp::build_url($sUrl, "application-component-ids", $psTierID);
+		//$sUrl = cHttp::build_url($sUrl, "application-component-ids", $psTierID);
 		$sUrl = cHttp::build_url($sUrl, "business-transaction-ids", $psTransID);
 		$sUrl = cHttp::build_url($sUrl, "output", "JSON");
 		return cAppDynCore::GET($sUrl);

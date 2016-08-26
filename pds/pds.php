@@ -23,15 +23,21 @@ class cPDS{
 	
 	//**********************************************************************
 	private static function pr__get_objstore_Folder($psSol, $psInstrument){
+		cDebug::enter();
 		$sFolder = self::OBJDATA_TOP_FOLDER."/$psSol/$psInstrument";
 		cDebug::write("PDS folder: $sFolder");
+		cDebug::leave();
 		return $sFolder;
 	}
 	
 	//**********************************************************************
 	public static function get_pds_data($psSol, $psInstrument){
+		cDebug::enter();
 		$sFolder = self::pr__get_objstore_Folder($psSol,$psInstrument);
-		return cObjStore::get_file($sFolder, cIndexes::get_filename(cIndexes::INSTR_PREFIX, self::PDS_SUFFIX));
+		$oData = cObjStore::get_file($sFolder, cIndexes::get_filename(cIndexes::INSTR_PREFIX, self::PDS_SUFFIX));
+		cDebug::leave();
+
+		return $oData; 
 	}
 	
 	//**********************************************************************

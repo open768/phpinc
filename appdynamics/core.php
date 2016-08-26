@@ -145,7 +145,7 @@ class cAppDynCore{
 		$caption = "default";
 		$epoch = time();
 		
-		$duration = get_duration();
+		$duration = cAppDynCommon::get_duration();
 		switch($duration){
 			case 15:
 				$caption = "last_15_mins";

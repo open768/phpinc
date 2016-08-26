@@ -12,4 +12,6 @@ test/
 phpquery/Google Code Archive - Long-term storage for Google Code Project Hosting-.url
 phpquery/phpQuery-onefile.php
 pubsub/
+phpshell/
+phpminify/
 *.lnk

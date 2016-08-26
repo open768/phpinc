@@ -18,7 +18,7 @@ require_once("$phpinc/ckinc/header.php");
 
 
 $SHOW_PROGRESS=false;
-$duration = get_duration();
+$duration = cAppDynCommon::get_duration();
 $aData=array();
 $CSV_HEADER=true;
 

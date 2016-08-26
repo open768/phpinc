@@ -42,6 +42,7 @@ class cAppDynCredentials{
 	public $restricted_login = null;
 	private $mbLogged_in = false;
 	
+	//**************************************************************************************
 	function load(){
 		$sAAcc = cCommon::get_session(self::ACCOUNT_KEY);
 		if(!$sAAcc) cDebug::error("Couldnt get account from session");
@@ -63,9 +64,12 @@ class cAppDynCredentials{
 		$this->use_https = $bUse_https;
 
 		$this->restricted_login = cCommon::get_session(self::RESTRICTED_LOGIN_KEY);
-		$this->mbLogged_in = cCommon::get_session(self::LOGGEDIN_KEY);
+		$this->mbLogged_in = cCommon::get_session(self::LOGGEDIN_KEY);  
+		//TODO should we really trust this, should be more secure than just a session variable
 }
 	
+	//**************************************************************************************
+	//this performs the login
 	public function save(){
 		cDebug::write("saving");
 		$_SESSION[self::HOST_KEY]  = $this->host;
@@ -79,8 +83,10 @@ class cAppDynCredentials{
 		$oResponse = cAppDyn::GET_Applications();
 		cDebug::write("logged in");
 		$_SESSION[self::LOGGEDIN_KEY] = true;
+		$this->mbLogged_in = true;
 	}
 
+	//**************************************************************************************
 	public function logged_in(){
 		if (!$this->mbLogged_in)
 			cDebug::error("not logged in");
@@ -91,9 +97,39 @@ class cAppDynCredentials{
 		return true;
 	}
 
+	//**************************************************************************************
 	public static function clear_session(){
 		@session_destroy ();
 		session_start ();
+	}
+
+	//**************************************************************************************
+	public static function get_login_token(){
+		cDebug::ENTER();
+		
+		//------------- check login credentials --------------------------
+		$oCred = new cAppDynCredentials;
+		$oCred->load();
+		if (!$oCred->logged_in()) cDebug::error("must be logged in");
+		if ($oCred->restricted_login) cDebug::error("token not available in restricted login");
+		
+		//------------- generate the token --------------------------------
+		$sKey = cCommon::my_IP_address(). $oCred->host.$oCred->account.$oCred->username;
+		$sHash = cHash::hash($sKey);
+		cDebug::write("Key is $sKey, hash is $sHash");
+		cHash::put_obj($sHash, $oCred, true );
+			
+		return $sHash;
+	}
+	
+	//**************************************************************************************
+	public static function login_with_token($psToken ){
+		$oCred = cHash::get_obj($psToken);
+		if ($oCred == null) cDebug::error("token not found");
+		if (get_class($oCred) !== "cAppDynCredentials") cDebug::error("unexpected class");
+
+		//perform the login
+		$oCred->save();
 	}
 }
 ?>

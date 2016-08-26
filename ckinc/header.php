@@ -112,5 +112,10 @@ class cHeader{
 		header("Pragma: no-cache");
 		header("Expires: 0");
 	}
+	
+	//*******************************************************************
+	public static function get_referer(){
+		return $_SERVER["HTTP_REFERER"];		
+	}
 }
 ?>

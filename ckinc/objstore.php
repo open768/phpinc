@@ -53,8 +53,8 @@ class cObjStore{
 		$num_args = func_num_args();
 		if ($num_args != 2) cDebug::error("get_file: incorrect number of arguments - expected 2 got $num_args ");
 		
-		//cDebug::write("looking for file:$psFile in folder:$psFolder");
 		$sFolder = self::pr_get_folder_path( $psFolder);
+		//cDebug::extra_debug("looking for file:$psFile in folder:$sFolder");
 		if (!is_dir($sFolder)){
 			cDebug::extra_debug("no objstore data at all in folder: $psFolder");
 			return $aData;

@@ -26,12 +26,57 @@ class cCallsAnalysis{
     public $max, $min, $avg, $sum, $count, $extCalls;
 }
 
+//#################################################################
+//# 
+//#################################################################
+class cAppDynTransFlow{
+	public $name = null;
+	public $children = [];
+	
+	//*****************************************************************
+	public function walk($psApp, $psTier, $psTrans){
+		cDebug::enter();
+		
+		$sMetricPath = cAppDynMetric::transExtNames($psTier, $psTrans);
+		$this->walk_metric($psApp, $sMetricPath);
+		$this->name = $psTrans;
+		
+		cDebug::leave();
+	}
+
+	//*****************************************************************
+	protected function walk_metric($psApp, $psMetricPath){
+		cDebug::enter();
+
+		$aCalls = cAppdynCore::GET_Metric_heirarchy($psApp, $psMetricPath, false);
+		cDebug::write($psMetricPath);
+		
+		foreach ($aCalls as $oCall)
+			if ($oCall->type == "folder") {
+				$sMetricPath = $psMetricPath . "|".$oCall->name."|".cAppDynMetric::EXT_CALLS;
+				
+				$oChild = new cAppDynTransFlow();
+				$this->children[] = $oChild;
+				$oChild->name = $oCall->name;
+				$oChild->walk_metric($psApp, $sMetricPath);
+				
+			}
+			
+		cDebug::leave();
+	}
+	
+	//*****************************************************************
+	private function pr_add_children($psApp, $psMetric, $paCalls){
+	}
+}
 
 //#################################################################
 //# CLASSES
 //#################################################################
 
 class cAppdynUtil {
+	private static $maAppnodes = null;
+	
 	//*****************************************************************
 	public static function get_trans_assoc_array($psApp)
 	{	
@@ -161,6 +206,15 @@ class cAppdynUtil {
 	}
 	
 	//*****************************************************************
+	public static function extract_RUM_name($psType, $psMetric){
+		$sPattern = "/\|$psType\|([^\|]+)\|/";
+		if (preg_match($sPattern, $psMetric, $aMatches))
+			return $aMatches[1];
+		else
+			cDebug::error("no match $psMetric with $sPattern");
+	}
+	
+	//*****************************************************************
 	public static function extract_bt_id($psMetricName){
 		if (preg_match("/\|BT:(\d+)\|/", $psMetricName, $aMatches))
 			return $aMatches[1];
@@ -189,7 +243,7 @@ class cAppdynUtil {
 		$aMachines = cAppdyn::GET_AppNodes($psAid);
 		$sNodeID = null;
 		
-		foreach ($aMachines as $aNodes){
+		foreach (self::$aMachines as $aNodes){
 			foreach ($aNodes as $oNode)
 				if ($oNode->name == $psNodeName){
 					$sNodeID = $oNode->id;
@@ -200,6 +254,24 @@ class cAppdynUtil {
 		}
 		
 		return $sNodeID;
+	}
+	
+	//*****************************************************************
+	public static function get_node_name($psAid, $psNodeID){
+		$aMachines = cAppdyn::GET_AppNodes($psAid);
+		$sNodeName = null;
+		
+		foreach ($aMachines as $aNodes){
+			foreach ($aNodes as $oNode)
+				if ($oNode->id == $psNodeID){
+					$sNodeName = $oNode->name;
+					cDebug::write ("found $sNodeName");
+					break;
+				}
+			if ($sNodeName) break;
+		}
+		
+		return $sNodeName;
 	}
 }
 

@@ -49,15 +49,50 @@ class cAppDynCommon{
 		);
 	
 	//**************************************************************************
+	public static function get_duration(){
+		global $_SESSION;
+		
+		$duration = cCommon::get_session(cAppDynCommon::TIME_SESS_KEY);
+		if ($duration == cAppDynCommon::TIME_CUSTOM){
+			$hh1 = cCommon::get_session("fromh");
+			$mm1 = cCommon::get_session("fromm");
+			$hh2 = cCommon::get_session("toh");
+			$mm2 = cCommon::get_session("tom");
+			$fromd = cCommon::get_session("fromd");
+			
+			$duration = "between $hh1:$mm1 to $hh2:$mm2 on $fromd"; 
+		}
+		elseif ($duration == "")
+			$duration = 60;
+			
+		return $duration;
+	}
+
+	//**************************************************************************
+	public static function get_time_label() {
+		global $LINK_SESS_KEY;
+		global $_SESSION, $_SERVER;
+
+		$sess_key = cCommon::get_session(cAppDynCommon::TIME_SESS_KEY);
+		if ($sess_key == cAppDynCommon::TIME_CUSTOM){ 
+			$fromtime= $_SESSION[cAppDynCommon::TIME_CUSTOM_FROM_KEY];
+			$totime =  $_SESSION[cAppDynCommon::TIME_CUSTOM_TO_KEY];
+			$fromDate = date("d/m/y H:i", $fromtime/1000);
+			$toDate = date("d/m/y H:i", $totime/1000);
+			return "<b>Custom $fromDate to $toDate</b>";
+		}
+		else
+		{
+			$duration = self::get_duration();
+			return "<b>last $duration mins up-to ".date("F j, Y, g:i a"). "</b>";
+		}
+	}
 }
 
 //##########################################################################################
 //##########################################################################################
  //no buffering 
-$duration = cCommon::get_session(cAppDynCommon::TIME_SESS_KEY);
-if ($duration != cAppDynCommon::TIME_CUSTOM){
-	ob_start(); ob_end_flush ();
-}
+ob_start(); ob_end_flush ();
 
 //set a huge memory usage
 ini_set("memory_limit","200M");
@@ -68,48 +103,7 @@ ini_set("memory_limit","200M");
 //header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 date_default_timezone_set('Europe/London');
 
-//#############################################################################
-//# TODO make this file Object Oriented
-//#############################################################################
 
 
-//**************************************************************************
-function get_duration(){
-	global $_SESSION;
-	
-	$duration = cCommon::get_session(cAppDynCommon::TIME_SESS_KEY);
-	if ($duration == cAppDynCommon::TIME_CUSTOM){
-		$hh1 = cCommon::get_session("fromh");
-		$mm1 = cCommon::get_session("fromm");
-		$hh2 = cCommon::get_session("toh");
-		$mm2 = cCommon::get_session("tom");
-		$fromd = cCommon::get_session("fromd");
-		
-		$duration = "between $hh1:$mm1 to $hh2:$mm2 on $fromd"; 
-	}
-	elseif ($duration == "")
-		$duration = 60;
-		
-	return $duration;
-}
 
-//**************************************************************************
-function get_time_label() {
-	global $LINK_SESS_KEY;
-	global $_SESSION, $_SERVER;
-
-	$sess_key = cCommon::get_session(cAppDynCommon::TIME_SESS_KEY);
-	if ($sess_key == cAppDynCommon::TIME_CUSTOM){ 
-		$fromtime= $_SESSION[cAppDynCommon::TIME_CUSTOM_FROM_KEY];
-	    $totime =  $_SESSION[cAppDynCommon::TIME_CUSTOM_TO_KEY];
-		$fromDate = date("d/m/y H:i", $fromtime/1000);
-		$toDate = date("d/m/y H:i", $totime/1000);
-		return "<b>Custom $fromDate to $toDate</b>";
-	}
-	else
-	{
-		$duration = get_duration();
-		return "<b>last $duration mins up-to ".date("F j, Y, g:i a"). "</b>";
-	}
-}
 

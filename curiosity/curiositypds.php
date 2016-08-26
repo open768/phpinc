@@ -72,6 +72,7 @@ class cCuriosityPDS{
 
 	//**********************************************************************
 	public static function get_product_type($psProduct){
+		cDebug::enter();
 		$iProduct_type = self::PRODUCT_TYPE_UNKNOWN;
 		
 		if (preg_match(self::SHORT_REGEX, $psProduct, $aMatches))
@@ -80,6 +81,7 @@ class cCuriosityPDS{
 			$iProduct_type = self::PRODUCT_TYPE_PICNO;
 		
 		cDebug::extra_debug("Product $psProduct is of type $iProduct_type");
+		cDebug::enter();
 		return $iProduct_type;
 	}
 	
@@ -145,6 +147,7 @@ class cCuriosityPDS{
 		$aProducts = [];
 		$sI01Product = null;
 		
+		cDebug::enter();
 		cDebug::write("looking for $psSol, $psInstrument, $psProduct");
 		
 		//---- convert to PDS format ------------------
@@ -169,6 +172,7 @@ class cCuriosityPDS{
 		$aData = cPDS::get_pds_data($psSol, $psInstrument );
 		if ($aData === null){
 			cDebug::write("no pds data found for $psSol, $psInstrument ");
+			cDebug::leave();
 			return null;
 		}	
 			
@@ -212,6 +216,7 @@ class cCuriosityPDS{
 			$oMatch["notebook"] = $sNotebook ;
 		}
 		
+		cDebug::leave();
 		return $oMatch;
 	}
 	

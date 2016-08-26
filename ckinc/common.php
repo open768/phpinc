@@ -96,4 +96,8 @@ class cCommon{
 		return preg_replace('/[\x00-\x1F\x80-\x9F]/u', '', $psIn);
 	}
 	
+	public static function my_IP_address(){
+		return GetHostByName(null);
+	}
+	
 }
