@@ -19,7 +19,7 @@ class cAuth{
 	//**********************************************************
 	public static function get_user(){
 		cDebug::enter();
-		$sUser = cFacebook::getSessionUser();
+		$sUser = cFacebook_ServerSide::getSessionUser();
 		cDebug::write("user is $sUser");
 		cDebug::leave();
 		return $sUser;
@@ -28,7 +28,7 @@ class cAuth{
 	//**********************************************************
 	public static function get_user_id(){
 		cDebug::enter();
-		$sUserID = cFacebook::getSessionUserID();
+		$sUserID = cFacebook_ServerSide::getSessionUserID();
 		cDebug::write("user ID is $sUserID");
 		cDebug::leave();
 		return $sUserID;

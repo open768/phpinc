@@ -11,7 +11,7 @@ use Facebook\GraphUser;
 //###########################################################################
 //#
 //###########################################################################
-class cFacebook{
+class cFacebook_ServerSide{
 	const FB_USER_FOLDER = "[facebook]";
 	const FB_SESS_USER = "fbuser";
 	const FB_SESS_USERID = "fbuserid";

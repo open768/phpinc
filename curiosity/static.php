@@ -5,4 +5,5 @@
 	const CURL_USE_PROXY=false;
 	//const CURL_PROXY ="cache2";
 	//const CURL_PROXYPORT = 80;
+	const FACEBOOK_ID="ckfb";
 ?>

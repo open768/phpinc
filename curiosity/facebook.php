@@ -21,7 +21,7 @@ class cFacebookTags{
 		$oInstrumentData = cCuriosity::getProductDetails($sSol, $sInstrument, $sProduct);	
 		cDebug::write("<img src='".$oInstrumentData["d"]["i"]."'>");
 		cDebug::vardump($oInstrumentData);
-		$aFBApp = cFacebook::getAppID();
+		$aFBApp = cFacebook_ServerSide::getAppID();
 		?>
 		<html><head>
 			<title>Curiosity Browser Detail </title>
