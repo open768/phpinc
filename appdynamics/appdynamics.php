@@ -89,6 +89,10 @@ function cDetails_sorter($po1, $po2){
 	return strcasecmp ($po1->name, $po2->name);
 }
 
+function sort_by_name($po1, $po2){
+	return strcasecmp ($po1->name, $po2->name);
+}
+
 
 //#################################################################
 //# CLASSES
@@ -138,7 +142,9 @@ class cAppDyn{
 	//* applications
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	public static function GET_Applications(){
-		return cAppDynCore::GET('?');
+		$aData = cAppDynCore::GET('?');
+		if ($aData)	uasort($aData,"sort_by_name");
+		return ($aData);		
 	}
 
 	//*****************************************************************
@@ -284,11 +290,12 @@ class cAppDyn{
 
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* tiers
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	
 	public static function GET_Tiers($psApp){
 		$psApp = rawurlencode($psApp);
-		return cAppdynCore::GET("$psApp/tiers?" );
+		$aData = cAppdynCore::GET("$psApp/tiers?" );
+		if ($aData) uasort($aData,"sort_by_name");
+		return $aData;
 	}
 	
 	//*****************************************************************
