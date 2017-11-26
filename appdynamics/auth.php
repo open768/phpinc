@@ -79,7 +79,7 @@ class cAppDynCredentials{
 		$_SESSION[self::USE_HTTPS_KEY]  = $this->use_https;
 		$_SESSION[self::RESTRICTED_LOGIN_KEY]  = $this->restricted_login;
 		
-		//get something simple if it works - logged in
+		//get something simple if it works you're logged in
 		$oResponse = cAppDyn::GET_Applications();
 		cDebug::write("logged in");
 		$_SESSION[self::LOGGEDIN_KEY] = true;
