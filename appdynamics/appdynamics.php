@@ -63,7 +63,7 @@ class cAppdMetricLeaf{
 	}
 }
 
-class cDetails extends cAppdObj{
+class cAppDDetails extends cAppdObj{
    public $name, $id, $calls, $times;
    function __construct($psName, $psId, $poCalls, $poTimes) {
 		$this->name = $psName;
@@ -72,6 +72,14 @@ class cDetails extends cAppdObj{
 		$this->times = $poTimes;
    }
 }
+class cAppDApp{
+   public $name, $id;
+   function __construct($psName, $psId) {	
+		$this->name = $psName;
+		$this->id = $psId;
+   }
+}
+
 
 
 //#################################################################
@@ -97,6 +105,7 @@ function sort_by_name($po1, $po2){
 //#################################################################
 //# CLASSES
 //#################################################################
+
 class cAppDyn{
 	const APPDYN_LOGO = 'adlogo.jpg';
 	public static $SHOW_PROGRESS = true;
@@ -126,7 +135,7 @@ class cAppDyn{
 			foreach ($aBackends as $oBackend){
 				$sBName = $oBackend->name;
 				if (!array_key_exists($sBName, $aServices)) $aServices[$sBName] = [];
-				$aServices[$sBName][] = (object)["name"=>$oApp->name, "id"=>$oApp->id];
+				$aServices[$sBName][] = new cAppDApp($oApp->name, $oApp->id);
 			}
 		}
 		ksort($aServices);
@@ -316,7 +325,7 @@ class cAppDyn{
 			if (!array_key_exists($oTierTrans->name, $aAppTrans)) continue;
 			
 			$sTransID = $aAppTrans[$oTierTrans->name];
-			$oDetail = new cDetails($oTierTrans->name, $sTransID, null, null);
+			$oDetail = new cAppDDetails($oTierTrans->name, $sTransID, null, null);
 			$aResults[] = $oDetail;
 		}
 		
@@ -349,7 +358,7 @@ class cAppDyn{
 			if ($oMetrics){
 					$oStats = cAppdynUtil::Analyse_Metrics($oMetrics);
 					if ($oStats->count >0){
-						$oDetail = new cDetails($oRow->name, null , null, null);
+						$oDetail = new cAppDDetails($oRow->name, null , null, null);
 						$oDetail->calls = $oStats ;
 						array_push($aResults, $oDetail);
 					}
@@ -392,7 +401,7 @@ class cAppDyn{
 			
 			cDebug::write("<b>done</b>");
 			
-			$oDetails = new cDetails($sOtherTier, $tid, $oCalls,  $oTimes);
+			$oDetails = new cAppDDetails($sOtherTier, $tid, $oCalls,  $oTimes);
 
 			array_push($aResults, $oDetails);
 		}
