@@ -155,7 +155,21 @@ class cAppDyn{
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* applications
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	public static function GET_DEMO_Applications(){
+		cDebug::write("generating demo applications");
+		$aData = [];
+		for ($i=1; $i<5; $i++){
+			$oApp = new cAppDApp("Application ".$i, $i);
+			array_push($aData, $oApp);
+		}
+		return $aData;
+	}
+	
 	public static function GET_Applications(){
+		$oCred = new cAppDynCredentials();
+		$oCred->load();
+		if ( $oCred->is_demo()) return cAppDyn::GET_DEMO_Applications();
+		
 		$aData = cAppDynCore::GET('?');
 		if ($aData)	uasort($aData,"sort_by_name");
 		return ($aData);		

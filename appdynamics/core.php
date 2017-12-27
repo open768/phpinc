@@ -72,10 +72,10 @@ class cAppDynCore{
 		//-------------- get session info
 		$oCred = new cAppDynCredentials();
 		$oCred->load();
+		$sCred=$oCred->encode();
 
 		$sAD_REST = self::GET_controller().self::$URL_PREFIX;
 		
-		$sCred=urlencode(urlencode($oCred->username)."@".$oCred->account);
 		
 		//----- actually do it
 		$url = $sAD_REST.$psCmd.self::$SUFFIX;
