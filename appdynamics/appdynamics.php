@@ -167,7 +167,7 @@ class cAppDyn{
 	
 	public static function GET_Applications(){
 		$oCred = new cAppDynCredentials();
-		$oCred->load();
+		$oCred->check();
 		if ( $oCred->is_demo()) return cAppDyn::GET_DEMO_Applications();
 		
 		$aData = cAppDynCore::GET('?');

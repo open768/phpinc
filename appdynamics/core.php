@@ -46,7 +46,6 @@ class cAppDynCore{
 
 	public static function GET_controller(){
 		$oCred = new cAppDynCredentials();
-		$oCred->load();
 		$sController = ($oCred->use_https?"https":"http")."://$oCred->host";
 		
 		if (self::$CONTROLLER_PREFIX)
@@ -69,9 +68,9 @@ class cAppDynCore{
 			return $oData;
 		}
 		
-		//-------------- get session info
+		//-------------- get authentication info
 		$oCred = new cAppDynCredentials();
-		$oCred->load();
+		$oCred->check();
 		$sCred=$oCred->encode();
 
 		$sAD_REST = self::GET_controller().self::$URL_PREFIX;

@@ -59,33 +59,14 @@ class cAppDynCredentials{
 	private $mbLogged_in = false;
 	
 	//**************************************************************************************
-	function load(){
-		$sAAcc = cCommon::get_session(self::ACCOUNT_KEY);
-		if(!$sAAcc) cDebug::error("Couldnt get account from session");
-		$this->account = $sAAcc;
+	function check(){
+		if(!$this->account) cDebug::error("Couldnt get account from session");
+		if(!$this->username ) cDebug::error("Couldnt get username from session");
+		if(!$this->password) cDebug::error("Couldnt get password from session");
 
-		$sADUsername = cCommon::get_session(self::USERNAME_KEY);
-		if(!$sADUsername ) cDebug::error("Couldnt get username from session");
-		$this->username = $sADUsername;
-		
-		$sADPass = cCommon::get_session(self::PASSWORD_KEY);
-		if(!$sADPass) cDebug::error("Couldnt get password from session");
-		$this->password = $sADPass;
-
-		if ($this->is_demo()){
-			$this->host = "Demo";
-		}else{
-			$sHost = cCommon::get_session(self::HOST_KEY);
-			if(!$sHost) cDebug::error("Couldnt get host from session");
-			$this->host = $sHost;
-			
-			$bUse_https = cCommon::get_session(self::USE_HTTPS_KEY);
-			$this->use_https = $bUse_https;
+		if (!$this->is_demo()){
+			if(!$this->host) cDebug::error("Couldnt get host from session");
 		}
-
-		$this->restricted_login = cCommon::get_session(self::RESTRICTED_LOGIN_KEY);
-		$this->mbLogged_in = cCommon::get_session(self::LOGGEDIN_KEY);  
-		//TODO should we really trust this, should be more secure than just a session variable
 	}
 	
 	//**************************************************************************************
@@ -136,14 +117,28 @@ class cAppDynCredentials{
 		return urlencode(urlencode($this->username)."@".$this->account);
 	}
 
+	//**************************************************************************************
 	function __construct() {
-       //$this->load();
+		$this->account = cCommon::get_session(self::ACCOUNT_KEY);
+		$this->username = cCommon::get_session(self::USERNAME_KEY);
+		$this->password = cCommon::get_session(self::PASSWORD_KEY); //todo encrypt
+
+		if ($this->is_demo()){
+			$this->host = "Demo";
+		}else{
+			$this->host = cCommon::get_session(self::HOST_KEY);
+			$this->use_https = cCommon::get_session(self::USE_HTTPS_KEY);
+		}
+
+		$this->restricted_login = cCommon::get_session(self::RESTRICTED_LOGIN_KEY);
+		$this->mbLogged_in = cCommon::get_session(self::LOGGEDIN_KEY);  
+		//TODO should we really trust this, should be more secure than just a session variable
 	}
 	
 	//**************************************************************************************
 	public function is_demo(){
-		if ($this->account == cAppDynCredentials::DEMO_ACCOUNT){
-			if (($this->username == cAppDynCredentials::DEMO_USER) && ($this->password == cAppDynCredentials::DEMO_PASS)){
+		if ($this->account == self::DEMO_ACCOUNT){
+			if (($this->username == self::DEMO_USER) && ($this->password == self::DEMO_PASS)){
 				return true;
 			}else{
 				cDebug::error("wrong demo login details");
