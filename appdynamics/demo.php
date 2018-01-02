@@ -21,8 +21,18 @@ require_once("$phpinc/appdynamics/metrics.php");
 //#################################################################
 
 class cAppDynDemo{
+	//*****************************************************************
+	public static function GET_Tiers($psApp){
+		$aData = [];
+		for ($i=1; $i<5; $i++){
+			$oTier = new cAppDDetails("$psApp - Tier$i", $i, null,null);
+			array_push($aData, $oTier);
+		}
+		return $aData;
+	}
+
+	//*****************************************************************
 	public static function GET_Applications(){
-		cDebug::write("generating demo applications");
 		$aData = [];
 		for ($i=1; $i<5; $i++){
 			$oApp = new cAppDApp("Application ".$i, $i);

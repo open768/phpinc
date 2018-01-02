@@ -73,6 +73,7 @@ class cAppDDetails extends cAppdObj{
 		$this->times = $poTimes;
    }
 }
+
 class cAppDApp{
    public static $null_app = null;
    public static $db_app = null;
@@ -314,6 +315,7 @@ class cAppDyn{
 	//* tiers
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	
 	public static function GET_Tiers($psApp){
+		if ( self::is_demo()) return cAppDynDemo::GET_Tiers($psApp);
 		$psApp = rawurlencode($psApp);
 		$aData = cAppdynCore::GET("$psApp/tiers?" );
 		if ($aData) uasort($aData,"sort_by_name");
