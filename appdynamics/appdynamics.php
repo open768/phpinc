@@ -15,6 +15,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 //see 
 require_once("$phpinc/ckinc/http.php");
 require_once("$phpinc/pubsub/pub-sub.php");
+require_once("$phpinc/appdynamics/demo.php");
 require_once("$phpinc/appdynamics/common.php");
 require_once("$phpinc/appdynamics/auth.php");
 require_once("$phpinc/appdynamics/core.php");
@@ -110,7 +111,6 @@ function sort_by_name($po1, $po2){
 //#################################################################
 //# CLASSES
 //#################################################################
-
 class cAppDyn{
 	const APPDYN_LOGO = 'adlogo.jpg';
 	public static $SHOW_PROGRESS = true;
@@ -128,6 +128,11 @@ class cAppDyn{
 		return $oData;
 	}
 	
+	public static function is_demo(){
+		$oCred = new cAppDynCredentials();
+		$oCred->check();
+		return $oCred->is_demo();
+	}
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* All
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -154,21 +159,10 @@ class cAppDyn{
 	
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* applications
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_DEMO_Applications(){
-		cDebug::write("generating demo applications");
-		$aData = [];
-		for ($i=1; $i<5; $i++){
-			$oApp = new cAppDApp("Application ".$i, $i);
-			array_push($aData, $oApp);
-		}
-		return $aData;
-	}
-	
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	
+	//*****************************************************************
 	public static function GET_Applications(){
-		$oCred = new cAppDynCredentials();
-		$oCred->check();
-		if ( $oCred->is_demo()) return cAppDyn::GET_DEMO_Applications();
+		if ( self::is_demo()) return cAppDynDemo::GET_Applications();
 		
 		$aData = cAppDynCore::GET('?');
 		if ($aData)	uasort($aData,"sort_by_name");

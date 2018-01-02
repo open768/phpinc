@@ -28,6 +28,12 @@ class cAppDynTimes{
 	public $end;
 }
 
+class cAppdynMetricRow{
+	public $value;
+	public $max;
+	public $startTimeInMillis;
+}
+
 //#################################################################
 //# 
 //#################################################################

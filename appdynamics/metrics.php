@@ -16,6 +16,32 @@ require_once("$phpinc/appdynamics/core.php");
 //#################################################################
 //# CLASSES
 //#################################################################
+class cMetricItem{
+	public $value;
+	public $max;
+	public $date;
+}
+
+//######################################################################
+class cMetricOutput{
+	public $div;
+	public $metric;
+	public $app;
+	public $data = [];
+	public $epoch_start;
+	public $epoch_end;
+	
+	public function add($psDate, $piValue, $piMax = null){
+		$oItem = new cMetricItem;
+		$oItem->value = $piValue;
+		$oItem->max = $piMax;
+		$oItem->date = $psDate;
+		
+		$this->data[] = $oItem;
+	}
+}
+
+//######################################################################
 class cAppDynMetric{
 	const USAGE_METRIC = "moduleusage";
 	const RESPONSE_TIME = "Average Response Time (ms)";
