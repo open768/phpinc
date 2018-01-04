@@ -20,6 +20,12 @@ class cAppDynControllerUI{
 		$sBaseUrl = cAppDynCore::GET_controller();
 		return $sBaseUrl."/#/location=AD_HOME";
 	}
+	
+	public static function apps_home(){
+		$sBaseUrl = cAppDynCore::GET_controller();
+		return $sBaseUrl."/#/location=APPS_ALL_DASHBOARD";
+	}
+	
 	public static function databases(){
 		$sBaseUrl = cAppDynCore::GET_controller();
 		return $sBaseUrl."/#/location=DB_MONITORING_SERVER_LIST";
