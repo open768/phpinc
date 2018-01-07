@@ -84,6 +84,16 @@ class cAppDApp{
    }
 }
 
+class cAppDTier{
+   public static $null_app = null;
+   public static $db_app = null;
+   public $name, $id;
+   function __construct($psName, $psId) {	
+		$this->name = $psName;
+		$this->id = $psId;
+   }
+}
+
 cAppDApp::$null_app = new cAppDApp(null,null);
 cAppDApp::$db_app = new cAppDApp(cAppDynCore::DATABASE_APPLICATION,cAppDynCore::DATABASE_APPLICATION);
 

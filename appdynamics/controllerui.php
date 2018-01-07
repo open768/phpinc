@@ -25,17 +25,30 @@ class cAppDynControllerUI{
 		$sBaseUrl = cAppDynCore::GET_controller();
 		return $sBaseUrl."/#/location=APPS_ALL_DASHBOARD";
 	}
-	
+		
 	public static function databases(){
 		$sBaseUrl = cAppDynCore::GET_controller();
 		return $sBaseUrl."/#/location=DB_MONITORING_SERVER_LIST";
 	}
 	
-	public static function application($piAppID){
+	public static function application($poApp){
 		$sBaseUrl = cAppDynCore::GET_controller();
-		return $sBaseUrl."/#/location=APP_DASHBOARD&application=$piAppID";
+		return $sBaseUrl."/#/location=APP_DASHBOARD&application=$poApp->id";
 	}
 
+	public static function app_slow_transactions($poApp){
+		$sBaseUrl = cAppDynCore::GET_controller();
+		return $sBaseUrl."/#/location=APP_SLOW_TRANSACTIONS&application=$poApp->id";
+	}
+	public static function tier_slow_transactions($poApp, $poTier){
+		$sBaseUrl = cAppDynCore::GET_controller();
+		return $sBaseUrl."/#/location=APP_TIER_SLOW_TRANSACTIONS&application=$poApp->id&component=$poTier->id";
+	}
+	public static function tier_slow_remote($poApp, $poTier){
+		$sBaseUrl = cAppDynCore::GET_controller();
+		return $sBaseUrl."/#/location=APP_TIER_SLOW_DB_REMOTE_SERVICE_CALLS&application=$poApp->id&component=$poTier->id";
+	}
+	
 	public static function businessTransactions($piAppID){
 		$sBaseUrl = cAppDynCore::GET_controller();
 		return $sBaseUrl."/#/location=APP_BT_LIST&application=$piAppID";
