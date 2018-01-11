@@ -21,15 +21,21 @@ require_once("$phpinc/appdynamics/metrics.php");
 //#################################################################
 
 class cAppDynDemo{
-	//*****************************************************************
-	public static function GET_Tiers($psApp){
+	
+	private static function pr__gimme5($psCaption){
 		$aData = [];
-		for ($i=1; $i<5; $i++){
-			$oTier = new cAppDDetails("$psApp - Tier$i", $i, null,null);
-			array_push($aData, $oTier);
+		for ($i=1; $i<6; $i++){
+			$oInfo = new cAppDDetails("$psCaption - $i", $i, null,null);
+			array_push($aData, $oInfo);
 		}
 		return $aData;
 	}
+	
+	//*****************************************************************
+	public static function GET_Backends($psApp){		return self::pr__gimme5("Backend");}
+	public static function GET_AppInfoPoints($psApp){ 	return self::pr__gimme5("Infopoint");}
+	public static function GET_AppExtTiers($psApp){ 	return self::pr__gimme5("Call to External System ");}
+	public static function GET_Tiers($psApp){			return self::pr__gimme5("Tier");}
 
 	//*****************************************************************
 	public static function GET_Applications(){

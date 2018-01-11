@@ -200,11 +200,13 @@ class cAppDyn{
 	
 	//*****************************************************************
 	public static function GET_AppInfoPoints($psApp, $poTimes){
+		if ( self::is_demo()) return cAppDynDemo::GET_AppInfoPoints($psApp);
 		return cAppdynCore::GET_Metric_heirarchy($psApp,cAppDynMetric::INFORMATION_POINTS, false, $poTimes);
 	}
 		
 	//*****************************************************************
 	public static function GET_AppExtTiers($psApp){
+		if ( self::is_demo()) return cAppDynDemo::GET_AppExtTiers($psApp);
 		$sMetricPath= cAppDynMetric::appBackends();
 		return cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricPath,false); //dont cache
 	}
@@ -494,6 +496,7 @@ class cAppDyn{
 	//* Backends
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	public static function GET_Backends($psApp){
+		if ( self::is_demo()) return cAppDynDemo::GET_Backends($psApp);
 		$sMetricpath= cAppDynMetric::backends();
 		return cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricpath, false); //dont cache
 	}
