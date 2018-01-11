@@ -459,6 +459,7 @@ class cAppDyn{
 	
 	//*****************************************************************
 	public static function GET_TierServiceEndPoints($psApp, $psTier){
+		if ( self::is_demo()) return cAppDynDemo::GET_TierServiceEndPoints($psApp,$psTier);
 		$sMetricpath= cAppDynMetric::tierServiceEndPoints($psTier);
 		$oData = cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricpath, false);
 		return $oData;
