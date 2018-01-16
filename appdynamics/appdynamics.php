@@ -182,7 +182,6 @@ class cAppDyn{
 
 	//*****************************************************************
 	public static function GET_AppNodes($piAppID){
-		if (self::$maAppNodes != null) return self::$maAppNodes;
 		
 		$aResponse = cAppDynCore::GET("$piAppID/nodes?");
 		
@@ -193,7 +192,6 @@ class cAppDyn{
 			$aOutput[(string)$iMachineID][] = $oNode;
 		}
 		ksort($aOutput );
-		self::$maAppNodes = $aOutput;
 		
 		return $aOutput;
 	}

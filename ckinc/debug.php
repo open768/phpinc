@@ -122,7 +122,11 @@ class cDebug{
 		if (self::$EXTRA_DEBUGGING){
 			$aCaller = self::get_caller(1);
 			$sFunc = $aCaller['function'];
-			$sClass = $aCaller['class'];
+			$sClass = '';
+			if ( array_key_exists("class", $aCaller)){
+				$sClass = $aCaller['class'];
+			}
+			
 			$padding = 
 			self::extra_debug("<font color='grey' face='courier' size=2>Enter ".str_repeat("----", self::$ENTER_DEPTH). "> $sClass.$sFunc</font>");
 			self::$ENTER_DEPTH++;
@@ -134,7 +138,10 @@ class cDebug{
 			self::$ENTER_DEPTH--;
 			$aCaller = self::get_caller(1);
 			$sFunc = $aCaller['function'];
-			$sClass = $aCaller['class'];
+			$sClass = '';
+			if (array_key_exists("class", $aCaller))	{
+				$sClass = $aCaller['class'];
+			}
 			self::extra_debug("<font color='grey' face='courier' size=2>Leave ".str_repeat("----", self::$ENTER_DEPTH). "> $sClass.$sFunc</font>");
 		}
 	}
