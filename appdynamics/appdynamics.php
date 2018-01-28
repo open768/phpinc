@@ -124,6 +124,8 @@ function sort_by_name($po1, $po2){
 //#################################################################
 class cAppDyn{
 	const APPDYN_LOGO = 'adlogo.jpg';
+	const APPDYN_OVERFLOWING_BT = "_APPDYNAMICS_DEFAULT_TX_";
+	
 	public static $SHOW_PROGRESS = true;
 	private static $maAppNodes = null;
 	
