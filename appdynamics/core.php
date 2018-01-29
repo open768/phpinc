@@ -45,6 +45,7 @@ class cAppDynCore{
 	const DB_METRIC_PREFIX = "/rest/applications/Database%20Monitoring/metric-data?metric-path=";
 	const REST_UI_PREFIX = "/restui/templates/";
 	const DATABASE_APPLICATION = "Database Monitoring";
+	const LOGIN_URL = "/auth?action=login";
 	
 	
 	public static $URL_PREFIX = self::USUAL_METRIC_PREFIX;
@@ -61,6 +62,21 @@ class cAppDynCore{
 		return $sController;
 	}
 	
+	//*****************************************************************
+	public static function login(){
+		//TBD "controller/auth?action=login"		
+		//-------------- get authentication info
+		$oCred = new cAppDynCredentials();
+		$oCred->check();
+		$sCred=$oCred->encode();
+		cDebug::vardump($oCred);
+		
+		$oHttp = new cHttp();
+		$oHttp->USE_CURL = false;
+		$oHttp->set_credentials($sCred,$oCred->password);
+		$url = self::GET_controller(). self::LOGIN_URL;
+		$oData = $oHttp->getjson($url);	//will throw an error if unauthorised	
+	}
 	
 	//*****************************************************************
 	public static function  GET($psCmd, $pbCacheable = false){
