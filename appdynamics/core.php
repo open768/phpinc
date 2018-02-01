@@ -74,8 +74,10 @@ class cAppDynCore{
 		$oHttp = new cHttp();
 		$oHttp->USE_CURL = false;
 		$oHttp->set_credentials($sCred,$oCred->password);
-		$url = self::GET_controller(). self::LOGIN_URL;
-		$oData = $oHttp->getjson($url);	//will throw an error if unauthorised	
+		$sUrl = self::GET_controller(). self::LOGIN_URL;
+
+		$oHttp->fetch_url($sUrl);	//will throw an error if unauthorised	
+		$oCred->save_restui_auth($oHttp);
 	}
 	
 	//*****************************************************************

@@ -11,6 +11,11 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
 **************************************************************************/
 require_once("$phpinc/ckinc/curl.php");
+class cHttpTuple{
+	public $key;
+	public $value;
+}
+
 class cHttp{
 	public $LARGE_URL_DIR = "[cache]/[Largeurls]";
 	public $progress_len = 0;
@@ -21,6 +26,7 @@ class cHttp{
 	private $authenticate = false;
 	private $username = null;
 	private $password = null;
+	public $response_headers = [];
 	
 	//*****************************************************************************
 	public function set_credentials($psUserName, $psPassword){
@@ -105,6 +111,7 @@ class cHttp{
 		$sHTML = null;
 
 		$oContext = null;
+		$this->response_headers = [];
 		if ($this->authenticate){
 			$sCredentials = base64_encode($this->username.":".$this->password);
 			$oContext = stream_context_create([
@@ -122,9 +129,18 @@ class cHttp{
 			cDebug::error("couldnt get url $psUrl : $e");
 		}
 		
+		
 		if(!strpos($http_response_header[0], "200")){
 			cDebug::vardump($http_response_header);
 			cDebug::error($http_response_header[0]);
+		}else{
+			foreach ($http_response_header as $line) 
+				if (preg_match("/^(.*?)\:\s*(\w*.*?)(\;|$)/", $line, $aMatches)){
+					$oTuple = new cHttpTuple();
+					$oTuple->key = $aMatches[1];
+					$oTuple->value = $aMatches[2];
+					array_push($this->response_headers, $oTuple);
+				}
 		}
 		
 		if ($sHTML == null && !$pbAllowNull)

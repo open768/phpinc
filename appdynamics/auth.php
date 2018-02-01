@@ -45,6 +45,8 @@ class cAppDynCredentials{
 	const PROXY_PORT_KEY = "grape";
 	const PROXY_CRED_KEY = "diet";
 	const LOGGEDIN_KEY = "log";
+	const JSESSION_KEY = "boar";
+	const CSRF_TOKEN_KEY = "spike";
 	
 	const DEMO_USER = "demo";
 	const DEMO_PASS = "d3m0";
@@ -53,6 +55,8 @@ class cAppDynCredentials{
 	public $account;
 	public $host;
 	public $username;
+	public $jsessionid;
+	public $csrftoken;
 	public $password;
 	public $use_https;
 	public $restricted_login = null;
@@ -101,6 +105,24 @@ class cAppDynCredentials{
 		$_SESSION[self::LOGGEDIN_KEY] = true;
 		$this->mbLogged_in = true;
 	}
+	
+	//**************************************************************************************
+	public function save_restui_auth( $poHttp){
+		$aHeaders = $poHttp->response_headers;
+		
+		foreach ($poHttp->response_headers as $oTuple)
+			if ($oTuple->key === "Set-Cookie"){
+				$aSplit = preg_split("/=/",$oTuple->value);
+				if (count($aSplit) == 2)
+					if ($aSplit[0] === "JSESSIONID"){
+						$this->jsessionid = $aSplit[1];
+						$_SESSION[self::JSESSION_KEY] = $aSplit[1];
+					}elseif($aSplit[0] === "X-CSRF-TOKEN"){
+						$this->csrftoken = $aSplit[1];
+						$_SESSION[self::CSRF_TOKEN_KEY] = $aSplit[1];
+					}
+			}
+	}
 
 	//**************************************************************************************
 	public function logged_in(){
@@ -134,6 +156,8 @@ class cAppDynCredentials{
 		$this->restricted_login = cCommon::get_session(self::RESTRICTED_LOGIN_KEY);
 		$this->mbLogged_in = cCommon::get_session(self::LOGGEDIN_KEY);  
 		//TODO should we really trust this, should be more secure than just a session variable
+		$this->jsessionid = cCommon::get_session(self::JSESSION_KEY);  
+		$this->csrftoken = cCommon::get_session(self::CSRF_TOKEN_KEY);  
 	}
 	
 	//**************************************************************************************
