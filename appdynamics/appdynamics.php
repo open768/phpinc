@@ -122,6 +122,15 @@ function sort_by_name($po1, $po2){
 //#################################################################
 //# CLASSES
 //#################################################################
+class cAppDynRestUI{
+	public static function GET_database_agents(){
+		
+	}
+}
+
+//#################################################################
+//# CLASSES
+//#################################################################
 class cAppDyn{
 	const APPDYN_LOGO = 'adlogo.jpg';
 	const APPDYN_OVERFLOWING_BT = "_APPDYNAMICS_DEFAULT_TX_";
@@ -131,6 +140,17 @@ class cAppDyn{
 	
 	private static function pr_flushprint($psChar = cCommon::PROGRESS_CHAR){
 		if (self::$SHOW_PROGRESS) cCommon::flushprint($psChar);
+	}
+	
+	public static function GET_Controller_version(){
+		$aConfig = self::GET_configuration();
+		foreach ($aConfig as $oItem)
+			if ($oItem->name === "schema.version"){
+				$sVersion = preg_replace("/^0*/","",$oItem->value);
+				$sVersion = preg_replace("/-0+(\d+)/",'.$1',$sVersion);
+				$sVersion = preg_replace("/-0+/",'.0',$sVersion);
+				return $sVersion;
+			}
 	}
 	
 	public static function GET_configuration(){
@@ -245,7 +265,7 @@ class cAppDyn{
 		$sMetricPath= cAppDynMetric::databaseServerStats($psDB);
 		return  cAppdynCore::GET_Metric_heirarchy(cAppDynCore::DATABASE_APPLICATION, $sMetricPath, false);
 	}
-
+	
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* Nodes  (warning this uses an undocumented API / doesnt work unless from the controller)
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
