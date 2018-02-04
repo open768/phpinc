@@ -23,6 +23,7 @@ class cHttp{
 	public $show_progress = false;
 	public $HTTPS_CERT_FILENAME = null;
 	public $USE_CURL = true;
+	public $extra_header = null;
 	private $authenticate = false;
 	private $username = null;
 	private $password = null;
@@ -112,16 +113,18 @@ class cHttp{
 
 		$oContext = null;
 		$this->response_headers = [];
+		$aHeaders = [	"ssl"=> ["verify_peer"=>false,"verify_peer_name"=>false]];
+		$sHeader = "";
+
 		if ($this->authenticate){
 			$sCredentials = base64_encode($this->username.":".$this->password);
-			$oContext = stream_context_create([
-				"http" => ["header" => "Authorization: Basic $sCredentials"],
-				"ssl"=> ["verify_peer"=>false,"verify_peer_name"=>false]
-			]);
-		}else
-			$oContext = stream_context_create([
-				"ssl"=> ["verify_peer"=>false,"verify_peer_name"=>false]
-			]);
+			$sHeader = "Authorization: Basic $sCredentials";
+			if ($this->extra_header) $sHeader.="\r\n".$this->extra_header;
+		}elseif ($this->extra_header) 
+			$sHeader = $this->extra_header;
+		
+		$aHeaders["http"] = ["header" => $sHeader];
+		$oContext = stream_context_create($aHeaders);
 		
 		try{
 			$sHTML = file_get_contents($psUrl, false, $oContext);

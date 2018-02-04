@@ -124,7 +124,16 @@ function sort_by_name($po1, $po2){
 //#################################################################
 class cAppDynRestUI{
 	public static function GET_database_agents(){
-		
+		$sURL = "agent/setting/getDBAgents";
+		return  cAppdynCore::GET_restUI($sURL);
+	}
+
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	//* Nodes  (warning this uses an undocumented API / doesnt work unless from the controller)
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	public static function GET_Node_details($piAppID, $piNodeID){
+		$sURL = "dashboardNodeViewData/$piAppID/$piNodeID";
+		return  cAppdynCore::GET_restUI($sURL);
 	}
 }
 
@@ -265,17 +274,7 @@ class cAppDyn{
 		$sMetricPath= cAppDynMetric::databaseServerStats($psDB);
 		return  cAppdynCore::GET_Metric_heirarchy(cAppDynCore::DATABASE_APPLICATION, $sMetricPath, false);
 	}
-	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* Nodes  (warning this uses an undocumented API / doesnt work unless from the controller)
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_Node_details($piAppID, $piNodeID){
-		cAppDynCore::$URL_PREFIX=cAppDynCore::REST_UI_PREFIX ;
-		cAppDynCore::$SUFFIX = "";
-		$sURL = "dashboardNodeViewData/$piAppID/$piNodeID";
-		return  cAppdynCore::GET($sURL);
-	}
-	
+		
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* transactions
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

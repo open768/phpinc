@@ -43,12 +43,11 @@ class cAppDynCore{
 	const USUAL_METRIC_PREFIX = "/rest/applications/";
 	const CONFIG_METRIC_PREFIX = "/rest/configuration";
 	const DB_METRIC_PREFIX = "/rest/applications/Database%20Monitoring/metric-data?metric-path=";
-	const REST_UI_PREFIX = "/restui/templates/";
+	const RESTUI_PREFIX = "/restui/";
 	const DATABASE_APPLICATION = "Database Monitoring";
 	const LOGIN_URL = "/auth?action=login";
-	
-	
 	public static $URL_PREFIX = self::USUAL_METRIC_PREFIX;
+	
 	const DATE_FORMAT="Y-m-d\TG:i:s\Z";
 
 	public static function GET_controller(){
@@ -80,6 +79,47 @@ class cAppDynCore{
 		$oCred->save_restui_auth($oHttp);
 	}
 	
+	//*****************************************************************
+	public static function  GET_restUI($psCmd, $pbCacheable = false){
+		global $oData;
+
+		cDebug::enter();
+		cDebug::write("getting $psCmd");
+		if ($pbCacheable && (!cDebug::$IGNORE_CACHE) && cHash::exists($psCmd)){
+			$oData = cHash::get($psCmd);
+			cDebug::leave();
+			return $oData;
+		}
+		
+		//-------------- get authentication info
+		$oCred = new cAppDynCredentials();
+		$oCred->check();
+
+		$sAD_REST = self::GET_controller().self::RESTUI_PREFIX;
+		$sExtraHeader= "Content-Type: application/json";
+		$sExtraHeader.= "\r\nAccept: application/json, text/plain, */*";
+		$sExtraHeader.= "\r\nUser-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36";
+		$sExtraHeader = "\r\nX-CSRF-TOKEN: $oCred->csrftoken";
+		$sExtraHeader.= "\r\nCookie: JSESSIONID=$oCred->jsessionid; X-CSRF-TOKEN: $oCred->csrftoken;";
+		
+		//----- actually do it
+		$url = $sAD_REST.$psCmd;
+		cDebug::extra_debug("Url: $url");
+		
+		$oHttp = new cHttp();
+		$oHttp->USE_CURL = false;
+		$oHttp->extra_header = $sExtraHeader;
+		$oData = $oHttp->getjson($url);
+		
+		cDebug::vardump($oData);
+		
+		//----- 
+		if ($pbCacheable)	cHash::put($psCmd, $oData,true);
+
+		cDebug::leave();
+		return $oData;
+	}
+
 	//*****************************************************************
 	public static function  GET($psCmd, $pbCacheable = false){
 		global $oData;
