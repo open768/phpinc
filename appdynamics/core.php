@@ -110,7 +110,6 @@ class cAppDynCore{
 		$oHttp->USE_CURL = false;
 		$oHttp->extra_header = $sExtraHeader;
 		$oData = $oHttp->getjson($url);
-		
 		cDebug::vardump($oData);
 		
 		//----- 

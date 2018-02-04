@@ -118,6 +118,15 @@ function sort_by_name($po1, $po2){
 	return strcasecmp ($po1->name, $po2->name);
 }
 
+function sort_machine_agents( $po1, $po2){
+	return strcasecmp ($po1->applicationIds[0].".".$po1->hostName, $po2->applicationIds[0].".".$po2->hostName);	
+}
+function sort_appserver_agents( $po1, $po2){
+	return strcasecmp (
+		"$po1->applicationName.$po1->applicationComponentName.$po1->hostName", 
+		"$po2->applicationName.$po2->applicationComponentName.$po2->hostName"
+	);	
+}
 
 //#################################################################
 //# CLASSES
@@ -126,6 +135,16 @@ class cAppDynRestUI{
 	public static function GET_database_agents(){
 		$sURL = "agent/setting/getDBAgents";
 		return  cAppdynCore::GET_restUI($sURL);
+	}
+	public static function GET_machine_agents(){
+		$aAgents = cAppdynCore::GET_restUI("agent/setting/allMachineAgents");
+		uasort($aAgents,"sort_machine_agents");
+		return  $aAgents;
+	}
+	public static function GET_appserver_agents(){
+		$aAgents = cAppdynCore::GET_restUI("agent/setting/getAppServerAgents");
+		uasort($aAgents,"sort_appserver_agents");
+		return  $aAgents;
 	}
 
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
