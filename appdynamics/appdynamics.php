@@ -14,6 +14,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 //see 
 require_once("$phpinc/ckinc/http.php");
+require_once("$phpinc/ckinc/cached_http.php");
 require_once("$phpinc/pubsub/pub-sub.php");
 require_once("$phpinc/appdynamics/demo.php");
 require_once("$phpinc/appdynamics/common.php");
@@ -126,6 +127,35 @@ function sort_appserver_agents( $po1, $po2){
 		"$po1->applicationName.$po1->applicationComponentName.$po1->hostName", 
 		"$po2->applicationName.$po2->applicationComponentName.$po2->hostName"
 	);	
+}
+
+function sort_downloads($po1, $po2){
+	return strcasecmp ($po1->title, $po2->title);	
+}
+
+//#################################################################
+//# CLASSES
+//#################################################################
+class cAppDynWebsite{
+	const BASE_URL = "https://download.appdynamics.com/download/downloadfile/?apm=jvm%2Cdotnet%2Cphp%2Cmachine%2Cwebserver%2Cdb%2Cappd4db%2Canalytics%2Cios%2Candroid%2Ccpp-sdk%2Cpython%2Cnodejs%2Cgolang-sdk%2Cuniversal-agent%2Ciot%2Cnetviz&eum=linux%2Cosx%2Cwindows%2Cgeoserver%2Cgeodata%2Csynthetic&events=linuxwindows&format=json&os=linux%2Cosx%2Cwindows&platform_admin_os=linux%2Cosx%2Cwindows";
+	public static function GET_latest_downloads(){
+		$oHttp = new cCachedHttp();
+		$oHttp->USE_CURL = false;
+		$sUrl = self::BASE_URL;
+		$aData = [];
+		while ($sUrl){
+			$oData = $oHttp->getCachedJson($sUrl);
+			if ($oData->count >0){
+				$sUrl = $oData->next;
+				foreach ($oData->results as $oDownload)
+					$aData[] = $oDownload;
+			}else
+				$sUrl = null;
+		}
+		
+		uasort($aData,"sort_downloads");
+		return $aData;
+	}
 }
 
 //#################################################################

@@ -26,6 +26,11 @@ class cAppDynControllerUI{
 		return $sBaseUrl."/#/location=APPS_ALL_DASHBOARD";
 	}
 		
+	public static function agents(){
+		$sBaseUrl = cAppDynCore::GET_controller();
+		return $sBaseUrl."/#/location=SETTINGS_AGENTS";
+	}
+	
 	public static function databases(){
 		$sBaseUrl = cAppDynCore::GET_controller();
 		return $sBaseUrl."/#/location=DB_MONITORING_SERVER_LIST";
