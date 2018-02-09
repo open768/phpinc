@@ -243,7 +243,7 @@ class cAppdynUtil {
 		$aMachines = cAppdyn::GET_AppNodes($psAid);
 		$sNodeID = null;
 		
-		foreach (self::$aMachines as $aNodes){
+		foreach ($aMachines as $aNodes){
 			foreach ($aNodes as $oNode)
 				if ($oNode->name == $psNodeName){
 					$sNodeID = $oNode->id;

@@ -539,9 +539,10 @@ class cAppDyn{
 	public static function GET_TierInfraNodes($psApp, $psTier){
 		cDebug::enter();
 		$sMetricpath=cAppDynMetric::InfrastructureNodes($psTier);
-		$oData = cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricpath, false);
+		$aData = cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricpath, false);
+		uasort($aData, 'cDetails_sorter');
 		cDebug::leave();
-		return  $oData;
+		return  $aData;
 	}
 	
 	public static function GET_NodeDisks($psApp, $psTier, $psNode){
