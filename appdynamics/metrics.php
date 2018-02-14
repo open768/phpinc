@@ -406,6 +406,10 @@ class cAppDynMetric{
 	public static function InfrastructureJavaHeapUsed($psTier, $psNode=null){
 		return self::InfrastructureNode($psTier, $psNode)."|JVM|Memory|Heap|Current Usage (MB)";
 	}
+	public static function InfrastructureJavaHeapUsedPct($psTier, $psNode=null){
+		return self::InfrastructureNode($psTier, $psNode)."|JVM|Memory|Heap|Used %";
+	}
+
 	public static function InfrastructureJavaGCTime($psTier, $psNode=null){
 		return self::InfrastructureNode($psTier, $psNode)."|JVM|Garbage Collection|GC Time Spent Per Min (ms)";
 	}
