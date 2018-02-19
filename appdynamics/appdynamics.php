@@ -263,7 +263,7 @@ class cAppDyn{
 	//*****************************************************************
 	public static function GET_AppNodes($piAppID){
 		
-		$aResponse = cAppDynCore::GET("$piAppID/nodes?");
+		$aResponse = cAppDynCore::GET("$piAppID/nodes?",true);
 		
 		$aOutput = [];
 		foreach ($aResponse as $oNode){

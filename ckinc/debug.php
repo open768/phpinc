@@ -48,6 +48,8 @@ class cDebug{
 			flush();
 		}
 	}
+	
+	
 	public static function write($poThing){
 		if (self::is_debugging()){
 			$sDate = date('d-m-Y H:i:s');
@@ -57,6 +59,11 @@ class cDebug{
 		}
 	}
 		
+	public static function flush(){
+		ob_flush();
+		flush();
+	}
+	
 	//**************************************************************************
 	public static function vardump( $poThing, $pbForce=false){
 		if (self::$EXTRA_DEBUGGING || (self::$DEBUGGING && $pbForce)){
