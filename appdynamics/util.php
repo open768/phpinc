@@ -206,6 +206,15 @@ class cAppdynUtil {
 	}
 	
 	//*****************************************************************
+	public static function extract_error_name($psTier, $psMetric){
+		$sPattern = "/\|$psTier\|(.*)\|Errors per Minute/";
+		if (preg_match($sPattern, $psMetric, $aMatches))
+			return $aMatches[1];
+		else
+			cDebug::error("no match $psMetric with $sPattern");
+	}
+	
+	//*****************************************************************
 	public static function extract_RUM_name($psType, $psMetric){
 		$sPattern = "/\|$psType\|([^\|]+)\|/";
 		if (preg_match($sPattern, $psMetric, $aMatches))

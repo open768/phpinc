@@ -263,6 +263,7 @@ class cAppDynMetric{
 	const ERRS_PER_MIN = "Errors per Minute";
 	
 	const APPLICATION = "Overall Application Performance";
+	const ERRORS = "Errors";
 	const INFRASTRUCTURE = "Application Infrastructure Performance";
 	const BACKENDS = "Backends";
 	const TRANSACTIONS = "Business Transaction Performance";
@@ -372,6 +373,12 @@ class cAppDynMetric{
 	}
 	
 	
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	//* Errors
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	public static function Errors($psTier, $psError){
+		return self::ERRORS."|$psTier|$psError|Errors per Minute";
+	}
 	
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* webrum

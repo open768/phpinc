@@ -45,6 +45,11 @@ class cAppDynControllerUI{
 		$sBaseUrl = cAppDynCore::GET_controller();
 		return $sBaseUrl."/#/location=APP_SLOW_TRANSACTIONS&application=$poApp->id";
 	}
+	public static function tier_errors($poApp, $poTier){
+		$sBaseUrl = cAppDynCore::GET_controller();
+		return $sBaseUrl."/#/location=APP_TIER_ERROR_TRANSACTIONS&application=$poApp->id&component=$poTier->id";
+	}
+	
 	public static function tier_slow_transactions($poApp, $poTier){
 		$sBaseUrl = cAppDynCore::GET_controller();
 		return $sBaseUrl."/#/location=APP_TIER_SLOW_TRANSACTIONS&application=$poApp->id&component=$poTier->id";
