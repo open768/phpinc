@@ -46,6 +46,8 @@ class cAppDynCore{
 	const RESTUI_PREFIX = "/restui/";
 	const DATABASE_APPLICATION = "Database Monitoring";
 	const LOGIN_URL = "/auth?action=login";
+	const DEMO_HOST = "demo";
+	
 	public static $URL_PREFIX = self::USUAL_METRIC_PREFIX;
 	
 	const DATE_FORMAT="Y-m-d\TG:i:s\Z";
@@ -63,12 +65,18 @@ class cAppDynCore{
 	
 	//*****************************************************************
 	public static function login(){
+		cDebug::enter();
 		//TBD "controller/auth?action=login"		
 		//-------------- get authentication info
 		$oCred = new cAppDynCredentials();
 		$oCred->check();
 		$sCred=$oCred->encode();
-		cDebug::vardump($oCred);
+		
+		if ($oCred->host === self::DEMO_HOST){
+			cDebug::write("demo host detected");
+			cDebug::leave();
+			return "demo";
+		}
 		
 		$oHttp = new cHttp();
 		$oHttp->USE_CURL = false;
@@ -77,6 +85,7 @@ class cAppDynCore{
 
 		$oHttp->fetch_url($sUrl);	//will throw an error if unauthorised	
 		$oCred->save_restui_auth($oHttp);
+		cDebug::leave();
 	}
 	
 	//*****************************************************************

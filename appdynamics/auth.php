@@ -147,7 +147,7 @@ class cAppDynCredentials{
 		$this->password = cCommon::get_session(self::PASSWORD_KEY); //todo encrypt
 
 		if ($this->is_demo()){
-			$this->host = "Demo";
+			$this->host = cAppDynCore::DEMO_HOST;
 		}else{
 			$this->host = cCommon::get_session(self::HOST_KEY);
 			$this->use_https = cCommon::get_session(self::USE_HTTPS_KEY);
