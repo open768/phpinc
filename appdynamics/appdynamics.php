@@ -88,8 +88,9 @@ class cAppDApp{
 class cAppDTier{
    public static $null_app = null;
    public static $db_app = null;
-   public $name, $id;
-   function __construct($psName, $psId) {	
+   public $name, $id, $app;
+   function __construct($poApp, $psName, $psId) {	
+		$this->app = $poApp;
 		$this->name = $psName;
 		$this->id = $psId;
    }
