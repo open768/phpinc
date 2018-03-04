@@ -35,7 +35,7 @@ class cAppDynDemo{
 	public static function GET_Backends($psApp){		return self::pr__gimme5("Backend");}
 	public static function GET_AppInfoPoints($psApp){ 	return self::pr__gimme5("Infopoint");}
 	public static function GET_AppExtTiers($psApp){ 	return self::pr__gimme5("Call to External System ");}
-	public static function GET_Tiers($psApp){			return self::pr__gimme5("Tier");}
+	public static function GET_Tiers($poApp){			return self::pr__gimme5("Tier");}
 	public static function GET_TierServiceEndPoints($p,$t){ return self::pr__gimme5("$t EndPoint");}
 	//*****************************************************************
 	public static function GET_Applications(){

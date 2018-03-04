@@ -395,10 +395,10 @@ class cAppDyn{
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* tiers
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	
-	public static function GET_Tiers($psApp){
-		if ( self::is_demo()) return cAppDynDemo::GET_Tiers($psApp);
-		$psApp = rawurlencode($psApp);
-		$aData = cAppdynCore::GET("$psApp/tiers?" );
+	public static function GET_Tiers($poApp){
+		if ( self::is_demo()) return cAppDynDemo::GET_Tiers($poApp);
+		$sApp = rawurlencode($poApp->name);
+		$aData = cAppdynCore::GET("$sApp/tiers?" );
 		if ($aData) uasort($aData,"sort_by_name");
 		return $aData;
 	}
@@ -407,25 +407,31 @@ class cAppDyn{
 	public static function GET_tier_transaction_names($psApp, $psTier){
 		//find out the transactions in this tier - through metric heirarchy (but doesnt give the trans IDs)
 		cDebug::enter();
-		$metricPath = cAppDynMetric::tierTransactions($psTier);
-		$aTierTransactions = cAppdynCore::GET_Metric_heirarchy($psApp, $metricPath, false);	
-		if (!$aTierTransactions) return null;
-		
-		//so get the transaction IDs
-		$aAppTrans= cAppdynUtil::get_trans_assoc_array($psApp);
-		
-		// and combine the two
 		$aResults = []; 
-
-		foreach ($aTierTransactions as $oTierTrans){
-			if (!array_key_exists($oTierTrans->name, $aAppTrans)) continue;
-			
-			$sTransID = $aAppTrans[$oTierTrans->name];
-			$oDetail = new cAppDDetails($oTierTrans->name, $sTransID, null, null);
-			$aResults[] = $oDetail;
-		}
 		
-		uasort($aResults, 'cDetails_sorter');
+		try{
+			$metricPath = cAppDynMetric::tierTransactions($psTier);
+			$aTierTransactions = cAppdynCore::GET_Metric_heirarchy($psApp, $metricPath, false);	
+			if (!$aTierTransactions) return null;
+			
+			//so get the transaction IDs
+			$aAppTrans= cAppdynUtil::get_trans_assoc_array($psApp);
+			
+			// and combine the two
+
+			foreach ($aTierTransactions as $oTierTrans){
+				if (!array_key_exists($oTierTrans->name, $aAppTrans)) continue;
+				
+				$sTransID = $aAppTrans[$oTierTrans->name];
+				$oDetail = new cAppDDetails($oTierTrans->name, $sTransID, null, null);
+				$aResults[] = $oDetail;
+			}
+			
+			uasort($aResults, 'cDetails_sorter');
+		}
+		catch (Exception $e){
+			$aResults = null;
+		}
 		cDebug::leave();
 		return $aResults;
 	}
@@ -573,13 +579,13 @@ class cAppDyn{
 	}
 	
 	//*****************************************************************
-	public static function GET_BackendCallerTiers($psApp, $psBackend){
+	public static function GET_BackendCallerTiers($poApp, $psBackend){
 		$aResult = [];
 		
-		$oTiers = self::GET_Tiers($psApp);
+		$oTiers = self::GET_Tiers($poApp);
 		foreach ($oTiers as $oTier){
 			$sTier = $oTier->name;
-			$oExtCalls = self::GET_tier_ExtCalls_Metric_heirarchy($psApp, $sTier, false);
+			$oExtCalls = self::GET_tier_ExtCalls_Metric_heirarchy($poApp->name, $sTier, false);
 			if (!$oExtCalls) continue;
 			
 			foreach ($oExtCalls as $oExtCall){
@@ -602,19 +608,19 @@ class cAppDyn{
 	
 	
 	//*****************************************************************
-	public static function GET_trans_backend_tree($psApp,  $psFolderMetric = null, $piDepth=0, &$poLeaf = null){
+	public static function GET_trans_backend_tree($poApp,  $psFolderMetric = null, $piDepth=0, &$poLeaf = null){
 		cDebug::enter();
 		$aData = [];
 		
 		if (!$psFolderMetric){
-			$aTiers = self::GET_Tiers($psApp);
+			$aTiers = self::GET_Tiers($poApp);
 			$iCount = count($aTiers);
 
 			foreach ($aTiers as $oTier){
 				self::pr_flushprint(" ");
 				self::pr_flushprint($iCount--);
 				$sTier = $oTier->name;
-				$aBTs = self::GET_tier_transaction_names($psApp, $sTier);
+				$aBTs = self::GET_tier_transaction_names($poApp->name, $sTier);
 				if (!$aBTs) continue;
 				
 				$oTierObj = new cAppdObj();
@@ -633,12 +639,12 @@ class cAppDyn{
 					
 					$oLeaf->name = $sBT;
 					$oLeaf->metric = $sFolderMetric;
-					self::GET_trans_backend_tree($psApp,$sFolderMetric,1, $oLeaf);
+					self::GET_trans_backend_tree($poApp->name,$sFolderMetric,1, $oLeaf);
 				}
 			}
 		}else{
 			$sSearchMetric = $psFolderMetric . "|External Calls";
-			$aExtCalls = cAppdynCore::GET_Metric_heirarchy($psApp, $sSearchMetric);
+			$aExtCalls = cAppdynCore::GET_Metric_heirarchy($poApp->name, $sSearchMetric);
 			if ($aExtCalls){
 				foreach ($aExtCalls as $oExtCall){
 					//----------------------------------------------------------------
@@ -653,14 +659,14 @@ class cAppDyn{
 					$oLeaf->name = $sExtCallName;
 					
 					//----------------------------------------------------------------
-					$aItems = cAppdynCore::GET_Metric_heirarchy($psApp, $sExtMetric);
+					$aItems = cAppdynCore::GET_Metric_heirarchy($poApp->name, $sExtMetric);
 					
 					foreach ($aItems as $oItem){
 						self::pr_flushprint(".");
 						if ($oItem->type !== "folder") continue;
 						$sItemName = $oItem->name;
 						$sNewMetric = $sExtMetric."|$sItemName";
-						self::GET_trans_backend_tree($psApp, $sNewMetric,$piDepth+1, $oLeaf);
+						self::GET_trans_backend_tree($poApp->name, $sNewMetric,$piDepth+1, $oLeaf);
 					}
 				}
 			}
