@@ -286,8 +286,20 @@ class cAppDyn{
 	//*****************************************************************
 	public static function GET_AppExtTiers($psApp){
 		if ( self::is_demo()) return cAppDynDemo::GET_AppExtTiers($psApp);
+		cDebug::enter();
 		$sMetricPath= cAppDynMetric::appBackends();
-		return cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricPath,false); //dont cache
+		$aMetrics = cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricPath,false); //dont cache
+		if ($aMetrics) uasort($aMetrics,"sort_by_name");
+		cDebug::leave();
+		return $aMetrics;
+	}
+	//*****************************************************************
+	public static function GET_AppExtCalls($psApp){
+		cDebug::enter();
+		$sMetricPath= cAppDynMetric::appExtCalls();
+		$aMetrics = cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricPath,false); //dont cache
+		cDebug::leave();
+		return $aMetrics;
 	}
 
 	//*****************************************************************
@@ -678,9 +690,9 @@ class cAppDyn{
 	
 	
 	//*****************************************************************
-	public static function GET_BackendCallerTransactions($psApp, $psBackend){
+	public static function GET_BackendCallerTransactions($poApp, $psBackend){
 		$aMatches = [];
-		$aData = self::GET_trans_backend_tree($psApp);
+		$aData = self::GET_trans_backend_tree($poApp);
 
 		foreach ($aData as $oTier){
 			$sTier = $oTier->tier;

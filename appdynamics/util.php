@@ -282,6 +282,18 @@ class cAppdynUtil {
 		
 		return $sNodeName;
 	}
+	
+	//*****************************************************************
+	public static function get_matching_extcall($poApp, $psExt){
+		$aTiers = cAppdyn::GET_Tiers($poApp);
+		foreach ($aTiers as $oTier){
+			$aTierExt = cAppdyn::GET_tier_ExtCalls_Metric_heirarchy($poApp->name, $oTier->name);
+			foreach ($aTierExt as $oExt)
+				if ( strpos($oExt->name, $psExt) !== false )
+					return $oExt->name;
+		}
+		return null;
+	}
 }
 
 ?>

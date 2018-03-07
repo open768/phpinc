@@ -314,6 +314,9 @@ class cAppDynMetric{
 	public static function appBackends(){
 		return self::backends();
 	}
+	public static function appExtCalls(){
+		return self::APPLICATION."|*|External Calls";
+	}
 
 	
 
@@ -526,12 +529,16 @@ class cAppDynMetric{
 		return $sMetric;
 	}
 	
+	public static function tierExt($psTier1,$psTier2){
+		return self::APPLICATION."|$psTier1|".self::EXT_CALLS."|$psTier2";
+	}
+	
 	public static function tierExtCallsPerMin($psTier1,$psTier2){
-		return self::APPLICATION."|$psTier1|".self::EXT_CALLS."|$psTier2|".self::CALLS_PER_MIN;
+		return self::tierExt($psTier1,$psTier2)."|".self::CALLS_PER_MIN;
 	}
 
 	public static function tierExtResponseTimes($psTier1,$psTier2){
-		return self::APPLICATION."|$psTier1|".self::EXT_CALLS."|$psTier2|".self::RESPONSE_TIME;
+		return self::tierExt($psTier1,$psTier2)."|".self::RESPONSE_TIME;
 	}
 
 	public static function tierNodeCallsPerMin($psTier, $psNode=null){
