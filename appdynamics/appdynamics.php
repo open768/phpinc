@@ -163,6 +163,8 @@ class cAppDynWebsite{
 //# CLASSES
 //#################################################################
 class cAppDynRestUI{
+	public static $oTimes = null;
+	
 	public static function GET_database_agents(){
 		$sURL = "agent/setting/getDBAgents";
 		return  cAppdynCore::GET_restUI($sURL);
@@ -179,10 +181,19 @@ class cAppDynRestUI{
 	}
 
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* Nodes  (warning this uses an undocumented API / doesnt work unless from the controller)
+	//* Nodes  (warning this uses an undocumented API)
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	public static function GET_Node_details($piAppID, $piNodeID){
 		$sURL = "dashboardNodeViewData/$piAppID/$piNodeID";
+		return  cAppdynCore::GET_restUI($sURL);
+	}
+	
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	//* Snapshots (warning this uses an undocumented API)
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	public static function GET_snapshot_segments($psGUID){
+		$sTimeUrl = cAppdynUtil::controller_short_time_command( self::$oTimes);
+		$sURL = "snapshot/getRequestSegmentData?requestGUID=$psGUID&$sTimeUrl";
 		return  cAppdynCore::GET_restUI($sURL);
 	}
 }

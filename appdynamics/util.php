@@ -235,6 +235,10 @@ class cAppdynUtil {
 	public static function controller_time_command($poTime){
 		return "time-range-type=BETWEEN_TIMES&start-time=".$poTime->start."&end-time=".$poTime->end;
 	}
+	//*****************************************************************
+	public static function controller_short_time_command($poTime){
+		return "timeRange=Custom_Time_Range.BETWEEN_TIMES.".$poTime->end.".".$poTime->start.".60";
+	}
 	
 	//*****************************************************************
 	public static function extract_agent_version($psInput){
