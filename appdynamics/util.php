@@ -236,8 +236,8 @@ class cAppdynUtil {
 		return "time-range-type=BETWEEN_TIMES&start-time=".$poTime->start."&end-time=".$poTime->end;
 	}
 	//*****************************************************************
-	public static function controller_short_time_command($poTime){
-		return "timeRange=Custom_Time_Range.BETWEEN_TIMES.".$poTime->end.".".$poTime->start.".60";
+	public static function controller_short_time_command($poTime,$psKey="timeRange"){
+		return "$psKey=Custom_Time_Range.BETWEEN_TIMES.".$poTime->end.".".$poTime->start.".60";
 	}
 	
 	//*****************************************************************

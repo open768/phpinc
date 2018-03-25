@@ -43,8 +43,20 @@ class cAppDynRestUI{
 	//* Snapshots (warning this uses an undocumented API)
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	public static function GET_snapshot_segments($psGUID){
-		$sTimeUrl = cAppdynUtil::controller_short_time_command( self::$oTimes);
-		$sURL = "snapshot/getRequestSegmentData?requestGUID=$psGUID&$sTimeUrl";
-		return  cAppdynCore::GET_restUI($sURL);
+		cDebug::enter();
+			$sTimeUrl = cAppdynUtil::controller_short_time_command( self::$oTimes);
+			$sURL = "snapshot/getRequestSegmentData?requestGUID=$psGUID&$sTimeUrl";
+			$aResult = cAppdynCore::GET_restUI($sURL);
+		cDebug::leave();
+		return  $aResult;
+	}
+	
+	public static function GET_snapshot_problems($poApp,$psGUID){
+		cDebug::enter();
+			$sTimeUrl = cAppdynUtil::controller_short_time_command( self::$oTimes, "time-range");
+			$sURL = "snapshot/potentialProblems?request-guid=$psGUID&applicationId=$poApp->id&$sTimeUrl&max-problems=50&max-rsds=30&exe-time-threshold=5";
+			$aResult = cAppdynCore::GET_restUI($sURL);
+		cDebug::leave();
+		return  $aResult;
 	}
 }
