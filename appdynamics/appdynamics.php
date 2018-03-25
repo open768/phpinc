@@ -24,6 +24,7 @@ require_once("$phpinc/appdynamics/account.php");
 require_once("$phpinc/appdynamics/util.php");
 require_once("$phpinc/appdynamics/metrics.php");
 require_once("$phpinc/appdynamics/controllerui.php");
+require_once("$phpinc/appdynamics/restui.php");
 
 //#################################################################
 //# 
@@ -156,45 +157,6 @@ class cAppDynWebsite{
 		
 		uasort($aData,"sort_downloads");
 		return $aData;
-	}
-}
-
-//#################################################################
-//# CLASSES
-//#################################################################
-class cAppDynRestUI{
-	public static $oTimes = null;
-	
-	public static function GET_database_agents(){
-		$sURL = "agent/setting/getDBAgents";
-		return  cAppdynCore::GET_restUI($sURL);
-	}
-	public static function GET_machine_agents(){
-		$aAgents = cAppdynCore::GET_restUI("agent/setting/allMachineAgents");
-		uasort($aAgents,"sort_machine_agents");
-		return  $aAgents;
-	}
-	public static function GET_appserver_agents(){
-		$aAgents = cAppdynCore::GET_restUI("agent/setting/getAppServerAgents");
-		uasort($aAgents,"sort_appserver_agents");
-		return  $aAgents;
-	}
-
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* Nodes  (warning this uses an undocumented API)
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_Node_details($piAppID, $piNodeID){
-		$sURL = "dashboardNodeViewData/$piAppID/$piNodeID";
-		return  cAppdynCore::GET_restUI($sURL);
-	}
-	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* Snapshots (warning this uses an undocumented API)
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_snapshot_segments($psGUID){
-		$sTimeUrl = cAppdynUtil::controller_short_time_command( self::$oTimes);
-		$sURL = "snapshot/getRequestSegmentData?requestGUID=$psGUID&$sTimeUrl";
-		return  cAppdynCore::GET_restUI($sURL);
 	}
 }
 
