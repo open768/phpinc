@@ -718,6 +718,10 @@ class cAppDyn{
 	// Snapshots
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	public static function GET_snaphot_info($psApp, $psTransID, $poTimes){
+		/*should use instead
+		eg https://waitroseprod.saas.appdynamics.com/controller/restui/snapshot/snapshotListDataWithFilterHandle		{"firstInChain":false,"maxRows":600,"applicationIds":[1424],"businessTransactionIds":[],"applicationComponentIds":[4561],"applicationComponentNodeIds":[],"errorIDs":[],"errorOccured":null,"userExperience":[],"executionTimeInMilis":null,"endToEndLatency":null,"url":null,"sessionId":null,"userPrincipalId":null,"dataCollectorFilter":null,"archived":null,"guids":[],"diagnosticSnapshot":null,"badRequest":null,"deepDivePolicy":[],"rangeSpecifier":{"type":"BEFORE_NOW","durationInMinutes":15}}		
+		*/
+		
 		$psApp = rawurlencode($psApp);
 		$sUrl = cHttp::build_url("$psApp/request-snapshots", cAppdynUtil::controller_time_command($poTimes));
 		$sUrl = cHttp::build_url($sUrl, "application_name", $psApp);
