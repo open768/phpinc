@@ -156,6 +156,13 @@ class cHttp{
 	//############################################################################
 	//#  URL Building functions
 	//############################################################################
+	public static function build_qs_from_array($psBase, $paAssoc){
+		$sQS = $psBase;
+		foreach ($paAssoc as $sKey=>$sValue)
+			$sQS = self::build_qs($sQS, $sKey, $sValue);
+		return $sQS;
+	}
+	
 	public static function build_qs($psBase, $psQueryParam, $psQueryValue = null){
 		if ($psQueryParam == "") return $psBase;
 

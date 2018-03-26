@@ -231,6 +231,12 @@ class cAppdynUtil {
 			cDebug::error("no match");
 	}
 
+	public static function make_time_obj($piTimeinMs){
+		$oTime = new cAppDynTimes;
+		$oTime->start = $piTimeinMs-5000;
+		$oTime->end = $piTimeinMs+5000;
+		return $oTime;
+	}
 	//*****************************************************************
 	public static function controller_time_command($poTime){
 		return "time-range-type=BETWEEN_TIMES&start-time=".$poTime->start."&end-time=".$poTime->end;

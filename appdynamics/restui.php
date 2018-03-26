@@ -13,6 +13,26 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 **************************************************************************/
 require_once("$phpinc/appdynamics/core.php");
 
+class cAppdynRestUITime{
+	public $type="BETWEEN_TIMES";
+	public $durationInMinutes = 60;
+	public $endTime = -1;
+	public $startTime = -1;
+	public $timeRange=null;
+	public $timeRangeAdjusted=false;
+}
+
+class cAppdynRestUIRequest{
+	public $applicationIds = [];
+	public $guids = [];
+	public $rangeSpecifier = null;
+	public $needExitCalls = true;
+	
+	function __construct(){
+		$this->rangeSpecifier = new cAppdynRestUITime;
+	}
+}
+
 class cAppDynRestUI{
 	public static $oTimes = null;
 	
@@ -42,21 +62,36 @@ class cAppDynRestUI{
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* Snapshots (warning this uses an undocumented API)
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_snapshot_segments($psGUID){
+	public static function GET_snapshot_segments($psGUID, $piSnapTime){
 		cDebug::enter();
-			$sTimeUrl = cAppdynUtil::controller_short_time_command( self::$oTimes);
+			$oTime = cAppdynUtil::make_time_obj($piSnapTime);
+			$sTimeUrl = cAppdynUtil::controller_short_time_command( $oTime);
 			$sURL = "snapshot/getRequestSegmentData?requestGUID=$psGUID&$sTimeUrl";
 			$aResult = cAppdynCore::GET_restUI($sURL);
 		cDebug::leave();
 		return  $aResult;
 	}
 	
-	public static function GET_snapshot_problems($poApp,$psGUID){
+	public static function GET_snapshot_problems($poApp,$psGUID, $piSnapTime){
 		cDebug::enter();
-			$sTimeUrl = cAppdynUtil::controller_short_time_command( self::$oTimes, "time-range");
+			$oTime = cAppdynUtil::make_time_obj($piSnapTime);
+			$sTimeUrl = cAppdynUtil::controller_short_time_command( $oTime, "time-range");
 			$sURL = "snapshot/potentialProblems?request-guid=$psGUID&applicationId=$poApp->id&$sTimeUrl&max-problems=50&max-rsds=30&exe-time-threshold=5";
 			$aResult = cAppdynCore::GET_restUI($sURL);
 		cDebug::leave();
 		return  $aResult;
+	}
+	
+	public static function GET_snapshot_slow_db_and_remote($poApp, $psSnapGUID, $piSnapTime){
+		$sURL = "snapshot/getSlowestExitCalls?limit=30";
+		$oTime = cAppdynUtil::make_time_obj($piSnapTime);
+		$oRequest = new cAppdynRestUIRequest;
+		
+		return [];
+	}
+
+	public static function GET_snapshot_slow_methods($poApp, $psSnapGUID, $piSnapTime){
+		$oTime = cAppdynUtil::make_time_obj($piSnapTime);
+		return [];
 	}
 }

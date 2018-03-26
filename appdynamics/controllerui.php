@@ -116,7 +116,7 @@ class cAppDynControllerUI{
 	
 	public static function tier($poApp, $poTier){
 		$sBaseUrl = cAppDynCore::GET_controller();
-		return $sBaseUrl."/#/location=APP_COMPONENT_MANAGER&application=$poapp->id&component=$poTier->id&dashboardMode=force";
+		return $sBaseUrl."/#/location=APP_COMPONENT_MANAGER&application=$poApp->id&component=$poTier->id&dashboardMode=force";
 	}
 	
 	//###############################################################################################
