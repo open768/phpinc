@@ -424,8 +424,12 @@ class cAppDyn{
 
 	//*****************************************************************
 	public static function GET_tier_ExtCalls_Metric_heirarchy($psApp, $psTier){
-		$metricPath = "Overall Application Performance|$psTier|External Calls";
-		return cAppdynCore::GET_Metric_heirarchy($psApp, $metricPath, false);
+		cDebug::enter();
+			$metricPath = "Overall Application Performance|$psTier|External Calls";
+			$aData = cAppdynCore::GET_Metric_heirarchy($psApp, $metricPath, false);
+			uasort ($aData, "sort_by_name");
+		cDebug::leave();
+		return $aData;
 	}
 
 	//*****************************************************************
