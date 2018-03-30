@@ -247,6 +247,12 @@ class cAppdynUtil {
 	}
 	
 	//*****************************************************************
+	public static function timestamp_to_date( $piMs){
+		$iEpoch = (int) ($piMs/1000);
+		return date(cCommon::ENGLISH_DATE_FORMAT, $iEpoch);
+	}
+	
+	//*****************************************************************
 	public static function extract_agent_version($psInput){
 		if (preg_match("/^[\d\.]+$/",$psInput))
 			return $psInput;

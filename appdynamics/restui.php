@@ -72,6 +72,7 @@ class cAppDynRestUI{
 		return  $aResult;
 	}
 	
+	//************************************************************************************
 	public static function GET_snapshot_problems($poApp,$psGUID, $piSnapTime){
 		cDebug::enter();
 			$oTime = cAppdynUtil::make_time_obj($piSnapTime);
@@ -82,16 +83,40 @@ class cAppDynRestUI{
 		return  $aResult;
 	}
 	
-	public static function GET_snapshot_slow_db_and_remote($poApp, $psSnapGUID, $piSnapTime){
-		$sURL = "snapshot/getSlowestExitCalls?limit=30";
-		$oTime = cAppdynUtil::make_time_obj($piSnapTime);
-		$oRequest = new cAppdynRestUIRequest;
+	//************************************************************************************
+	public static function GET_snapshot_flow($poApp, $psBtID, $psGUID, $piSnapTime){
+		/* /restui/snapshotFlowmap/distributedSnapshotFlow?
+			applicationId=1424&
+			businessTransactionId=778159&
+			requestGUID=f7c147f9-8744-41f2-b2db-82f456cad201&
+			eventType=&
+			timeRange=Custom_Time_Range.BETWEEN_TIMES.1522447573163.1522443973163.60&
+			mapId=-1		
+			
+			
+		failed	
+			/restui/snapshotFlowmap/distributedSnapshotFlow?
+			applicationId=1424&
+			businessTransactionId=777562&
+			requestGUID=71307b81-8df8-425c-8e12-31cfa997bd5f&
+			timeRange=Custom_Time_Range.BETWEEN_TIMES.1522443843055.1522443833055.60&
+			mapId=-1
+		*/
+		cDebug::enter();
+			$oTime = cAppdynUtil::make_time_obj($piSnapTime);
+			$sTimeUrl = cAppdynUtil::controller_short_time_command( $oTime);
+			$sURL = "snapshotFlowmap/distributedSnapshotFlow?applicationId=$poApp->id&businessTransactionId=$psBtID&requestGUID=$psGUID&eventType=&$sTimeUrl&mapId=-1&";
+			$oResult = cAppdynCore::GET_restUI($sURL);
+		cDebug::leave();
 		
-		return [];
+		return $oResult;
 	}
 
-	public static function GET_snapshot_slow_methods($poApp, $psSnapGUID, $piSnapTime){
-		$oTime = cAppdynUtil::make_time_obj($piSnapTime);
-		return [];
-	}
+	
+	//************************************************************************************
+	/*
+	call graph
+	https://waitroseprod.saas.appdynamics.com/controller/restui/snapshot/getCallGraphRoot?rsdId=5727317326&timeRange=Custom_Time_Range.BETWEEN_TIMES.1522445638055.1522442038055.60
+	*/
+
 }
