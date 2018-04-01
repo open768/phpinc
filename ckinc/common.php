@@ -100,4 +100,8 @@ class cCommon{
 		return GetHostByName(null);
 	}
 	
+	public static function fixed_width_div($piWidth, $psContent){
+		?><div style='width:<?=$piWidth?>px;max-width:<?=$piWidth?>px;word-break:break-all'><?=$psContent?></div><?php
+	}
+	
 }
