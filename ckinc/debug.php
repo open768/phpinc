@@ -44,8 +44,7 @@ class cDebug{
 		if (self::$EXTRA_DEBUGGING){
 			$sDate = date('d-m-Y H:i:s');
 			echo "<p><font color=red><code>** $sDate: $poThing</code></font><p>";
-			ob_flush();
-			flush();
+			self::flush();
 		}
 	}
 	
@@ -54,14 +53,13 @@ class cDebug{
 		if (self::is_debugging()){
 			$sDate = date('d-m-Y H:i:s');
 			echo "<p><font color=red><code>$sDate: $poThing</code></font><p>";
-			ob_flush();
-			flush();
+			self::flush();
 		}
 	}
 		
 	public static function flush(){
-		ob_flush();
-		flush();
+		@ob_flush();
+		@flush();
 	}
 	
 	//**************************************************************************
@@ -70,8 +68,7 @@ class cDebug{
 			echo "<table border=1 width=100%><tr><td><PRE>";
 			var_dump($poThing);
 			echo "</PRE></td></tr></table>";
-			ob_flush();
-			flush();
+			self::flush();
 		}else
 			self::write(__FUNCTION__." only available in debug2");
 	}

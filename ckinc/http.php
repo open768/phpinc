@@ -127,7 +127,7 @@ class cHttp{
 		$oContext = stream_context_create($aHeaders);
 		
 		try{
-			$sHTML = file_get_contents($psUrl, false, $oContext);
+			$sHTML = @file_get_contents($psUrl, false, $oContext);
 		}catch(Exception $e){
 			cDebug::error("couldnt get url $psUrl : $e");
 		}
