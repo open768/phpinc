@@ -28,6 +28,7 @@ class cHttp{
 	private $username = null;
 	private $password = null;
 	public $response_headers = [];
+	public $request_payload = null;
 	
 	//*****************************************************************************
 	public function set_credentials($psUserName, $psPassword){
@@ -113,9 +114,11 @@ class cHttp{
 
 		$oContext = null;
 		$this->response_headers = [];
-		$aHeaders = [	"ssl"=> ["verify_peer"=>false,"verify_peer_name"=>false]];
+		$aContext = [	"ssl"=> ["verify_peer"=>false,"verify_peer_name"=>false]];
 		$sHeader = "";
+		$aHttpContext = [];
 
+		//********************************************************************
 		if ($this->authenticate){
 			$sCredentials = base64_encode($this->username.":".$this->password);
 			$sHeader = "Authorization: Basic $sCredentials";
@@ -123,16 +126,30 @@ class cHttp{
 		}elseif ($this->extra_header) 
 			$sHeader = $this->extra_header;
 		
-		$aHeaders["http"] = ["header" => $sHeader];
-		$oContext = stream_context_create($aHeaders);
+		//********************************************************************
+		if ($this->request_payload !== null){
+			$sHeader .= "\r\nContent-Type: application/json";
+			$sHeader .= "\r\nContent-Length: ".strlen($this->request_payload);
+			$aHttpContext["content"] = $this->request_payload;
+			$aHttpContext["method"]  = "POST";
+		}
 		
+		//********************************************************************
+		$aHttpContext["header"] =  $sHeader;
+		$aContext["http"] = $aHttpContext;
+		//cDebug::vardump($aContext);
+		cDebug::enter("stream_context_create");
+		$oContext = stream_context_create($aContext);
+		cDebug::leave("stream_context_create");
+
+		//********************************************************************
 		try{
 			$sHTML = @file_get_contents($psUrl, false, $oContext);
 		}catch(Exception $e){
 			cDebug::error("couldnt get url $psUrl : $e");
 		}
 		
-		
+		//********************************************************************
 		if(!strpos($http_response_header[0], "200")){
 			cDebug::vardump($http_response_header);
 			cDebug::error($http_response_header[0]);

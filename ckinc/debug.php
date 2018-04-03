@@ -122,31 +122,38 @@ class cDebug{
 			self::write(__FUNCTION__." only available in debug2");
 	}
 	
-	public static function enter( ){
+	public static function enter( $psOverrideName = null){
 		if (self::$EXTRA_DEBUGGING){
-			$aCaller = self::get_caller(1);
-			$sFunc = $aCaller['function'];
-			$sClass = '';
-			if ( array_key_exists("class", $aCaller)){
-				$sClass = $aCaller['class'];
+			$sCaller = $psOverrideName;
+			if ($psOverrideName == null){
+				$aCaller = self::get_caller(1);
+				$sFunc = $aCaller['function'];
+				$sClass = '';
+				if ( array_key_exists("class", $aCaller)){
+					$sClass = $aCaller['class'];
+				}
+				$sCaller = "$sClass.$sFunc";
 			}
 			
-			$padding = 
-			self::extra_debug("<font color='grey' face='courier' size=2>Enter ".str_repeat("----", self::$ENTER_DEPTH). "> $sClass.$sFunc</font>");
+			self::extra_debug("<font color='grey' face='courier' size=2>Enter ".str_repeat("----", self::$ENTER_DEPTH). "> $sCaller</font>");
 			self::$ENTER_DEPTH++;
 		}
 	}
 
-	public static function leave(){
+	public static function leave($psOverrideName = null){
 		if (self::$EXTRA_DEBUGGING){
 			self::$ENTER_DEPTH--;
-			$aCaller = self::get_caller(1);
-			$sFunc = $aCaller['function'];
-			$sClass = '';
-			if (array_key_exists("class", $aCaller))	{
-				$sClass = $aCaller['class'];
+			$sCaller = $psOverrideName;
+			if ($psOverrideName == null){
+				$aCaller = self::get_caller(1);
+				$sFunc = $aCaller['function'];
+				$sClass = '';
+				if (array_key_exists("class", $aCaller))	{
+					$sClass = $aCaller['class'];
+				}
+				$sCaller = "$sClass.$sFunc";
 			}
-			self::extra_debug("<font color='grey' face='courier' size=2>Leave ".str_repeat("----", self::$ENTER_DEPTH). "> $sClass.$sFunc</font>");
+			self::extra_debug("<font color='grey' face='courier' size=2>Leave ".str_repeat("----", self::$ENTER_DEPTH). "> $sCaller</font>");
 		}
 	}
 	

@@ -89,10 +89,11 @@ class cAppDynCore{
 	}
 	
 	//*****************************************************************
-	public static function  GET_restUI($psCmd, $pbCacheable = false){
+	public static function  GET_restUI_with_payload($psCmd,  $psPayload, $pbCacheable = false){
 		global $oData;
 
 		cDebug::enter();
+		
 		cDebug::write("getting $psCmd");
 		if ($pbCacheable && (!cDebug::$IGNORE_CACHE) && cHash::exists($psCmd)){
 			$oData = cHash::get($psCmd);
@@ -118,6 +119,7 @@ class cAppDynCore{
 		$oHttp = new cHttp();
 		$oHttp->USE_CURL = false;
 		$oHttp->extra_header = $sExtraHeader;
+		$oHttp->request_payload= $psPayload;
 		$oData = $oHttp->getjson($url);
 		cDebug::vardump($oData);
 		
@@ -126,6 +128,11 @@ class cAppDynCore{
 
 		cDebug::leave();
 		return $oData;
+	}
+	
+	//*****************************************************************
+	public static function  GET_restUI($psCmd, $pbCacheable = false){
+		return self::GET_restUI_with_payload($psCmd, null, $pbCacheable);
 	}
 
 	//*****************************************************************
