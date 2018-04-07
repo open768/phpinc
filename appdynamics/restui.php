@@ -84,11 +84,14 @@ class cAppDynRestUI{
 	}
 	
 	//************************************************************************************
-	public static function GET_snapshot_flow($poApp, $psBtID, $psGUID, $piSnapTime){
+	public static function GET_snapshot_flow($poSnapShot){
 		cDebug::enter();
-			$oTime = cAppdynUtil::make_time_obj($piSnapTime);
+			$oTime = cAppdynUtil::make_time_obj($poSnapShot->serverStartTime);
+			$sAid = $poSnapShot->applicationId;
+			$sBtID = $poSnapShot->businessTransactionId;
+			$sGUID = $poSnapShot->requestGUID;
 			$sTimeUrl = cAppdynUtil::controller_short_time_command( $oTime);
-			$sURL = "snapshotFlowmap/distributedSnapshotFlow?applicationId=$poApp->id&businessTransactionId=$psBtID&requestGUID=$psGUID&eventType=&$sTimeUrl&mapId=-1";
+			$sURL = "snapshotFlowmap/distributedSnapshotFlow?applicationId=$sAid&businessTransactionId=$sBtID&requestGUID=$sGUID&eventType=&$sTimeUrl&mapId=-1";
 			$oResult = cAppdynCore::GET_restUI($sURL);
 		cDebug::leave();
 		

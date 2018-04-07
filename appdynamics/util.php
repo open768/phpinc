@@ -19,6 +19,7 @@ require_once("$phpinc/appdynamics/core.php");
 require_once("$phpinc/appdynamics/account.php");
 
 
+
 //#################################################################
 //# 
 //#################################################################
@@ -310,6 +311,13 @@ class cAppdynUtil {
 		}
 		return null;
 	}
+	
+	//*****************************************************************
+	public static function count_snapshot_ext_calls($poShapshot){
+		
+	}
+
+	
 }
 
 ?>
