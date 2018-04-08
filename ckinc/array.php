@@ -16,48 +16,103 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 require_once("$phpinc/ckinc/debug.php");
 
+//########################################################################
+//#
+//########################################################################
+class cAssocArray{
+	private $data = [];
+	
+	public function get($psKey){
+		return $this->data[$psKey];
+	}
+	
+	public function set($psKey, $pvValue){
+		$this->data[$psKey] = $pvValue;
+	}
+	public function keys(){
+		return array_keys($this->data);
+	}
+	public function key_exists($psKey){
+		return array_key_exists($psKey,$this->data);
+	}
+	
+	public function count(){
+		return count($this->data);
+	}
+}
+
+//########################################################################
+//#
+//########################################################################
 class c2DArray{
-	private $caRows = [];
-	private $caRowNames = [];
-	private $caColNames = [];
+	private $caRows = null;
+	private $caRowNames = null;
+	private $caColNames = null;
+	private $caColInfo = null;
+
+	// *************************** constructor ***************************
+    public function __construct(){
+		$this->caRows = new cAssocArray;
+		$this->caRowNames = new cAssocArray;
+		$this->caColNames = new cAssocArray;
+		$this->caColInfo = new cAssocArray;
+	}
 
 	//********************************************************************
 	private function pr__get_row($psRow, $pbCreate = false){
-		if (!array_key_exists($psRow, $this->caRowNames))
+		if (!$this->caRowNames->key_exists($psRow))
 			if ($pbCreate){
-				$this->caRowNames[$psRow] = 1;
-				$this->caRows[$psRow] = [];
+				$this->caRowNames->set($psRow,1);
+				$this->caRows->set($psRow, new cAssocArray);
 			}else
 				return null;
-		return $this->caRows[$psRow];
+		return $this->caRows->get($psRow);
 	}
 	
 	//********************************************************************
-	public function get_colnames(){
-		return $this->caColNames;
+	public function colNames(){
+		return $this->caColNames->keys();
 	}
 	
 	//********************************************************************
-	public function get_rownames(){
-		return $this->caRowNames;
+	public function rowNames(){
+		return $this->caRowNames->keys();
 	}
 	
 	//********************************************************************
 	public function get($psRow, $psCol){
-		$aRow = $this->pr__get_row($psRow, false);
-		if ($aRow == null) return null;
+		$oRow = $this->pr__get_row($psRow, false);
+		if ($oRow == null) return null;
 		
-		if (!array_key_exists($psCol, $aRow))
-			return null;
-		else
-			return $aRow[$psCol];
+		return $oRow->get($psCol);
 	}
 	
 	//********************************************************************
 	public function set($psRow, $psCol, $pvData){
-		$aRow = $this->pr__get_row($psRow, true);
-		if (!array_key_exists($psRow, $this->caColNames))
-			$this->caColNames[$psCol] = 1;
-		$aRow[$psCol] = $pvData;
+		cDebug::enter();
+		
+		$oRow = $this->pr__get_row($psRow, true);
+		$oRow->set($psCol,$pvData);
+		
+		if (!$this->caColNames->key_exists($psCol))		$this->caColNames->set($psCol,1);
+		
+		cDebug::leave();
+	}
+	
+	//********************************************************************
+	public function add_col_data($psCol, $paData){
+		cDebug::enter();
+		if (gettype($paData) !== "array") cDebug::error("expecting an array");
+		$aRowNames = array_keys($paData);
+		foreach ( $aRowNames as $sRow)	{
+			$this->set($sRow, $psCol, $paData[$sRow]);
+		}
+		cDebug::leave();
+	}
+	public function set_col_info($psCol, $pvInfo){
+		$this->caColInfo->set($psCol,$pvInfo);
+	}
+	public function get_col_info($psCol){
+		return $this->caColInfo->get($psCol);
 	}
 }

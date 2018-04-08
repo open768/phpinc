@@ -26,6 +26,9 @@ require_once("$phpinc/appdynamics/account.php");
 class cCallsAnalysis{
     public $max, $min, $avg, $sum, $count, $extCalls;
 }
+class cExtCallsAnalysis{
+    public $count=0, $totalTime=0, $exitPointName, $toComponentID;
+}
 
 //#################################################################
 //# 
@@ -95,7 +98,7 @@ class cAppdynUtil {
 		elseif (count($paData) == 1)
 			return array_pop($paData);
 		else{
-			$aNew = array();
+			$aNew = [];
 			while (count($paData) >0)
 			{
 				$aPopped = array_pop($paData);
@@ -103,7 +106,7 @@ class cAppdynUtil {
 					while (count($aPopped) > 0)
 					{
 						$aRow = array_pop($aPopped);
-						array_push( $aNew, $aRow);
+						$aNew[] = $aRow;
 					}
 				}
 			}
@@ -313,8 +316,58 @@ class cAppdynUtil {
 	}
 	
 	//*****************************************************************
+	public static function ignore_exitCall($poExitCall){
+		if ($poExitCall->detailString === "Get Pooled Connection From Datasource") return true;
+		return false;
+	}
+	
+	//*****************************************************************
 	public static function count_snapshot_ext_calls($poShapshot){
+		$aExtCalls = [];
+		cDebug::enter();
 		
+		//---------------- get the flow
+		try{
+			$oFlow = cAppDynRestUI::GET_snapshot_flow($poShapshot);
+		}catch (Exception $e){
+			return null;
+		}
+		
+		//---------------- analyse the flow
+		$aNodes = $oFlow->nodes;
+		
+		foreach ($aNodes as $oNode){
+			$aSegments = $oNode->requestSegmentDataItems;
+			if (count($aSegments)==0) continue;
+			
+			foreach ($aSegments as $oSegment){
+				$aExitCalls = $oSegment->exitCalls;
+				if (count($aExitCalls)==0) continue;
+				
+				foreach ($aExitCalls as $oExitCall){
+					$sExtName = $oExitCall->exitPointName.":".$oExitCall->toComponentId;
+					if (self::ignore_exitCall($oExitCall)) continue;
+					
+					
+					$iCount = 0;
+					if (array_key_exists($sExtName, $aExtCalls)) 
+						$oCounter = $aExtCalls[$sExtName];
+					else{
+						$oCounter = new cExtCallsAnalysis;
+						$oCounter->count = 0;
+						$oCounter->exitPointName = $oExitCall->exitPointName;
+						$oCounter->toComponentID = $oExitCall->toComponentId;
+						$aExtCalls[$sExtName] = $oCounter;
+					}
+					
+					$oCounter->count += $oExitCall->count;
+					$oCounter->totalTime += $oExitCall->timeTakenInMillis;
+				}
+			}
+		}
+		
+		cDebug::leave();		
+		return $aExtCalls;
 	}
 
 	
