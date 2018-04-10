@@ -385,7 +385,16 @@ class cAppDyn{
 		$sApp = rawurlencode($poApp->name);
 		$aData = cAppdynCore::GET("$sApp/tiers?" );
 		if ($aData) uasort($aData,"sort_by_name");
-		return $aData;
+		
+		$aOutTiers = [];
+
+		//convert to tier objects and populate the app
+		foreach ($aData as $oInTier){
+			$oOutTier = new cAppDTier($poApp, $oInTier->name, $oInTier->id);
+			$aOutTiers[] = $oOutTier;
+		}
+		
+		return $aOutTiers;
 	}
 	
 	//*****************************************************************

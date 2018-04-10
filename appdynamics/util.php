@@ -14,6 +14,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 //see 
 require_once("$phpinc/ckinc/http.php");
+require_once("$phpinc/ckinc/array.php");
 require_once("$phpinc/appdynamics/common.php");
 require_once("$phpinc/appdynamics/core.php");
 require_once("$phpinc/appdynamics/account.php");
@@ -322,19 +323,10 @@ class cAppdynUtil {
 	}
 	
 	//*****************************************************************
-	public static function count_snapshot_ext_calls($poShapshot){
-		$aExtCalls = [];
+	public static function count_flow_ext_calls($poFlow){
 		cDebug::enter();
-		
-		//---------------- get the flow
-		try{
-			$oFlow = cAppDynRestUI::GET_snapshot_flow($poShapshot);
-		}catch (Exception $e){
-			return null;
-		}
-		
-		//---------------- analyse the flow
-		$aNodes = $oFlow->nodes;
+		$oExtCalls = new cAssocArray;
+		$aNodes = $poFlow->nodes;
 		
 		foreach ($aNodes as $oNode){
 			$aSegments = $oNode->requestSegmentDataItems;
@@ -350,14 +342,14 @@ class cAppdynUtil {
 					
 					
 					$iCount = 0;
-					if (array_key_exists($sExtName, $aExtCalls)) 
-						$oCounter = $aExtCalls[$sExtName];
+					if ($oExtCalls->key_exists($sExtName)) 
+						$oCounter = $oExtCalls->get($sExtName);
 					else{
 						$oCounter = new cExtCallsAnalysis;
 						$oCounter->count = 0;
 						$oCounter->exitPointName = $oExitCall->exitPointName;
 						$oCounter->toComponentID = $oExitCall->toComponentId;
-						$aExtCalls[$sExtName] = $oCounter;
+						$oExtCalls->set($sExtName, $oCounter);
 					}
 					
 					$oCounter->count += $oExitCall->count;
@@ -367,7 +359,24 @@ class cAppdynUtil {
 		}
 		
 		cDebug::leave();		
-		return $aExtCalls;
+		return $oExtCalls;
+	}
+	
+	//*****************************************************************
+	public static function count_snapshot_ext_calls($poShapshot){
+		cDebug::enter();
+		
+		//---------------- get the flow
+		try{
+			$oFlow = cAppDynRestUI::GET_snapshot_flow($poShapshot);
+		}catch (Exception $e){
+			return null;
+		}
+		
+		//---------------- analyse the flow
+		$oExtCalls = self::count_flow_ext_calls($oFlow);
+		cDebug::leave();		
+		return $oExtCalls;
 	}
 
 	

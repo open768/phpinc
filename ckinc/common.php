@@ -66,7 +66,7 @@ class cCommon{
 		
 		if (self::$SHOW_PROGRESS){
 			print $psWhat;
-			flush();ob_flush();
+			cDebug::flush();
 		}
 	}
 	
@@ -105,3 +105,12 @@ class cCommon{
 	}
 	
 }
+
+//no cacheing allowed
+//header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
+//header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
+date_default_timezone_set('Europe/London');
+ob_end_flush(); //no buffering allowed, content is written to screen as soon as available
+
+
+

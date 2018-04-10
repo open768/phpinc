@@ -30,10 +30,15 @@ class cDebug{
 	}
 	
 	public static function on($pbExtraDebugging = false){
+
 		self::$DEBUGGING=true;
 		self::$EXTRA_DEBUGGING = $pbExtraDebugging;
 		self::write("Debugging on");
+		$aCaller = self::get_caller(1);
+		$sFunc = $aCaller['function'];
+		self::write("Caller is $sFunc");
 	}
+	
 	public static function off(){
 		self::write("Debugging off");
 		self::$DEBUGGING=false;

@@ -89,23 +89,3 @@ class cAppDynCommon{
 	}
 }
 
-
-
-//##########################################################################################
-//##########################################################################################
- //no buffering 
-ob_start(); ob_end_flush ();
-
-//set a huge memory usage
-ini_set("memory_limit","200M");
-
-
-//no cacheing allowed
-//header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
-//header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-date_default_timezone_set('Europe/London');
-
-
-
-
-

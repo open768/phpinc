@@ -23,7 +23,10 @@ class cAssocArray{
 	private $data = [];
 	
 	public function get($psKey){
-		return $this->data[$psKey];
+		if (array_key_exists($psKey,$this->data))
+			return $this->data[$psKey];
+		else	
+			return null;
 	}
 	
 	public function set($psKey, $pvValue){
@@ -100,15 +103,39 @@ class c2DArray{
 	}
 	
 	//********************************************************************
-	public function add_col_data($psCol, $paData){
-		cDebug::enter();
-		if (gettype($paData) !== "array") cDebug::error("expecting an array");
+	public function add_col_data_array($psCol, $paData){
 		$aRowNames = array_keys($paData);
-		foreach ( $aRowNames as $sRow)	{
+		foreach ( $aRowNames as $sRow)
 			$this->set($sRow, $psCol, $paData[$sRow]);
+	}
+	
+	//********************************************************************
+	public function add_col_data_obj($psCol, $poData){
+		$sClass = get_class($poData);
+		if ($sClass !== "cAssocArray") cDebug::error("unexpected class type: $sClass");
+		
+		$aRowNames = $poData->keys();
+		foreach ( $aRowNames as $sRow)
+			$this->set($sRow, $psCol, $poData->get($sRow));
+	}
+	
+	//********************************************************************
+	public function add_col_data($psCol, $pvData){
+		cDebug::enter();
+		$sType = gettype($pvData);
+		switch( $sType){
+			case "array":
+				self::add_col_data_array($psCol, $pvData);
+				break;
+			case "object":
+				self::add_col_data_obj($psCol, $pvData);
+				break;
+			default:
+				cDebug::error("unexpected type: $sType");
 		}
 		cDebug::leave();
 	}
+	
 	public function set_col_info($psCol, $pvInfo){
 		$this->caColInfo->set($psCol,$pvInfo);
 	}
