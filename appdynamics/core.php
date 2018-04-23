@@ -123,7 +123,7 @@ class cAppDynCore{
 		try{
 			$oData = $oHttp->getjson($url);
 		}catch (Exception $e){
-			if (stripos($e->getMessage(), "unauthorised")){
+			if (strpos($e->getMessage(), "401")){
 				cDebug::write("unauthorised - logging in again");
 				self::login();
 				cDebug::write("finished logging in, trying again");
