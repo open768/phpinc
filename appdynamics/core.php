@@ -120,7 +120,17 @@ class cAppDynCore{
 		$oHttp->USE_CURL = false;
 		$oHttp->extra_header = $sExtraHeader;
 		$oHttp->request_payload= $psPayload;
-		$oData = $oHttp->getjson($url);
+		try{
+			$oData = $oHttp->getjson($url);
+		}catch (Exception $e){
+			if (stripos($e->getMessage(), "unauthorised")){
+				cDebug::write("unauthorised - logging in again");
+				self::login();
+				cDebug::write("finished logging in, trying again");
+				$oData = $oHttp->getjson($url);
+			}else
+				throw($e);
+		}
 		cDebug::vardump($oData);
 		
 		//----- 

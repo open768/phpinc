@@ -48,7 +48,7 @@ class cDebug{
 	public static function extra_debug($poThing){
 		if (self::$EXTRA_DEBUGGING){
 			$sDate = date('d-m-Y H:i:s');
-			echo "<p><font color=red><code>** $sDate: $poThing</code></font><p>";
+			echo "<p><font color='DarkRed'><code>** $sDate: $poThing</code></font><p>";
 			self::flush();
 		}
 	}

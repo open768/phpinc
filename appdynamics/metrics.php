@@ -147,16 +147,14 @@ class cAppDynInfraMetric{
 	}
 	
 	//**************************************************************************
-	public static function getInfrastructureMetric($psTier, $psNode=null, $psMetricType){
-			$sNodeCaption = ($psNode?$psNode:($psTier?$psTier:"App"));
-			
+	public static function getInfrastructureMetric($psTier, $psNode=null, $psMetricType){			
 			switch($psMetricType){
 				case cRender::METRIC_TYPE_ACTIVITY:
 					if ($psTier)
 						$sMetricUrl = cAppDynMetric::tierNodeCallsPerMin($psTier,$psNode);
 					else
 						$sMetricUrl = cAppDynMetric::appCallsPerMin();
-					$sCaption = "Calls per min ($sNodeCaption)";
+					$sCaption = "Calls per min";
 					$sShortCaption = "Activity";
 					break;
 				case cRender::METRIC_TYPE_RESPONSE_TIMES:
@@ -164,87 +162,87 @@ class cAppDynInfraMetric{
 						$sMetricUrl = cAppDynMetric::tierNodeResponseTimes($psTier,$psNode);
 					else
 						$sMetricUrl = cAppDynMetric::appResponseTimes();
-					$sCaption = "response times in ms ($sNodeCaption)";
+					$sCaption = "response times in ms";
 					$sShortCaption = "Response";
 					break;
 				case self::METRIC_TYPE_INFR_AVAIL:
 					$sMetricUrl = cAppDynMetric::InfrastructureAgentAvailability($psTier,$psNode);
-					$sCaption = "Agent Availailability ($sNodeCaption)";
+					$sCaption = "Agent Availailability";
 					$sShortCaption = "Availability";
 					break;
 				case self::METRIC_TYPE_INFR_CPU_BUSY:
 					$sMetricUrl = cAppDynMetric::InfrastructureCpuBusy($psTier,$psNode);
-					$sCaption = "CPU Busy ($sNodeCaption)";
+					$sCaption = "CPU Busy";
 					$sShortCaption = "CPU Busy";
 					break;
 				case self::METRIC_TYPE_INFR_MEM_FREE:
 					$sMetricUrl = cAppDynMetric::InfrastructureMemoryFree($psTier,$psNode);
-					$sCaption = "Server memory free in MB ($sNodeCaption)";
+					$sCaption = "Server memory free in MB";
 					$sShortCaption = "Server Memory free (MB)";
 					break;
 				case self::METRIC_TYPE_INFR_DISK_FREE:
 					$sMetricUrl = cAppDynMetric::InfrastructureDiskFree($psTier,$psNode);
-					$sCaption = "Disk Space free in MB ($sNodeCaption)";
+					$sCaption = "Disk Space free in MB";
 					$sShortCaption = "Disk space free";
 					break;
 				case self::METRIC_TYPE_INFR_NETWORK_IN:
 					$sMetricUrl = cAppDynMetric::InfrastructureNetworkIncoming($psTier,$psNode);
-					$sCaption = "incoming network traffic in KB/sec ($sNodeCaption)";
+					$sCaption = "incoming network traffic in KB/sec ";
 					$sShortCaption = "Network-in";
 					break;
 				case self::METRIC_TYPE_INFR_NETWORK_OUT:
 					$sMetricUrl = cAppDynMetric::InfrastructureNetworkOutgoing($psTier,$psNode);
-					$sCaption = "outgoing network traffic in KB/sec ($sNodeCaption)";
+					$sCaption = "outgoing network traffic in KB/sec ";
 					$sShortCaption = "Network-out";
 					break;
 				case self::METRIC_TYPE_INFR_JAVA_HEAP_USED:
 					$sMetricUrl = cAppDynMetric::InfrastructureJavaHeapUsed($psTier,$psNode);
-					$sCaption = "memory - Java Heap used ($sNodeCaption)";
+					$sCaption = "memory - Java Heap used ";
 					$sShortCaption = "Java Heap used";
 					break;
 				case self::METRIC_TYPE_INFR_JAVA_HEAP_USEDPCT:
 					$sMetricUrl = cAppDynMetric::InfrastructureJavaHeapUsedPct($psTier,$psNode);
-					$sCaption = "memory - Java Heap %Used ($sNodeCaption)";
+					$sCaption = "memory - Java Heap %Used ";
 					$sShortCaption = "Java Heap %Used";
 					break;
 				case self::METRIC_TYPE_INFR_JAVA_GC_TIME:
 					$sMetricUrl = cAppDynMetric::InfrastructureJavaGCTime($psTier,$psNode);
-					$sCaption = "Java GC Time ($sNodeCaption)";
+					$sCaption = "Java GC Time ";
 					$sShortCaption = "Java GC Time";
 					break;
 				case self::METRIC_TYPE_INFR_JAVA_CPU_USAGE:
 					$sMetricUrl = cAppDynMetric::InfrastructureJavaCPUUsage($psTier,$psNode);
-					$sCaption = "CPU - Java Usage ($sNodeCaption)";
+					$sCaption = "CPU - Java Usage ";
 					$sShortCaption = "Java CPU";
 					break;
 				case self::METRIC_TYPE_INFR_DOTNET_HEAP_USED:
 					$sMetricUrl = cAppDynMetric::InfrastructureDotnetHeapUsed($psTier,$psNode);
-					$sCaption = "memory - dotNet heap used ($sNodeCaption)";
+					$sCaption = "memory - dotNet heap used ";
 					$sShortCaption = ".Net heap used";
 					break;
 				case self::METRIC_TYPE_INFR_DOTNET_GC_PCT:
 					$sMetricUrl = cAppDynMetric::InfrastructureDotnetGCTime($psTier,$psNode);
-					$sCaption = "percent DotNet GC time  ($sNodeCaption)";
+					$sCaption = "percent DotNet GC time  ";
 					$sShortCaption = ".Net-GC";
 					break;
 				case self::METRIC_TYPE_INFR_DOTNET_ANON_REQ:
 					$sMetricUrl = cAppDynMetric::InfrastructureDotnetAnonRequests($psTier,$psNode);
-					$sCaption = "DotNet Anonymous Requests  ($sNodeCaption)";
+					$sCaption = "DotNet Anonymous Requests  ";
 					$sShortCaption = ".Net-Anonymous";
 					break;
 				case self::METRIC_TYPE_INFR_AGENT_METRICS:
 					$sMetricUrl = cAppDynMetric::InfrastructureAgentMetricsUploaded($psTier,$psNode);
-					$sCaption = "Agent - Metrics uploaded  ($sNodeCaption)";
+					$sCaption = "Agent - Metrics uploaded  ";
 					$sShortCaption = "Agent-Metrics";
 					break;
 				case self::METRIC_TYPE_INFR_AGENT_INVALID_METRICS:
 					$sMetricUrl = cAppDynMetric::InfrastructureAgentInvalidMetrics($psTier,$psNode);
-					$sCaption = "Agent - Invalid Metrics  ($sNodeCaption)";
+					$sCaption = "Agent - Invalid Metrics  ";
 					$sShortCaption = "Agent-Invalid Metrics";
 					break;
 				case self::METRIC_TYPE_INFR_AGENT_LICENSE_ERRORS:
 					$sMetricUrl = cAppDynMetric::InfrastructureAgentMetricsLicenseErrors($psTier,$psNode);
-					$sCaption = "Agent - License Errors ($sNodeCaption)";
+					$sCaption = "Agent - License Errors ";
 					$sShortCaption = "Agent-License errors";
 					break;
 				default:
