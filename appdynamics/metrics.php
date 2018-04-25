@@ -259,6 +259,9 @@ class cAppDynMetric{
 	const RESPONSE_TIME = "Average Response Time (ms)";
 	const CALLS_PER_MIN = "Calls per Minute";
 	const ERRS_PER_MIN = "Errors per Minute";
+	const SLOW_CALLS = "Number of Slow Calls";
+	const VSLOW_CALLS = "Number of Very Slow Calls";
+	const STALL_COUNT = "Stall Count";
 	
 	const APPLICATION = "Overall Application Performance";
 	const ERRORS = "Errors";
@@ -292,15 +295,15 @@ class cAppDynMetric{
 	}
 
 	public static function appSlowCalls(){
-		return self::APPLICATION."|Number of Slow Calls";
+		return self::APPLICATION."|".self::SLOW_CALLS;
 	}
 
 	public static function appVerySlowCalls(){
-		return self::APPLICATION."|Number of Very Slow Calls";
+		return self::APPLICATION."|".self::VSLOW_CALLS;
 	}
 
 	public static function appStalledCount(){
-		return self::APPLICATION."|Stall Count";
+		return self::APPLICATION."|".self::STALL_COUNT;
 	}
 	public static function appErrorsPerMin(){
 		return self::APPLICATION."|".self::ERRS_PER_MIN;
@@ -316,7 +319,6 @@ class cAppDynMetric{
 		return self::APPLICATION."|*|External Calls";
 	}
 
-	
 
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* Service End  Points
@@ -334,20 +336,23 @@ class cAppDynMetric{
 	}
 	
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* information Points
+	//* backends
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function infoPointResponseTimes($psName){
-		return self::INFORMATION_POINTS."|$psName|".self::RESPONSE_TIME;
+	public static function backends(){
+		return self::BACKENDS;
 	}
 	
-	public static function infoPointCallsPerMin($psName){
-		return self::INFORMATION_POINTS."|$psName|".self::CALLS_PER_MIN;
+	public static function backendResponseTimes($psBackend){
+		return self::BACKENDS."|$psBackend|".self::RESPONSE_TIME;
 	}
 
-	public static function infoPointErrorsPerMin($psName){
-		return self::INFORMATION_POINTS."|$psName|".self::ERRS_PER_MIN;
+	public static function backendCallsPerMin($psBackend){
+		return self::BACKENDS."|$psBackend|".self::CALLS_PER_MIN;
 	}
-	
+	public static function backendErrorsPerMin($psBackend){
+		return self::BACKENDS."|$psBackend|".self::ERRS_PER_MIN;
+	}
+
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* Database
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -378,185 +383,23 @@ class cAppDynMetric{
 	//* Errors
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	public static function Errors($psTier, $psError){
-		return self::ERRORS."|$psTier|$psError|Errors per Minute";
+		return self::ERRORS."|$psTier|$psError|".self::ERRS_PER_MIN;
 	}
 	
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* webrum
+	//* information Points
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function webrumCallsPerMin(){
-		return self::END_USER."|App|Page Requests per Minute";
+	public static function infoPointResponseTimes($psName){
+		return self::INFORMATION_POINTS."|$psName|".self::RESPONSE_TIME;
 	}
-	public static function webrumResponseTimes(){
-		return self::END_USER."|App|End User Response Time (ms)";
-	}
-	public static function webrumFirstByte(){
-		return self::END_USER."|App|First Byte Time (ms)";
-	}
-	public static function webrumServerTime(){
-		return self::END_USER."|App|Application Server Time (ms)";
-	}
-	public static function webrumTCPTime(){
-		return self::END_USER."|App|TCP Connect Time (ms)";
+	
+	public static function infoPointCallsPerMin($psName){
+		return self::INFORMATION_POINTS."|$psName|".self::CALLS_PER_MIN;
 	}
 
-	public static function webrumAjax(){
-		return self::END_USER."|Base Pages";
+	public static function infoPointErrorsPerMin($psName){
+		return self::INFORMATION_POINTS."|$psName|".self::ERRS_PER_MIN;
 	}
-	public static function webrumPages(){
-		return self::END_USER."|Base Pages";
-	}
-	
-	public Static function webRumMetric($psKind, $psPage, $psMetric)
-	{
-		switch ($psKind){
-			case self::BASE_PAGES:
-			case self::AJAX_REQ:
-				break;
-			default:
-				cDebug::error("unknown kind");
-		}
-		return self::END_USER."|$psKind|$psPage|$psMetric";
-	}
-	
-	
-	public static function webrumPageCallsPerMin($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "Requests per Minute");
-	}
-	public static function webrumPageResponseTimes($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "End User Response Time (ms)");
-	}
-	public static function webrumPageFirstByte($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "First Byte Time (ms)");
-	}
-	public static function webrumPageServerTime($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "Application Server Time (ms)");
-	}
-	public static function webrumPageTCPTime($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "TCP Connect Time (ms)");
-	}
-	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* backends
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function backends(){
-		return self::BACKENDS;
-	}
-	
-	public static function backendResponseTimes($psBackend){
-		return self::BACKENDS."|$psBackend|".self::RESPONSE_TIME;
-	}
-
-	public static function backendCallsPerMin($psBackend){
-		return self::BACKENDS."|$psBackend|".self::CALLS_PER_MIN;
-	}
-	public static function backendErrorsPerMin($psBackend){
-		return self::BACKENDS."|$psBackend|".self::ERRS_PER_MIN;
-	}
-	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* transactions
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function transMetric($psTier, $psTrans, $psNode=null){
-		$sMetric = self::tierTransactions($psTier)."|$psTrans";
-		if ($psNode) $sMetric .= "|Individual Nodes|$psNode";
-		return $sMetric;
-	}
-	
-	public static function transResponseTimes($psTier, $psTrans, $psNode=null){
-		return self::transMetric($psTier, $psTrans, $psNode)."|".self::RESPONSE_TIME;
-	}
-
-	public static function transErrors($psTier, $psTrans, $psNode=null){
-		return self::transMetric($psTier, $psTrans, $psNode)."|".self::ERRS_PER_MIN;
-	}
-
-	public static function transCpuUsed($psTier, $psTrans, $psNode=null){
-		return self::transMetric($psTier, $psTrans, $psNode)."|Average CPU Used (ms)";
-	}
-	
-	public static function transCallsPerMin($psTier, $psTrans, $psNode=null){
-		return self::transMetric($psTier, $psTrans, $psNode)."|".self::CALLS_PER_MIN;
-	}
-	
-	public static function transExtNames($psTier, $psTrans, $psNode=null){
-		return self::transMetric($psTier, $psTrans, $psNode)."|".self::EXT_CALLS;
-	}
-	
-	public static function transExtCalls($psTier, $psTrans, $psOther){
-		return self::transExtNames($psTier, $psTrans)."|$psOther|".self::CALLS_PER_MIN;
-	}
-		
-	public static function transExtResponseTimes($psTier, $psTrans, $psOther){
-		return self::transExtNames($psTier, $psTrans)."|$psOther|".self::RESPONSE_TIME;
-	}
-		
-	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* tiers
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function tier($psTier){
-		return self::TRANSACTIONS."|Business Transactions|$psTier";
-	}
-	
-	public static function tierCallsPerMin($psTier){
-		return self::APPLICATION."|$psTier|".self::CALLS_PER_MIN;
-	}
-	public static function tierResponseTimes($psTier){
-		return self::APPLICATION."|$psTier|".self::RESPONSE_TIME;
-	}
-	public static function tierErrorsPerMin($psTier){
-		return self::APPLICATION."|$psTier|".self::ERRS_PER_MIN;
-	}
-	public static function tierExceptionsPerMin($psTier){
-		return self::APPLICATION."|$psTier|Exceptions per Minute";
-	}
-	public static function tierSlowCalls($psTier){
-		return self::APPLICATION."|$psTier|Number of Slow Calls";
-	}
-	
-	public static function tierNodes($psTier){
-		return self::APPLICATION."|$psTier|Individual Nodes";
-	}
-
-	public static function tierVerySlowCalls($psTier){
-		return self::APPLICATION."|$psTier|Number of Very Slow Calls";
-	}
-	public static function tierTransactions($psTier){
-		$sMetric = self::TRANSACTIONS."|Business Transactions|$psTier";
-		return $sMetric;
-	}
-	
-	public static function tierExt($psTier1,$psTier2){
-		return self::APPLICATION."|$psTier1|".self::EXT_CALLS."|$psTier2";
-	}
-	
-	public static function tierExtCallsPerMin($psTier1,$psTier2){
-		return self::tierExt($psTier1,$psTier2)."|".self::CALLS_PER_MIN;
-	}
-
-	public static function tierExtResponseTimes($psTier1,$psTier2){
-		return self::tierExt($psTier1,$psTier2)."|".self::RESPONSE_TIME;
-	}
-
-	public static function tierNodeCallsPerMin($psTier, $psNode=null){
-		if ($psNode)
-			return self::tierNodes($psTier)."|$psNode|".self::CALLS_PER_MIN;
-		else
-			return self::tierCallsPerMin($psTier);
-	}
-	
-	public static function tierNodeResponseTimes($psTier, $psNode=null){
-		if ($psNode)
-			return self::tierNodes($psTier)."|$psNode|".self::RESPONSE_TIME;
-		else
-			return self::tierResponseTimes($psTier);
-	}
-	
-	public static function tierServiceEndPoints($psTier){
-		return self::SERVICE_END_POINTS. "|$psTier";
-	}
-
 	
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* infrastructure
@@ -654,6 +497,173 @@ class cAppDynMetric{
 	
 	public static function InfrastructureMetric($psTier, $psNode, $psMetric){
 		return self::InfrastructureNode($psTier, $psNode)."|$psMetric";
+	}
+	
+	
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	//* tiers
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	public static function tier($psTier){
+		return self::TRANSACTIONS."|Business Transactions|$psTier";
+	}
+	
+	public static function tierCallsPerMin($psTier){
+		return self::APPLICATION."|$psTier|".self::CALLS_PER_MIN;
+	}
+	public static function tierResponseTimes($psTier){
+		return self::APPLICATION."|$psTier|".self::RESPONSE_TIME;
+	}
+	public static function tierErrorsPerMin($psTier){
+		return self::APPLICATION."|$psTier|".self::ERRS_PER_MIN;
+	}
+	public static function tierExceptionsPerMin($psTier){
+		return self::APPLICATION."|$psTier|Exceptions per Minute";
+	}
+	public static function tierSlowCalls($psTier){
+		return self::APPLICATION."|$psTier|".self::SLOW_CALLS;
+	}
+	
+	public static function tierNodes($psTier){
+		return self::APPLICATION."|$psTier|Individual Nodes";
+	}
+
+	public static function tierVerySlowCalls($psTier){
+		return self::APPLICATION."|$psTier|".self::VSLOW_CALLS;
+	}
+	public static function tierTransactions($psTier){
+		$sMetric = self::TRANSACTIONS."|Business Transactions|$psTier";
+		return $sMetric;
+	}
+	
+	public static function tierExt($psTier1,$psTier2){
+		return self::APPLICATION."|$psTier1|".self::EXT_CALLS."|$psTier2";
+	}
+	
+	public static function tierExtCallsPerMin($psTier1,$psTier2){
+		return self::tierExt($psTier1,$psTier2)."|".self::CALLS_PER_MIN;
+	}
+
+	public static function tierExtResponseTimes($psTier1,$psTier2){
+		return self::tierExt($psTier1,$psTier2)."|".self::RESPONSE_TIME;
+	}
+	public static function tierExtErrorsPerMin($psTier1,$psTier2){
+		return self::tierExt($psTier1,$psTier2)."|".self::ERRS_PER_MIN;
+	}
+
+	public static function tierNodeCallsPerMin($psTier, $psNode=null){
+		if ($psNode)
+			return self::tierNodes($psTier)."|$psNode|".self::CALLS_PER_MIN;
+		else
+			return self::tierCallsPerMin($psTier);
+	}
+	
+	public static function tierNodeResponseTimes($psTier, $psNode=null){
+		if ($psNode)
+			return self::tierNodes($psTier)."|$psNode|".self::RESPONSE_TIME;
+		else
+			return self::tierResponseTimes($psTier);
+	}
+	
+	public static function tierServiceEndPoints($psTier){
+		return self::SERVICE_END_POINTS. "|$psTier";
+	}
+
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	//* transactions
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	public static function transMetric($psTier, $psTrans, $psNode=null){
+		$sMetric = self::tierTransactions($psTier)."|$psTrans";
+		if ($psNode) $sMetric .= "|Individual Nodes|$psNode";
+		return $sMetric;
+	}
+	
+	public static function transResponseTimes($psTier, $psTrans, $psNode=null){
+		return self::transMetric($psTier, $psTrans, $psNode)."|".self::RESPONSE_TIME;
+	}
+
+	public static function transErrors($psTier, $psTrans, $psNode=null){
+		return self::transMetric($psTier, $psTrans, $psNode)."|".self::ERRS_PER_MIN;
+	}
+
+	public static function transCpuUsed($psTier, $psTrans, $psNode=null){
+		return self::transMetric($psTier, $psTrans, $psNode)."|Average CPU Used (ms)";
+	}
+	
+	public static function transCallsPerMin($psTier, $psTrans, $psNode=null){
+		return self::transMetric($psTier, $psTrans, $psNode)."|".self::CALLS_PER_MIN;
+	}
+	
+	public static function transExtNames($psTier, $psTrans, $psNode=null){
+		return self::transMetric($psTier, $psTrans, $psNode)."|".self::EXT_CALLS;
+	}
+	
+	public static function transExtCalls($psTier, $psTrans, $psOther){
+		return self::transExtNames($psTier, $psTrans)."|$psOther|".self::CALLS_PER_MIN;
+	}
+		
+	public static function transExtResponseTimes($psTier, $psTrans, $psOther){
+		return self::transExtNames($psTier, $psTrans)."|$psOther|".self::RESPONSE_TIME;
+	}
+	
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	//* webrum
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	public static function webrumApp(){
+		return self::END_USER."|App";
+	}
+	public static function webrumCallsPerMin(){
+		return self::webrumApp()."|Page Requests per Minute";
+	}
+	public static function webrumResponseTimes(){
+		return self::webrumApp()."|End User Response Time (ms)";
+	}
+	public static function webrumJavaScriptErrors(){
+		return self::webrumApp()."|Page views with JavaScript Errors per Minute";
+	}
+	public static function webrumFirstByte(){
+		return self::webrumApp()."|First Byte Time (ms)";
+	}
+	public static function webrumServerTime(){
+		return self::webrumApp()."|Application Server Time (ms)";
+	}
+	public static function webrumTCPTime(){
+		return self::webrumApp()."|TCP Connect Time (ms)";
+	}
+
+	public static function webrumAjax(){
+		return self::END_USER."|AJAX Requests";
+	}
+	public static function webrumPages(){
+		return self::END_USER."|Base Pages";
+	}
+	
+	public Static function webRumMetric($psKind, $psPage, $psMetric)
+	{
+		switch ($psKind){
+			case self::BASE_PAGES:
+			case self::AJAX_REQ:
+				break;
+			default:
+				cDebug::error("unknown kind");
+		}
+		return self::END_USER."|$psKind|$psPage|$psMetric";
+	}
+	
+	
+	public static function webrumPageCallsPerMin($psType, $psPage){
+		return self::webRumMetric($psType, $psPage, "Requests per Minute");
+	}
+	public static function webrumPageResponseTimes($psType, $psPage){
+		return self::webRumMetric($psType, $psPage, "End User Response Time (ms)");
+	}
+	public static function webrumPageFirstByte($psType, $psPage){
+		return self::webRumMetric($psType, $psPage, "First Byte Time (ms)");
+	}
+	public static function webrumPageServerTime($psType, $psPage){
+		return self::webRumMetric($psType, $psPage, "Application Server Time (ms)");
+	}
+	public static function webrumPageTCPTime($psType, $psPage){
+		return self::webRumMetric($psType, $psPage, "TCP Connect Time (ms)");
 	}
 	
 }
