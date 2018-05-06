@@ -76,24 +76,60 @@ class cAppDDetails extends cAppdObj{
    }
 }
 
+//#################################################################
+//# 
+//#################################################################
 class cAppDApp{
-   public static $null_app = null;
-   public static $db_app = null;
-   public $name, $id;
-   function __construct($psName, $psId) {	
-		$this->name = $psName;
-		$this->id = $psId;
-   }
+	public static $null_app = null;
+	public static $db_app = null;
+	public $name, $id;
+	function __construct($psAppName, $psAppId) {	
+		$this->name = $psAppName;
+		$this->id = $psAppId;
+	}
+   
+	//*****************************************************************
+	public function GET_Tiers(){
+		if ( self::is_demo()) return cAppDynDemo::GET_Tiers($this);
+		$sApp = rawurlencode($this->name);
+		$aData = cAppdynCore::GET("$sApp/tiers?" );
+		if ($aData) uasort($aData,"sort_by_name");
+		
+		$aOutTiers = [];
+
+		//convert to tier objects and populate the app
+		foreach ($aData as $oInTier){
+			$oOutTier = new cAppDTier($this, $oInTier->name, $oInTier->id);
+			$aOutTiers[] = $oOutTier;
+		}
+		
+		return $aOutTiers;
+	}
+	
+	//*****************************************************************
+	public function GET_ExtTiers(){
+		if ( cAppDyn::is_demo()) return cAppDynDemo::GET_AppExtTiers($this->name);
+		cDebug::enter();
+		$sMetricPath= cAppDynMetric::appBackends();
+		$aMetrics = cAppdynCore::GET_Metric_heirarchy($this->name, $sMetricPath,false); //dont cache
+		if ($aMetrics) uasort($aMetrics,"sort_by_name");
+		cDebug::leave();
+		return $aMetrics;
+	}
+
 }
 
+//#################################################################
+//# 
+//#################################################################
 class cAppDTier{
    public static $null_app = null;
    public static $db_app = null;
    public $name, $id, $app;
-   function __construct($poApp, $psName, $psId) {	
+   function __construct($poApp, $psTierName, $psTierId) {	
 		$this->app = $poApp;
-		$this->name = $psName;
-		$this->id = $psId;
+		$this->name = $psTierName; 
+		$this->id = $psTierId;
    }
 }
 
@@ -217,10 +253,6 @@ class cAppDyn{
 		return $aServices;
 	}
 	
-	//*****************************************************************
-	public static function GET_wildcardData( $psApp, $psMetric, $poTimes){
-		return cAppdynCore::GET_MetricData($psApp, $psMetric, $poTimes,"true",false,true);
-	}
 	
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* applications
@@ -256,16 +288,6 @@ class cAppDyn{
 		return cAppdynCore::GET_Metric_heirarchy($psApp,cAppDynMetric::INFORMATION_POINTS, false, $poTimes);
 	}
 		
-	//*****************************************************************
-	public static function GET_AppExtTiers($psApp){
-		if ( self::is_demo()) return cAppDynDemo::GET_AppExtTiers($psApp);
-		cDebug::enter();
-		$sMetricPath= cAppDynMetric::appBackends();
-		$aMetrics = cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricPath,false); //dont cache
-		if ($aMetrics) uasort($aMetrics,"sort_by_name");
-		cDebug::leave();
-		return $aMetrics;
-	}
 	//*****************************************************************
 	public static function GET_AppExtCalls($psApp){
 		cDebug::enter();
@@ -328,31 +350,31 @@ class cAppDyn{
 	}
 
 	//*****************************************************************
-	public static function GET_TransExtCallsPerMin($psApp, $psTier, $psTrans1, $psOther, $poTimes, $psRollup=false)
+	public static function GET_TransExtCallsPerMin($poTier, $psTrans1, $psOther, $poTimes, $psRollup=false)
 	{
 		self::pr_flushprint();
-		$sMetricPath = cAppDynMetric::transExtCalls($psTier,$psTrans1,$psOther);
-		$aData = cAppdynCore::GET_MetricData($psApp,$sMetricPath, $poTimes, $poTimes,$psRollup);
+		$sMetricPath = cAppDynMetric::transExtCalls($poTier->name,$psTrans1,$psOther);
+		$aData = cAppdynCore::GET_MetricData($poTier->app,$sMetricPath, $poTimes, $poTimes,$psRollup);
 		return $aData;
 	}
 
 	//*****************************************************************
-	public static function GET_TransExtResponseTimes($psApp, $psTier, $psTrans1, $psOther, $poTimes, $psRollup)
+	public static function GET_TransExtResponseTimes($poTier, $psTrans1, $psOther, $poTimes, $psRollup)
 	{
 		self::pr_flushprint();
-		$sMetricPath = cAppDynMetric::transExtResponseTimes($psTier,$psTrans1,$psOther);
-		$aData = cAppdynCore::GET_MetricData($psApp,$sMetricPath, $poTimes,$poTimes,$psRollup);
+		$sMetricPath = cAppDynMetric::transExtResponseTimes($poTier->name,$psTrans1,$psOther);
+		$aData = cAppdynCore::GET_MetricData($poTier->app,$sMetricPath, $poTimes,$poTimes,$psRollup);
 		return $aData;
 	}
 
 	//*****************************************************************
-	public static function GET_transExtCalls($psApp, $psTier, $psTrans, $piMin, $poTimes)
+	public static function GET_transExtCalls($poTier, $psTrans, $piMin, $poTimes)
 	{
 	
 		// get the ext calls metric heirarchy for this transactions
 		$sMetricPath = "Business Transaction Performance|Business Transactions|$psTier|$psTrans|External Calls";
 		self::pr_flushprint();
-		$aData =  cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricPath);
+		$aData =  cAppdynCore::GET_Metric_heirarchy($poTier->app->name, $sMetricPath);
 		$aResults = array();
 		
 		if (count($aData) > 0)
@@ -360,8 +382,8 @@ class cAppDyn{
 				self::pr_flushprint();
 				$sOther = $oRow->name;
 				
-				$aCalls = self::GET_TransExtCallsPerMin($psApp, $psTier, $psTrans, $sOther, $piMin, $poTimes,"true");
-				$aTimes = self::GET_TransExtResponseTimes($psApp, $psTier, $psTrans, $sOther, $piMin, $poTimes,"true");
+				$aCalls = self::GET_TransExtCallsPerMin($poTier, $psTrans, $sOther, $piMin, $poTimes,"true");
+				$aTimes = self::GET_TransExtResponseTimes($poTier, $psTrans, $sOther, $piMin, $poTimes,"true");
 				
 				$oRow = new cTransExtCalls();
 				$oRow->trans1 = $psTrans;
@@ -380,36 +402,20 @@ class cAppDyn{
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* tiers
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	
-	public static function GET_Tiers($poApp){
-		if ( self::is_demo()) return cAppDynDemo::GET_Tiers($poApp);
-		$sApp = rawurlencode($poApp->name);
-		$aData = cAppdynCore::GET("$sApp/tiers?" );
-		if ($aData) uasort($aData,"sort_by_name");
-		
-		$aOutTiers = [];
-
-		//convert to tier objects and populate the app
-		foreach ($aData as $oInTier){
-			$oOutTier = new cAppDTier($poApp, $oInTier->name, $oInTier->id);
-			$aOutTiers[] = $oOutTier;
-		}
-		
-		return $aOutTiers;
-	}
 	
 	//*****************************************************************
-	public static function GET_tier_transaction_names($psApp, $psTier){
+	public static function GET_tier_transaction_names($poTier){
 		//find out the transactions in this tier - through metric heirarchy (but doesnt give the trans IDs)
 		cDebug::enter();
 		$aResults = []; 
 		
 		try{
-			$metricPath = cAppDynMetric::tierTransactions($psTier);
-			$aTierTransactions = cAppdynCore::GET_Metric_heirarchy($psApp, $metricPath, false);	
+			$metricPath = cAppDynMetric::tierTransactions($poTier->name);
+			$aTierTransactions = cAppdynCore::GET_Metric_heirarchy($poTier->app->name, $metricPath, false);	
 			if (!$aTierTransactions) return null;
 			
 			//so get the transaction IDs
-			$aAppTrans= cAppdynUtil::get_trans_assoc_array($psApp);
+			$aAppTrans= cAppdynUtil::get_trans_assoc_array($poTier->app->name);
 			
 			// and combine the two
 
@@ -442,10 +448,10 @@ class cAppDyn{
 	}
 
 	//*****************************************************************
-	public static function GET_Tier_Errors($psApp, $psTier, $poTimes){
+	public static function GET_Tier_Errors($poTier, $poTimes){
 		//get the list of errors seen on the tier
-		$sMetricpath = "Errors|$psTier";
-		$aHeirarchy = cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricpath, false);
+		$sMetricpath = "Errors|$poTier->name";
+		$aHeirarchy = cAppdynCore::GET_Metric_heirarchy($poTier->app->name, $sMetricpath, false);
 		
 		// get the specifics of the error
 		$aResults = array(); 
@@ -453,7 +459,7 @@ class cAppDyn{
 			self::pr_flushprint(",");
 			
 			$sMetric2path= "$sMetricpath|$oRow->name|Errors per Minute";
-			$oMetrics = cAppdynCore::GET_MetricData($psApp, $sMetric2path, $poTimes, false);
+			$oMetrics = cAppdynCore::GET_MetricData($poApp, $sMetric2path, $poTimes, false);
 			
 			if ($oMetrics){
 					$oStats = cAppdynUtil::Analyse_Metrics($oMetrics);
@@ -470,16 +476,18 @@ class cAppDyn{
 	}
 
 	//*****************************************************************
-	public static function GET_Tier_ext_details($psApp, $psTier, $poTimes){
+	public static function GET_Tier_ext_details($poTier, $poTimes){
 		global $aResults;
+		$sApp = $poTier->app->name;
+		$sTier = $poTier->name;
 		
-		cDebug::write("<h3>getting details for $psTier</h3>");
+		cDebug::write("<h3>getting details for $sTier</h3>");
 		//first get the metric heirarchy
 		self::pr_flushprint(".");
-		$oHeirarchy = self::GET_tier_ExtCalls_Metric_heirarchy($psApp, $psTier, false);
+		$oHeirarchy = self::GET_tier_ExtCalls_Metric_heirarchy($sApp, $sTier, false);
 			
 		//get the transaction IDs TBD
-		$tid=1;
+		$trid=1;
 		
 		//for each row in the browser get external calls per minute
 		$aResults = array();
@@ -490,18 +498,18 @@ class cAppDyn{
 			cDebug::write("<h4>other tier is $sOtherTier</h4>");
 			cDebug::write("<b>Calls per min</b>");
 			$oCalls = null;
-			$oData = self::GET_TierExtCallsPerMin( $psApp, $psTier, $sOtherTier, $poTimes, "true");
+			$oData = self::GET_TierExtCallsPerMin( $poTier, $sOtherTier, $poTimes, "true");
 			if ($oData)	$oCalls = cAppdynUtil::Analyse_Metrics( $oData);
 				
 			cDebug::write("<b>response times</b>");
 			$oTimes = null;
-			$oData = self::GET_TierExtResponseTimes($psApp, $psTier, $sOtherTier, $poTimes, "true");
+			$oData = self::GET_TierExtResponseTimes($poTier, $sOtherTier, $poTimes, "true");
 			if ($oData)	
 				$oTimes = cAppdynUtil::Analyse_Metrics( $oData);
 			
 			cDebug::write("<b>done</b>");
 			
-			$oDetails = new cAppDDetails($sOtherTier, $tid, $oCalls,  $oTimes);
+			$oDetails = new cAppDDetails($sOtherTier, $trid, $oCalls,  $oTimes);
 
 			array_push($aResults, $oDetails);
 		}
@@ -519,15 +527,15 @@ class cAppDyn{
 
 	//*****************************************************************
 	// bug in app dynamics - might show zero so need to consolidate External Calls with individual nodes metric
-	public static function GET_TierExtCallsPerMin($psApp, $psTier1, $psTier2, $poTimes, $psRollup){
-		$sMetricpath= cAppDynMetric::tierExtCallsPerMin($psTier1, $psTier2);
-		return cAppdynCore::GET_MetricData($psApp, $sMetricpath, $poTimes, $psRollup);
+	public static function GET_TierExtCallsPerMin($poTier, $psTier2, $poTimes, $psRollup){
+		$sMetricpath= cAppDynMetric::tierExtCallsPerMin($poTier->name, $psTier2);
+		return cAppdynCore::GET_MetricData($poTier->app, $sMetricpath, $poTimes, $psRollup);
 	}	
 	
 	//*****************************************************************
-	public static function GET_TierExtResponseTimes($psApp, $psTier1, $psTier2, $poTimes, $psRollup){
-		$sMetricpath= cAppDynMetric::tierExtResponseTimes($psTier1, $psTier2);
-		return cAppdynCore::GET_MetricData($psApp, $sMetricpath, $poTimes, $psRollup);
+	public static function GET_TierExtResponseTimes($poTier, $psTier2, $poTimes, $psRollup){
+		$sMetricpath= cAppDynMetric::tierExtResponseTimes($poTier->name, $psTier2);
+		return cAppdynCore::GET_MetricData($poTier->app, $sMetricpath, $poTimes, $psRollup);
 	}
 	
 	//*****************************************************************
@@ -580,7 +588,7 @@ class cAppDyn{
 	public static function GET_BackendCallerTiers($poApp, $psBackend){
 		$aResult = [];
 		
-		$oTiers = self::GET_Tiers($poApp);
+		$oTiers = $poApp->GET_Tiers();
 		foreach ($oTiers as $oTier){
 			$sTier = $oTier->name;
 			$oExtCalls = self::GET_tier_ExtCalls_Metric_heirarchy($poApp->name, $sTier, false);
@@ -611,7 +619,7 @@ class cAppDyn{
 		$aData = [];
 		
 		if (!$psFolderMetric){
-			$aTiers = self::GET_Tiers($poApp);
+			$aTiers = $poApp->GET_Tiers();
 			$iCount = count($aTiers);
 
 			foreach ($aTiers as $oTier){

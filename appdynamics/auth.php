@@ -61,6 +61,7 @@ class cAppDynCredentials{
 	public $use_https;
 	public $restricted_login = null;
 	private $mbLogged_in = false;
+	public $encryption_key = "no encryption key set";
 	
 	//**************************************************************************************
 	function check(){

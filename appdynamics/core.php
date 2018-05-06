@@ -185,19 +185,20 @@ class cAppDynCore{
 	//*****************************************************************
 	//*
 	//*****************************************************************
-	public static function GET_MetricData($psApp, $psMetricPath, $poTimes , $psRollup=false, $pbCacheable=false, $pbMulti = false)
+	public static function GET_MetricData($poApp, $psMetricPath, $poTimes , $psRollup=false, $pbCacheable=false, $pbMulti = false)
 	{
 		cDebug::enter();
 		if ($poTimes == null) cDebug::error("times are missing");
+		$sApp = $poApp->name;
 		
 		$sRangeType = "";
 		$sTimeCmd=cAppdynUtil::controller_time_command($poTimes);
 		
 		$encoded = rawurlencode($psMetricPath);
 		$encoded = str_replace(rawurlencode("*"),"*",$encoded);
-		$psApp=rawurlencode($psApp);
+		$sApp=rawurlencode($sApp);
 		
-		$url = "$psApp/metric-data?metric-path=$encoded&$sTimeCmd&rollup=$psRollup";
+		$url = "$sApp/metric-data?metric-path=$encoded&$sTimeCmd&rollup=$psRollup";
 		$oData = self::GET( $url ,$pbCacheable);
 		
 		$aOutput = $oData;
