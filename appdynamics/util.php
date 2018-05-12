@@ -83,10 +83,10 @@ class cAppdynUtil {
 	private static $maAppnodes = null;
 	
 	//*****************************************************************
-	public static function get_trans_assoc_array($psApp)
+	public static function get_trans_assoc_array($poApp)
 	{	
 		$aData = [];
-		$aTrans = cAppDyn::GET_Transactions($psApp);
+		$aTrans = $poApp->GET_Transactions();
 		foreach ($aTrans as $oTrans)
 			$aData[$oTrans->name] = $oTrans->id;
 			
@@ -269,8 +269,8 @@ class cAppdynUtil {
 	}
 	
 	//*****************************************************************
-	public static function get_node_id($psAid, $psNodeName){
-		$aMachines = cAppdyn::GET_AppNodes($psAid);
+	public static function get_node_id($poApp, $psNodeName){
+		$aMachines = $poApp->GET_Nodes();
 		$sNodeID = null;
 		
 		foreach ($aMachines as $aNodes){
@@ -287,8 +287,8 @@ class cAppdynUtil {
 	}
 	
 	//*****************************************************************
-	public static function get_node_name($psAid, $psNodeID){
-		$aMachines = cAppdyn::GET_AppNodes($psAid);
+	public static function get_node_name($poApp, $psNodeID){
+		$aMachines = $poApp->GET_Nodes();
 		$sNodeName = null;
 		
 		foreach ($aMachines as $aNodes){
@@ -306,7 +306,7 @@ class cAppdynUtil {
 	
 	//*****************************************************************
 	public static function get_matching_extcall($poApp, $psExt){
-		$aTiers = cAppdyn::$poApp->GET_Tiers();
+		$aTiers = $poApp->GET_Tiers();
 		foreach ($aTiers as $oTier){
 			$aTierExt = cAppdyn::GET_tier_ExtCalls_Metric_heirarchy($poApp->name, $oTier->name);
 			foreach ($aTierExt as $oExt)

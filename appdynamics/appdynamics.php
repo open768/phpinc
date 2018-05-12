@@ -90,7 +90,7 @@ class cAppDApp{
    
 	//*****************************************************************
 	public function GET_Tiers(){
-		if ( self::is_demo()) return cAppDynDemo::GET_Tiers($this);
+		if ( cAppDyn::is_demo()) return cAppDynDemo::GET_Tiers($this);
 		$sApp = rawurlencode($this->name);
 		$aData = cAppdynCore::GET("$sApp/tiers?" );
 		if ($aData) uasort($aData,"sort_by_name");
@@ -108,7 +108,7 @@ class cAppDApp{
 	
 	//*****************************************************************
 	public function GET_ExtTiers(){
-		if ( cAppDyn::is_demo()) return cAppDynDemo::GET_AppExtTiers($this->name);
+		if ( cAppDyn::is_demo()) return cAppDynDemo::GET_AppExtTiers(null);
 		cDebug::enter();
 		$sMetricPath= cAppDynMetric::appBackends();
 		$aMetrics = cAppdynCore::GET_Metric_heirarchy($this->name, $sMetricPath,false); //dont cache
@@ -117,6 +117,71 @@ class cAppDApp{
 		return $aMetrics;
 	}
 
+	//*****************************************************************
+	public function GET_InfoPoints($poTimes){
+		if ( cAppDyn::is_demo()) return cAppDynDemo::GET_AppInfoPoints(null);
+		return cAppdynCore::GET_Metric_heirarchy($this->name,cAppDynMetric::INFORMATION_POINTS, false, $poTimes);
+	}
+
+	//*****************************************************************
+	//see events reference at https://docs.appdynamics.com/display/PRO14S/Events+Reference
+	public function GET_Events($poTimes, $psEventType = null){
+		$sApp = rawurlencode($this->name);
+		$sTimeQs = cAppdynUtil::controller_time_command($poTimes);
+		if ($psEventType== null) $psEventType = cAppDyn::ALL_EVENT_TYPES;
+		$sSeverities = cAppDyn::ALL_SEVERITIES;
+		
+		$sEventsUrl = cHttp::build_url("$sApp/events", "severities", $sSeverities);
+		$sEventsUrl = cHttp::build_url($sEventsUrl, "Output", "JSON");
+		$sEventsUrl = cHttp::build_url($sEventsUrl, "event-types", $psEventType);
+		$sEventsUrl = cHttp::build_url($sEventsUrl, $sTimeQs);
+		return cAppDynCore::GET($sEventsUrl );
+	}
+
+	//*****************************************************************
+	public function GET_Nodes(){
+		$sID = $this->id;
+		
+		$aResponse = cAppDynCore::GET("$sID/nodes?",true);
+
+		$aOutput = [];
+		foreach ($aResponse as $oNode){
+			$iMachineID = $oNode->machineId;
+			if (!array_key_exists((string)$iMachineID, $aOutput)) $aOutput[(string)$iMachineID] = [];
+			$aOutput[(string)$iMachineID][] = $oNode;
+		}
+		ksort($aOutput );
+		
+		return $aOutput;
+	}
+
+	//*****************************************************************
+	public function GET_Transactions(){		
+		$sApp = rawurlencode($this->name);
+		return cAppDynCore::GET("$sApp/business-transactions?" );
+	}
+
+	//*****************************************************************
+	public function GET_Backends(){
+		if ( cAppDyn::is_demo()) return cAppDynDemo::GET_Backends(null);
+		$sMetricpath= cAppDynMetric::backends();
+		return cAppdynCore::GET_Metric_heirarchy($this->name, $sMetricpath, false); //dont cache
+	}
+
+	//*****************************************************************
+	public function GET_snaphot_info($psTransID, $poTimes){
+		/*should use instead
+		eg https://waitroseprod.saas.appdynamics.com/controller/restui/snapshot/snapshotListDataWithFilterHandle		{"firstInChain":false,"maxRows":600,"applicationIds":[1424],"businessTransactionIds":[],"applicationComponentIds":[4561],"applicationComponentNodeIds":[],"errorIDs":[],"errorOccured":null,"userExperience":[],"executionTimeInMilis":null,"endToEndLatency":null,"url":null,"sessionId":null,"userPrincipalId":null,"dataCollectorFilter":null,"archived":null,"guids":[],"diagnosticSnapshot":null,"badRequest":null,"deepDivePolicy":[],"rangeSpecifier":{"type":"BEFORE_NOW","durationInMinutes":15}}		
+		*/
+		
+		$sApp = rawurlencode($this->name);
+		$sUrl = cHttp::build_url("$sApp/request-snapshots", cAppdynUtil::controller_time_command($poTimes));
+		$sUrl = cHttp::build_url($sUrl, "application_name", $sApp);
+		//$sUrl = cHttp::build_url($sUrl, "application-component-ids", $psTierID);
+		$sUrl = cHttp::build_url($sUrl, "business-transaction-ids", $psTransID);
+		$sUrl = cHttp::build_url($sUrl, "output", "JSON");
+		return cAppDynCore::GET($sUrl);
+	}
 }
 
 //#################################################################
@@ -175,11 +240,11 @@ function sort_downloads($po1, $po2){
 //# CLASSES
 //#################################################################
 class cAppDynWebsite{
-	const BASE_URL = "https://download.appdynamics.com/download/downloadfile/?apm=jvm%2Cdotnet%2Cphp%2Cmachine%2Cwebserver%2Cdb%2Cappd4db%2Canalytics%2Cios%2Candroid%2Ccpp-sdk%2Cpython%2Cnodejs%2Cgolang-sdk%2Cuniversal-agent%2Ciot%2Cnetviz&eum=linux%2Cosx%2Cwindows%2Cgeoserver%2Cgeodata%2Csynthetic&events=linuxwindows&format=json&os=linux%2Cosx%2Cwindows&platform_admin_os=linux%2Cosx%2Cwindows";
+	const DOWNLOAD_URL = "https://download.appdynamics.com/download/downloadfile/?apm=jvm%2Cdotnet%2Cphp%2Cmachine%2Cwebserver%2Cdb%2Cappd4db%2Canalytics%2Cios%2Candroid%2Ccpp-sdk%2Cpython%2Cnodejs%2Cgolang-sdk%2Cuniversal-agent%2Ciot%2Cnetviz&eum=linux%2Cosx%2Cwindows%2Cgeoserver%2Cgeodata%2Csynthetic&events=linuxwindows&format=json&os=linux%2Cosx%2Cwindows&platform_admin_os=linux%2Cosx%2Cwindows";
 	public static function GET_latest_downloads(){
 		$oHttp = new cCachedHttp();
 		$oHttp->USE_CURL = false;
-		$sUrl = self::BASE_URL;
+		$sUrl = self::DOWNLOAD_URL;
 		$aData = [];
 		while ($sUrl){
 			$oData = $oHttp->getCachedJson($sUrl);
@@ -202,6 +267,8 @@ class cAppDynWebsite{
 class cAppDyn{
 	const APPDYN_LOGO = 'adlogo.jpg';
 	const APPDYN_OVERFLOWING_BT = "_APPDYNAMICS_DEFAULT_TX_";
+	const ALL_EVENT_TYPES = "POLICY_OPEN_CRITICAL,POLICY_OPEN_WARNING,POLICY_CLOSE,POLICY_CLOSE_CRITICAL,POLICY_CLOSE_WARNING,POLICY_CONTINUES_CRITICAL";
+	const ALL_SEVERITIES = "WARN,ERROR,INFO";
 	
 	public static $SHOW_PROGRESS = true;
 	private static $maAppNodes = null;
@@ -210,6 +277,9 @@ class cAppDyn{
 		if (self::$SHOW_PROGRESS) cCommon::flushprint($psChar);
 	}
 	
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	//* All
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	public static function GET_Controller_version(){
 		$aConfig = self::GET_configuration();
 		foreach ($aConfig as $oItem)
@@ -234,6 +304,7 @@ class cAppDyn{
 		$oCred->check();
 		return $oCred->is_demo();
 	}
+
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* All
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -263,61 +334,16 @@ class cAppDyn{
 		
 		$aData = cAppDynCore::GET('?');
 		if ($aData)	uasort($aData,"sort_by_name");
-		return ($aData);		
-	}
-
-	//*****************************************************************
-	public static function GET_AppNodes($piAppID){
 		
-		$aResponse = cAppDynCore::GET("$piAppID/nodes?",true);
-		
-		$aOutput = [];
-		foreach ($aResponse as $oNode){
-			$iMachineID = $oNode->machineId;
-			if (!array_key_exists((string)$iMachineID, $aOutput)) $aOutput[(string)$iMachineID] = [];
-			$aOutput[(string)$iMachineID][] = $oNode;
+		$aOut = [];
+		foreach ($aData as $oItem){
+			$oApp = new cAppDApp($oItem->name, $oItem->id);
+			$aOut[] = $oApp;
 		}
-		ksort($aOutput );
 		
-		return $aOutput;
+		return ($aOut);		
 	}
 	
-	//*****************************************************************
-	public static function GET_AppInfoPoints($psApp, $poTimes){
-		if ( self::is_demo()) return cAppDynDemo::GET_AppInfoPoints($psApp);
-		return cAppdynCore::GET_Metric_heirarchy($psApp,cAppDynMetric::INFORMATION_POINTS, false, $poTimes);
-	}
-		
-	//*****************************************************************
-	public static function GET_AppExtCalls($psApp){
-		cDebug::enter();
-		$sMetricPath= cAppDynMetric::appExtCalls();
-		$aMetrics = cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricPath,false); //dont cache
-		cDebug::leave();
-		return $aMetrics;
-	}
-
-	//*****************************************************************
-	//see events reference at https://docs.appdynamics.com/display/PRO14S/Events+Reference
-	public static function GET_AppEvents($psApp, $poTimes, $psEventType = null){
-		$psApp = rawurlencode($psApp);
-		$sTimeQs = cAppdynUtil::controller_time_command($poTimes);
-		if ($psEventType== null) $psEventType = "POLICY_OPEN_CRITICAL,POLICY_OPEN_WARNING,POLICY_CLOSE,POLICY_CLOSE_CRITICAL,POLICY_CLOSE_WARNING,POLICY_CONTINUES_CRITICAL";
-		$sSeverities = "WARN,ERROR,INFO";
-		$sEventsUrl = cHttp::build_url("$psApp/events", "severities", $sSeverities);
-		$sEventsUrl = cHttp::build_url($sEventsUrl, "Output", "JSON");
-		$sEventsUrl = cHttp::build_url($sEventsUrl, "event-types", $psEventType);
-		$sEventsUrl = cHttp::build_url($sEventsUrl, $sTimeQs);
-		return cAppDynCore::GET($sEventsUrl );
-	}
-	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* RUM
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_RUM_pages($psApp){
-		$sMetricPath= cAppDynMetric::webrumPages();
-		return cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricPath, false);
-	}
 		
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* Databases
@@ -335,14 +361,7 @@ class cAppDyn{
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* transactions
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-		
-	//*****************************************************************
-	public static function GET_Transactions($psApp){
-		
-		$psApp = rawurlencode($psApp);
-		return cAppDynCore::GET("$psApp/business-transactions?" );
-	}
-	
+			
 	//*****************************************************************
 	public static function GET_TransExtTiers($psApp, $psTier, $psTrans){
 		$sMetricPath= cAppDynMetric::transExtNames($psTier,$psTrans);
@@ -415,7 +434,7 @@ class cAppDyn{
 			if (!$aTierTransactions) return null;
 			
 			//so get the transaction IDs
-			$aAppTrans= cAppdynUtil::get_trans_assoc_array($poTier->app->name);
+			$aAppTrans= cAppdynUtil::get_trans_assoc_array($poTier->app);
 			
 			// and combine the two
 
@@ -573,146 +592,6 @@ class cAppDyn{
 		cDebug::leave();
 		return  $oData;
 	}
-	
-	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* Backends
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_Backends($psApp){
-		if ( self::is_demo()) return cAppDynDemo::GET_Backends($psApp);
-		$sMetricpath= cAppDynMetric::backends();
-		return cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricpath, false); //dont cache
-	}
-	
-	//*****************************************************************
-	public static function GET_BackendCallerTiers($poApp, $psBackend){
-		$aResult = [];
 		
-		$oTiers = $poApp->GET_Tiers();
-		foreach ($oTiers as $oTier){
-			$sTier = $oTier->name;
-			$oExtCalls = self::GET_tier_ExtCalls_Metric_heirarchy($poApp->name, $sTier, false);
-			if (!$oExtCalls) continue;
-			
-			foreach ($oExtCalls as $oExtCall){
-				self::pr_flushprint();
-				$sName = $oExtCall->name;
-				if (strstr($sName, "to $psBackend")){
-					cDebug::write("found a match tier:$sTier name:$sName");
-					$oObj = new cAppdObj();
-					$oObj->tier = $sTier;
-					$oObj->backend = $psBackend;
-					$oObj->name = $sName;
-					
-					$aResult[] = $oObj;
-				}
-			}
-		}
-		
-		return $aResult;
-	}
-	
-	
-	//*****************************************************************
-	public static function GET_trans_backend_tree($poApp,  $psFolderMetric = null, $piDepth=0, &$poLeaf = null){
-		cDebug::enter();
-		$aData = [];
-		
-		if (!$psFolderMetric){
-			$aTiers = $poApp->GET_Tiers();
-			$iCount = count($aTiers);
-
-			foreach ($aTiers as $oTier){
-				self::pr_flushprint(" ");
-				self::pr_flushprint($iCount--);
-				$sTier = $oTier->name;
-				$aBTs = self::GET_tier_transaction_names($poApp->name, $sTier);
-				if (!$aBTs) continue;
-				
-				$oTierObj = new cAppdObj();
-				$aData[] = $oTierObj;
-				$oTierObj->tier = $sTier;
-				$oTierObj->data = [];
-				
-				foreach ($aBTs as $oBT){
-					self::pr_flushprint(".");
-					$sBT = $oBT->name;
-					cDebug::extra_debug("BT is ($sBT)");
-					$sFolderMetric = cAppDynMetric::transMetric($sTier,$sBT);
-					
-					$oLeaf = new cAppdMetricLeaf();
-					$oTierObj->data[] = $oLeaf;
-					
-					$oLeaf->name = $sBT;
-					$oLeaf->metric = $sFolderMetric;
-					self::GET_trans_backend_tree($poApp->name,$sFolderMetric,1, $oLeaf);
-				}
-			}
-		}else{
-			$sSearchMetric = $psFolderMetric . "|External Calls";
-			$aExtCalls = cAppdynCore::GET_Metric_heirarchy($poApp->name, $sSearchMetric);
-			if ($aExtCalls){
-				foreach ($aExtCalls as $oExtCall){
-					//----------------------------------------------------------------
-					self::pr_flushprint(", ");
-					$sExtCallName = $oExtCall->name;
-					$sExtMetric = $sSearchMetric."|$sExtCallName";
-					cDebug::extra_debug("metric is ($sExtMetric)");
-					
-					$oLeaf = new cAppdMetricLeaf();
-					$poLeaf->add_child($oLeaf);
-					$oLeaf->metric = $sExtMetric;
-					$oLeaf->name = $sExtCallName;
-					
-					//----------------------------------------------------------------
-					$aItems = cAppdynCore::GET_Metric_heirarchy($poApp->name, $sExtMetric);
-					
-					foreach ($aItems as $oItem){
-						self::pr_flushprint(".");
-						if ($oItem->type !== "folder") continue;
-						$sItemName = $oItem->name;
-						$sNewMetric = $sExtMetric."|$sItemName";
-						self::GET_trans_backend_tree($poApp->name, $sNewMetric,$piDepth+1, $oLeaf);
-					}
-				}
-			}
-			
-		}
-		cDebug::leave();
-		return $aData;
-	}
-	
-	
-	//*****************************************************************
-	public static function GET_BackendCallerTransactions($poApp, $psBackend){
-		$aMatches = [];
-		$aData = self::GET_trans_backend_tree($poApp);
-
-		foreach ($aData as $oTier){
-			$sTier = $oTier->tier;
-			foreach ($oTier->data as $oLeaf)
-				$oLeaf->get_matching_names($psBackend, $aMatches);
-		}
-		
-		return $aMatches;
-	}
-
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	// Snapshots
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_snaphot_info($psApp, $psTransID, $poTimes){
-		/*should use instead
-		eg https://waitroseprod.saas.appdynamics.com/controller/restui/snapshot/snapshotListDataWithFilterHandle		{"firstInChain":false,"maxRows":600,"applicationIds":[1424],"businessTransactionIds":[],"applicationComponentIds":[4561],"applicationComponentNodeIds":[],"errorIDs":[],"errorOccured":null,"userExperience":[],"executionTimeInMilis":null,"endToEndLatency":null,"url":null,"sessionId":null,"userPrincipalId":null,"dataCollectorFilter":null,"archived":null,"guids":[],"diagnosticSnapshot":null,"badRequest":null,"deepDivePolicy":[],"rangeSpecifier":{"type":"BEFORE_NOW","durationInMinutes":15}}		
-		*/
-		
-		$psApp = rawurlencode($psApp);
-		$sUrl = cHttp::build_url("$psApp/request-snapshots", cAppdynUtil::controller_time_command($poTimes));
-		$sUrl = cHttp::build_url($sUrl, "application_name", $psApp);
-		//$sUrl = cHttp::build_url($sUrl, "application-component-ids", $psTierID);
-		$sUrl = cHttp::build_url($sUrl, "business-transaction-ids", $psTransID);
-		$sUrl = cHttp::build_url($sUrl, "output", "JSON");
-		return cAppDynCore::GET($sUrl);
-	}
-	
 }
 ?>
