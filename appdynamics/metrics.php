@@ -432,6 +432,9 @@ class cAppDynMetric{
 	public static function InfrastructureNodeDiskFree($psTier, $psNode, $psDisk){
 		return self::InfrastructureNodeDisks($psTier, $psNode)."|$psDisk|Space Available";
 	}
+	public static function InfrastructureNodeDiskUsed($psTier, $psNode, $psDisk){
+		return self::InfrastructureNodeDisks($psTier, $psNode)."|$psDisk|Space Used";
+	}
 	
 	public static function InfrastructureAgentAvailability($psTier, $psNode=null){
 		return self::InfrastructureNode($psTier, $psNode)."|Agent|Machine|Availability";

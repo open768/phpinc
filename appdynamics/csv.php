@@ -17,7 +17,6 @@ require_once("$phpinc/appdynamics/appdynamics.php");
 require_once("$phpinc/ckinc/header.php");
 
 
-$SHOW_PROGRESS=false;
 $duration = cAppDynCommon::get_duration();
 $aData=array();
 $CSV_HEADER=true;

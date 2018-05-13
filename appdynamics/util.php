@@ -110,6 +110,7 @@ class cAppDynTransFlow{
 
 class cAppdynUtil {
 	private static $maAppnodes = null;
+	public static $SHOW_PROGRESS = true;
 	
 	//*****************************************************************
 	public static function get_trans_assoc_array($poApp)
@@ -406,6 +407,10 @@ class cAppdynUtil {
 		$oExtCalls = self::count_flow_ext_calls($oFlow);
 		cDebug::leave();		
 		return $oExtCalls;
+	}
+
+	public static function flushprint($psChar = cCommon::PROGRESS_CHAR){
+		if (self::$SHOW_PROGRESS) cCommon::flushprint($psChar);
 	}
 
 	
