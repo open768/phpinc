@@ -20,6 +20,35 @@ require_once("$phpinc/appdynamics/core.php");
 require_once("$phpinc/appdynamics/account.php");
 
 
+//#################################################################
+//# 
+//#################################################################
+function AD_sort_fn($a,$b)
+{
+    $v1 = $a->startTimeInMillis;
+    $v2 = $b->startTimeInMillis;
+    if ($v1==$v2) return 0;
+    return ($v1 < $v2) ? -1 : 1;
+}
+
+
+function ad_sort_by_name($po1, $po2){
+	return strcasecmp ($po1->name, $po2->name);
+}
+
+function sort_machine_agents( $po1, $po2){
+	return strcasecmp ($po1->applicationIds[0].".".$po1->hostName, $po2->applicationIds[0].".".$po2->hostName);	
+}
+function sort_appserver_agents( $po1, $po2){
+	return strcasecmp (
+		"$po1->applicationName.$po1->applicationComponentName.$po1->hostName", 
+		"$po2->applicationName.$po2->applicationComponentName.$po2->hostName"
+	);	
+}
+
+function ad_sort_downloads($po1, $po2){
+	return strcasecmp ($po1->title, $po2->title);	
+}
 
 //#################################################################
 //# 

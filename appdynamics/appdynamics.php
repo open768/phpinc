@@ -26,6 +26,10 @@ require_once("$phpinc/appdynamics/metrics.php");
 require_once("$phpinc/appdynamics/controllerui.php");
 require_once("$phpinc/appdynamics/restui.php");
 
+require_once("$phpinc/appdynamics/controller.php");
+require_once("$phpinc/appdynamics/app.php");
+require_once("$phpinc/appdynamics/tier.php");
+
 //#################################################################
 //# 
 //#################################################################
@@ -76,165 +80,12 @@ class cAppDDetails extends cAppdObj{
    }
 }
 
-//#################################################################
-//# 
-//#################################################################
-class cAppDApp{
-	public static $null_app = null;
-	public static $db_app = null;
-	public $name, $id;
-	function __construct($psAppName, $psAppId) {	
-		$this->name = $psAppName;
-		$this->id = $psAppId;
-	}
-   
-	//*****************************************************************
-	public function GET_Tiers(){
-		if ( cAppDyn::is_demo()) return cAppDynDemo::GET_Tiers($this);
-		$sApp = rawurlencode($this->name);
-		$aData = cAppdynCore::GET("$sApp/tiers?" );
-		if ($aData) uasort($aData,"sort_by_name");
-		
-		$aOutTiers = [];
-
-		//convert to tier objects and populate the app
-		foreach ($aData as $oInTier){
-			$oOutTier = new cAppDTier($this, $oInTier->name, $oInTier->id);
-			$aOutTiers[] = $oOutTier;
-		}
-		
-		return $aOutTiers;
-	}
-	
-	//*****************************************************************
-	public function GET_ExtTiers(){
-		if ( cAppDyn::is_demo()) return cAppDynDemo::GET_AppExtTiers(null);
-		cDebug::enter();
-		$sMetricPath= cAppDynMetric::appBackends();
-		$aMetrics = cAppdynCore::GET_Metric_heirarchy($this->name, $sMetricPath,false); //dont cache
-		if ($aMetrics) uasort($aMetrics,"sort_by_name");
-		cDebug::leave();
-		return $aMetrics;
-	}
-
-	//*****************************************************************
-	public function GET_InfoPoints($poTimes){
-		if ( cAppDyn::is_demo()) return cAppDynDemo::GET_AppInfoPoints(null);
-		return cAppdynCore::GET_Metric_heirarchy($this->name,cAppDynMetric::INFORMATION_POINTS, false, $poTimes);
-	}
-
-	//*****************************************************************
-	//see events reference at https://docs.appdynamics.com/display/PRO14S/Events+Reference
-	public function GET_Events($poTimes, $psEventType = null){
-		$sApp = rawurlencode($this->name);
-		$sTimeQs = cAppdynUtil::controller_time_command($poTimes);
-		if ($psEventType== null) $psEventType = cAppDyn::ALL_EVENT_TYPES;
-		$sSeverities = cAppDyn::ALL_SEVERITIES;
-		
-		$sEventsUrl = cHttp::build_url("$sApp/events", "severities", $sSeverities);
-		$sEventsUrl = cHttp::build_url($sEventsUrl, "Output", "JSON");
-		$sEventsUrl = cHttp::build_url($sEventsUrl, "event-types", $psEventType);
-		$sEventsUrl = cHttp::build_url($sEventsUrl, $sTimeQs);
-		return cAppDynCore::GET($sEventsUrl );
-	}
-
-	//*****************************************************************
-	public function GET_Nodes(){
-		$sID = $this->id;
-		
-		$aResponse = cAppDynCore::GET("$sID/nodes?",true);
-
-		$aOutput = [];
-		foreach ($aResponse as $oNode){
-			$iMachineID = $oNode->machineId;
-			if (!array_key_exists((string)$iMachineID, $aOutput)) $aOutput[(string)$iMachineID] = [];
-			$aOutput[(string)$iMachineID][] = $oNode;
-		}
-		ksort($aOutput );
-		
-		return $aOutput;
-	}
-
-	//*****************************************************************
-	public function GET_Transactions(){		
-		$sApp = rawurlencode($this->name);
-		return cAppDynCore::GET("$sApp/business-transactions?" );
-	}
-
-	//*****************************************************************
-	public function GET_Backends(){
-		if ( cAppDyn::is_demo()) return cAppDynDemo::GET_Backends(null);
-		$sMetricpath= cAppDynMetric::backends();
-		return cAppdynCore::GET_Metric_heirarchy($this->name, $sMetricpath, false); //dont cache
-	}
-
-	//*****************************************************************
-	public function GET_snaphot_info($psTransID, $poTimes){
-		/*should use instead
-		eg https://waitroseprod.saas.appdynamics.com/controller/restui/snapshot/snapshotListDataWithFilterHandle		{"firstInChain":false,"maxRows":600,"applicationIds":[1424],"businessTransactionIds":[],"applicationComponentIds":[4561],"applicationComponentNodeIds":[],"errorIDs":[],"errorOccured":null,"userExperience":[],"executionTimeInMilis":null,"endToEndLatency":null,"url":null,"sessionId":null,"userPrincipalId":null,"dataCollectorFilter":null,"archived":null,"guids":[],"diagnosticSnapshot":null,"badRequest":null,"deepDivePolicy":[],"rangeSpecifier":{"type":"BEFORE_NOW","durationInMinutes":15}}		
-		*/
-		
-		$sApp = rawurlencode($this->name);
-		$sUrl = cHttp::build_url("$sApp/request-snapshots", cAppdynUtil::controller_time_command($poTimes));
-		$sUrl = cHttp::build_url($sUrl, "application_name", $sApp);
-		//$sUrl = cHttp::build_url($sUrl, "application-component-ids", $psTierID);
-		$sUrl = cHttp::build_url($sUrl, "business-transaction-ids", $psTransID);
-		$sUrl = cHttp::build_url($sUrl, "output", "JSON");
-		return cAppDynCore::GET($sUrl);
-	}
-}
-
-//#################################################################
-//# 
-//#################################################################
-class cAppDTier{
-   public static $null_app = null;
-   public static $db_app = null;
-   public $name, $id, $app;
-   function __construct($poApp, $psTierName, $psTierId) {	
-		$this->app = $poApp;
-		$this->name = $psTierName; 
-		$this->id = $psTierId;
-   }
-}
 
 cAppDApp::$null_app = new cAppDApp(null,null);
 cAppDApp::$db_app = new cAppDApp(cAppDynCore::DATABASE_APPLICATION,cAppDynCore::DATABASE_APPLICATION);
 
 
 
-//#################################################################
-//# 
-//#################################################################
-function AD_sort_fn($a,$b)
-{
-    $v1 = $a->startTimeInMillis;
-    $v2 = $b->startTimeInMillis;
-    if ($v1==$v2) return 0;
-    return ($v1 < $v2) ? -1 : 1;
-}
-
-function cDetails_sorter($po1, $po2){
-	return strcasecmp ($po1->name, $po2->name);
-}
-
-function sort_by_name($po1, $po2){
-	return strcasecmp ($po1->name, $po2->name);
-}
-
-function sort_machine_agents( $po1, $po2){
-	return strcasecmp ($po1->applicationIds[0].".".$po1->hostName, $po2->applicationIds[0].".".$po2->hostName);	
-}
-function sort_appserver_agents( $po1, $po2){
-	return strcasecmp (
-		"$po1->applicationName.$po1->applicationComponentName.$po1->hostName", 
-		"$po2->applicationName.$po2->applicationComponentName.$po2->hostName"
-	);	
-}
-
-function sort_downloads($po1, $po2){
-	return strcasecmp ($po1->title, $po2->title);	
-}
 
 //#################################################################
 //# CLASSES
@@ -256,7 +107,7 @@ class cAppDynWebsite{
 				$sUrl = null;
 		}
 		
-		uasort($aData,"sort_downloads");
+		uasort($aData,"ad_sort_downloads");
 		return $aData;
 	}
 }
@@ -280,78 +131,18 @@ class cAppDyn{
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* All
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_Controller_version(){
-		$aConfig = self::GET_configuration();
-		foreach ($aConfig as $oItem)
-			if ($oItem->name === "schema.version"){
-				$sVersion = preg_replace("/^0*/","",$oItem->value);
-				$sVersion = preg_replace("/-0+(\d+)/",'.$1',$sVersion);
-				$sVersion = preg_replace("/-0+/",'.0',$sVersion);
-				return $sVersion;
-			}
-	}
 	
-	public static function GET_configuration(){
-		$old_prefix = cAppDynCore::$URL_PREFIX;
-		cAppDynCore::$URL_PREFIX = cAppDynCore::CONFIG_METRIC_PREFIX ;
-		$oData = cAppDynCore::GET("?");
-		cAppDynCore::$URL_PREFIX = $old_prefix ;
-		return $oData;
-	}
 	
 	public static function is_demo(){
 		$oCred = new cAppDynCredentials();
 		$oCred->check();
 		return $oCred->is_demo();
 	}
-
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* All
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_allBackends(){
-		$aServices = [];
-		
-		$oApps = self::GET_Applications();
-		foreach ($oApps as $oApp){
-			$aBackends = self::GET_Backends($oApp->name);
-			foreach ($aBackends as $oBackend){
-				$sBName = $oBackend->name;
-				if (!array_key_exists($sBName, $aServices)) $aServices[$sBName] = [];
-				$aServices[$sBName][] = new cAppDApp($oApp->name, $oApp->id);
-			}
-		}
-		ksort($aServices);
-		return $aServices;
-	}
-	
-	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* applications
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	
-	//*****************************************************************
-	public static function GET_Applications(){
-		if ( self::is_demo()) return cAppDynDemo::GET_Applications();
-		
-		$aData = cAppDynCore::GET('?');
-		if ($aData)	uasort($aData,"sort_by_name");
-		
-		$aOut = [];
-		foreach ($aData as $oItem){
-			$oApp = new cAppDApp($oItem->name, $oItem->id);
-			$aOut[] = $oApp;
-		}
-		
-		return ($aOut);		
-	}
 	
 		
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* Databases
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function GET_Databases(){
-		$sMetricPath= cAppDynMetric::databases();
-		return  cAppdynCore::GET_Metric_heirarchy(cAppDynCore::DATABASE_APPLICATION, $sMetricPath, false);
-	}
 	
 	public static function GET_Database_ServerStats($psDB){
 		$sMetricPath= cAppDynMetric::databaseServerStats($psDB);
@@ -422,46 +213,13 @@ class cAppDyn{
 	//* tiers
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	
 	
-	//*****************************************************************
-	public static function GET_tier_transaction_names($poTier){
-		//find out the transactions in this tier - through metric heirarchy (but doesnt give the trans IDs)
-		cDebug::enter();
-		$aResults = []; 
-		
-		try{
-			$metricPath = cAppDynMetric::tierTransactions($poTier->name);
-			$aTierTransactions = cAppdynCore::GET_Metric_heirarchy($poTier->app->name, $metricPath, false);	
-			if (!$aTierTransactions) return null;
-			
-			//so get the transaction IDs
-			$aAppTrans= cAppdynUtil::get_trans_assoc_array($poTier->app);
-			
-			// and combine the two
-
-			foreach ($aTierTransactions as $oTierTrans){
-				if (!array_key_exists($oTierTrans->name, $aAppTrans)) continue;
-				
-				$sTransID = $aAppTrans[$oTierTrans->name];
-				$oDetail = new cAppDDetails($oTierTrans->name, $sTransID, null, null);
-				$aResults[] = $oDetail;
-			}
-			
-			uasort($aResults, 'cDetails_sorter');
-		}
-		catch (Exception $e){
-			$aResults = null;
-		}
-		cDebug::leave();
-		return $aResults;
-	}
-	
 
 	//*****************************************************************
 	public static function GET_tier_ExtCalls_Metric_heirarchy($psApp, $psTier){
 		cDebug::enter();
 			$metricPath = "Overall Application Performance|$psTier|External Calls";
 			$aData = cAppdynCore::GET_Metric_heirarchy($psApp, $metricPath, false);
-			uasort ($aData, "sort_by_name");
+			uasort ($aData, "ad_sort_by_name");
 		cDebug::leave();
 		return $aData;
 	}
@@ -572,7 +330,7 @@ class cAppDyn{
 		cDebug::enter();
 		$sMetricpath=cAppDynMetric::InfrastructureNodes($psTier);
 		$aData = cAppdynCore::GET_Metric_heirarchy($psApp, $sMetricpath, false);
-		uasort($aData, 'cDetails_sorter');
+		uasort($aData, 'ad_sort_by_name');
 		cDebug::leave();
 		return  $aData;
 	}
