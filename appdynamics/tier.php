@@ -154,10 +154,24 @@ class cAppDTier{
 		return  $oData;
 	}
 	
+	public function GET_DiskMetrics(){
+		cDebug::enter();
+		$sMetricpath=cAppDynMetric::InfrastructureNodeDisks($this->name, null);
+		$aData = cAppdynCore::GET_Metric_heirarchy($this->app->name, $sMetricpath, true);
+		
+		$aOut = [];
+		foreach ($aData as $oEntry)
+			if ($oEntry->type === "leaf") $aOut[] = $oEntry;
+		
+		uasort($aOut, 'ad_sort_by_name');
+		cDebug::leave();
+		return  $aOut;
+	}
+	
 	public function GET_NodeDisks($psNode){
 		cDebug::enter();
 		$sMetricpath=cAppDynMetric::InfrastructureNodeDisks($this->name, $psNode);
-		$aData = cAppdynCore::GET_Metric_heirarchy($this->app->name, $sMetricpath, false);
+		$aData = cAppdynCore::GET_Metric_heirarchy($this->app->name, $sMetricpath, true);
 		
 		$aOut = [];
 		foreach ($aData as $oEntry)

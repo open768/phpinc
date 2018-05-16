@@ -49,7 +49,6 @@ class cAppDynInfraMetric{
 	const METRIC_TYPE_INFR_AGENT_LICENSE_ERRORS = "mtiale";
 	const METRIC_TYPE_INFR_CPU_BUSY = "mticb";
 	const METRIC_TYPE_INFR_MEM_FREE = "mtimf";
-	const METRIC_TYPE_INFR_DISK_FREE = "mtidf";
 	const METRIC_TYPE_INFR_NETWORK_IN = "mtini";
 	const METRIC_TYPE_INFR_NETWORK_OUT = "mtino";
 	const METRIC_TYPE_INFR_JAVA_HEAP_USED = "mtijhu";
@@ -125,7 +124,6 @@ class cAppDynInfraMetric{
 		$aTypes = 
 		 [
 			self::METRIC_TYPE_INFR_CPU_BUSY,
-			self::METRIC_TYPE_INFR_DISK_FREE,
 			self::METRIC_TYPE_INFR_JAVA_CPU_USAGE,
 			self::METRIC_TYPE_INFR_DOTNET_ANON_REQ,
 			self::METRIC_TYPE_INFR_NETWORK_IN,
@@ -179,11 +177,6 @@ class cAppDynInfraMetric{
 					$sMetricUrl = cAppDynMetric::InfrastructureMemoryFree($psTier,$psNode);
 					$sCaption = "Server memory free in MB";
 					$sShortCaption = "Server Memory free (MB)";
-					break;
-				case self::METRIC_TYPE_INFR_DISK_FREE:
-					$sMetricUrl = cAppDynMetric::InfrastructureDiskFree($psTier,$psNode);
-					$sCaption = "Disk Space free in MB";
-					$sShortCaption = "Disk space free";
 					break;
 				case self::METRIC_TYPE_INFR_NETWORK_IN:
 					$sMetricUrl = cAppDynMetric::InfrastructureNetworkIncoming($psTier,$psNode);
@@ -426,7 +419,7 @@ class cAppDynMetric{
 		return self::InfrastructureJDBCPools($psTier, $psNode)."|$psPool|Maximum Connections";
 	}
 
-	public static function InfrastructureNodeDisks($psTier, $psNode){
+	public static function InfrastructureNodeDisks($psTier, $psNode=null){
 		return self::InfrastructureNode($psTier, $psNode)."|Hardware Resources|Disks";
 	}
 	public static function InfrastructureNodeDiskFree($psTier, $psNode, $psDisk){
@@ -466,6 +459,10 @@ class cAppDynMetric{
 
 	public static function InfrastructureDiskFree($psTier, $psNode=null){
 		return self::InfrastructureNode($psTier, $psNode)."|Hardware Resources|Disks|MB Free";
+	}
+	
+	public static function InfrastructureDiskWrites($psTier, $psNode=null){
+		return self::InfrastructureNode($psTier, $psNode)."|Hardware Resources|Disks|KB written/sec";
 	}
 
 	public static function InfrastructureNetworkIncoming($psTier, $psNode=null){

@@ -338,7 +338,7 @@ class cAppdynUtil {
 	public static function get_matching_extcall($poApp, $psExt){
 		$aTiers = $poApp->GET_Tiers();
 		foreach ($aTiers as $oTier){
-			$aTierExt = cAppdyn::GET_tier_ExtCalls_Metric_heirarchy($poApp->name, $oTier->name);
+			$aTierExt = $oTier->GET_ext_calls();
 			foreach ($aTierExt as $oExt)
 				if ( strpos($oExt->name, $psExt) !== false )
 					return $oExt->name;
