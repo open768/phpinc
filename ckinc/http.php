@@ -187,7 +187,7 @@ class cHttp{
 		if ($sUrl == null) $sUrl = "";
 		if (($sUrl !== "") && (substr($sUrl, -1) !== "?"))	$sUrl .= "&";
 		$sUrl .= $psQueryParam;
-		if ($psQueryValue) $sUrl .= "=$psQueryValue";
+		if ($psQueryValue) $sUrl .= "=".urlencode($psQueryValue);
 		
 		return $sUrl;
 	}
