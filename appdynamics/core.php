@@ -80,7 +80,7 @@ class cAppDynCore{
 		
 		$oHttp = new cHttp();
 		$oHttp->USE_CURL = false;
-		$oHttp->set_credentials($sCred,$oCred->password);
+		$oHttp->set_credentials($sCred,$oCred->get_password());
 		$sUrl = self::GET_controller(). self::LOGIN_URL;
 
 		$oHttp->fetch_url($sUrl);	//will throw an error if unauthorised	
@@ -171,7 +171,7 @@ class cAppDynCore{
 		
 		$oHttp = new cHttp();
 		$oHttp->USE_CURL = false;
-		$oHttp->set_credentials($sCred,$oCred->password);
+		$oHttp->set_credentials($sCred,$oCred->get_password());
 		$oData = $oHttp->getjson($url);
 		
 		//----- 

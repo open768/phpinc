@@ -19,6 +19,8 @@ require_once("$phpinc/ckinc/http.php");
 require_once("$phpinc/appdynamics/common.php");
 require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/common.php");
+require_once("$phpinc/appdynamics/secret.php");
+require_once("$phpinc/php-openssl-crypt/cryptor.php");
 
 //#################################################################
 //# 
@@ -54,10 +56,10 @@ class cAppDynCredentials{
 	
 	public $account;
 	public $host;
-	public $username;
+	public $encrypted_username;
 	public $jsessionid;
 	public $csrftoken;
-	public $password;
+	public $encrypted_password;
 	public $use_https;
 	public $restricted_login = null;
 	private $mbLogged_in = false;
@@ -66,8 +68,8 @@ class cAppDynCredentials{
 	//**************************************************************************************
 	function check(){
 		if(!$this->account) cDebug::error("Couldnt get account from session");
-		if(!$this->username ) cDebug::error("Couldnt get username from session");
-		if(!$this->password) cDebug::error("Couldnt get password from session");
+		if(!$this->encrypted_username ) cDebug::error("Couldnt get username from session");
+		if(!$this->encrypted_password) cDebug::error("Couldnt get password from session");
 
 		if (!$this->is_demo()){
 			if(!$this->host) cDebug::error("Couldnt get host from session");
@@ -76,10 +78,15 @@ class cAppDynCredentials{
 	
 	//**************************************************************************************
 	function load_from_header(){
+		$username = null;
+		$password = null;
+		
 		$this->host = cHeader::get(cLogin::KEY_HOST);
 		$this->account  = cHeader::get(cLogin::KEY_ACCOUNT);
-		$this->username  = cHeader::get(cLogin::KEY_USERNAME);
-		$this->password  = cHeader::get(cLogin::KEY_PASSWORD);
+		$username  = cHeader::get(cLogin::KEY_USERNAME);
+		if ($username)	$this->encrypted_username = Cryptor::Encrypt($username, cAppDSecret::SESSION_ENCRYPTION_KEY);
+		$password  = cHeader::get(cLogin::KEY_PASSWORD);
+		if ($password)	$this->encrypted_password = Cryptor::Encrypt($password, cAppDSecret::SESSION_ENCRYPTION_KEY);
 		
 		$sUse_https = cHeader::get(cLogin::KEY_HTTPS);
 		
@@ -92,10 +99,11 @@ class cAppDynCredentials{
 	//this performs the login
 	public function save(){
 		cDebug::write("saving");
+		
 		$_SESSION[self::HOST_KEY]  = $this->host;
 		$_SESSION[self::ACCOUNT_KEY]  = $this->account;
-		$_SESSION[self::USERNAME_KEY]  = $this->username;
-		$_SESSION[self::PASSWORD_KEY]  = $this->password;  //TODO should be encrypted
+		$_SESSION[self::USERNAME_KEY]  = $this->encrypted_username;
+		$_SESSION[self::PASSWORD_KEY]  = $this->encrypted_password;
 		$_SESSION[self::USE_HTTPS_KEY]  = $this->use_https;
 		$_SESSION[self::RESTRICTED_LOGIN_KEY]  = $this->restricted_login;
 		
@@ -137,15 +145,26 @@ class cAppDynCredentials{
 	}
 	
 	//**************************************************************************************
+	public function get_username(){
+		return Cryptor::Decrypt($this->encrypted_username, cAppDSecret::SESSION_ENCRYPTION_KEY);
+	}
+	
+	//**************************************************************************************
+	public function get_password(){
+		return Cryptor::Decrypt($this->encrypted_password, cAppDSecret::SESSION_ENCRYPTION_KEY);
+	}
+	
+	//**************************************************************************************
 	public function encode(){
-		return urlencode(urlencode($this->username)."@".$this->account);
+		return urlencode(urlencode($this->get_username())."@".$this->account);
 	}
 
 	//**************************************************************************************
 	function __construct() {
+		//retrieves stored values from the session $_SESSION
 		$this->account = cCommon::get_session(self::ACCOUNT_KEY);
-		$this->username = cCommon::get_session(self::USERNAME_KEY);
-		$this->password = cCommon::get_session(self::PASSWORD_KEY); //todo encrypt
+		$this->encrypted_username = cCommon::get_session(self::USERNAME_KEY);
+		$this->encrypted_password = cCommon::get_session(self::PASSWORD_KEY); 
 
 		if ($this->is_demo()){
 			$this->host = cAppDynCore::DEMO_HOST;
@@ -156,7 +175,6 @@ class cAppDynCredentials{
 
 		$this->restricted_login = cCommon::get_session(self::RESTRICTED_LOGIN_KEY);
 		$this->mbLogged_in = cCommon::get_session(self::LOGGEDIN_KEY);  
-		//TODO should we really trust this, should be more secure than just a session variable
 		$this->jsessionid = cCommon::get_session(self::JSESSION_KEY);  
 		$this->csrftoken = cCommon::get_session(self::CSRF_TOKEN_KEY);  
 	}
@@ -164,7 +182,7 @@ class cAppDynCredentials{
 	//**************************************************************************************
 	public function is_demo(){
 		if ($this->account == self::DEMO_ACCOUNT){
-			if (($this->username == self::DEMO_USER) && ($this->password == self::DEMO_PASS)){
+			if (($this->get_username() == self::DEMO_USER) && ($this->get_password() == self::DEMO_PASS)){
 				return true;
 			}else{
 				cDebug::error("wrong demo login details");
