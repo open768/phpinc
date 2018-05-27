@@ -19,7 +19,6 @@ require_once("$phpinc/ckinc/http.php");
 require_once("$phpinc/appdynamics/common.php");
 require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/common.php");
-require_once("$phpinc/appdynamics/secret.php");
 require_once("$phpinc/php-openssl-crypt/cryptor.php");
 
 //#################################################################
@@ -36,6 +35,44 @@ class cLogin{
 	const KEY_SUBMIT = "s";
 }
 
+//#################################################################
+//# encrypt with a key that is randomly generated - 
+//# so that even the person hosting cant easily find the details
+//#################################################################
+class cAppDynCrypt{
+	public static $credentials = null;
+	
+	private static function get_key(){
+		if (self::$credentials == null) cDebug::error("account credentials missing");
+		
+		$sHash = "cAppDynCrypt.key.".self::$credentials->host.self::$credentials->account;
+		$sKey = "##key is not set##";
+		if (cHash::exists($sHash)){
+			$sKey = cHash::get($sHash);
+			cDebug::write("existing key $sKey");
+		}else{
+			$sKey = uniqid("",true);
+			cHash::put($sHash, $sKey);
+			cDebug::write("new key $sKey");
+		}
+		
+		//return cAppDSecret::SESSION_ENCRYPTION_KEY;
+		return $sKey;
+	}
+	
+	public static function encrypt($psWhat){
+		if (self::$credentials == null) cDebug::error("account credentials missing");
+		return Cryptor::Encrypt($psWhat, self::get_key());
+	}
+	public static function decrypt($psWhat){
+		if (self::$credentials == null) cDebug::error("account credentials missing");
+		return Cryptor::Decrypt($psWhat, self::get_key());		
+	}
+}
+
+//#################################################################
+//# 
+//#################################################################
 class cAppDynCredentials{
 	const HOST_KEY = "apple";
 	const ACCOUNT_KEY = "pear";
@@ -83,10 +120,12 @@ class cAppDynCredentials{
 		
 		$this->host = cHeader::get(cLogin::KEY_HOST);
 		$this->account  = cHeader::get(cLogin::KEY_ACCOUNT);
+		cAppDynCrypt::$credentials = $this;
+		
 		$username  = cHeader::get(cLogin::KEY_USERNAME);
-		if ($username)	$this->encrypted_username = Cryptor::Encrypt($username, cAppDSecret::SESSION_ENCRYPTION_KEY);
+		if ($username)	$this->encrypted_username = cAppDynCrypt::encrypt($username);
 		$password  = cHeader::get(cLogin::KEY_PASSWORD);
-		if ($password)	$this->encrypted_password = Cryptor::Encrypt($password, cAppDSecret::SESSION_ENCRYPTION_KEY);
+		if ($password)	$this->encrypted_password = cAppDynCrypt::encrypt($password);
 		
 		$sUse_https = cHeader::get(cLogin::KEY_HTTPS);
 		
@@ -146,12 +185,14 @@ class cAppDynCredentials{
 	
 	//**************************************************************************************
 	public function get_username(){
-		return Cryptor::Decrypt($this->encrypted_username, cAppDSecret::SESSION_ENCRYPTION_KEY);
+		cAppDynCrypt::$credentials = $this;
+		return cAppDynCrypt::decrypt($this->encrypted_username);
 	}
 	
 	//**************************************************************************************
 	public function get_password(){
-		return Cryptor::Decrypt($this->encrypted_password, cAppDSecret::SESSION_ENCRYPTION_KEY);
+		cAppDynCrypt::$credentials = $this;
+		return cAppDynCrypt::decrypt($this->encrypted_password);
 	}
 	
 	//**************************************************************************************
