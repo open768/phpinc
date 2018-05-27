@@ -246,12 +246,11 @@ class cAppDynCredentials{
 		
 		//------------- check login credentials --------------------------
 		$oCred = new cAppDynCredentials;
-		$oCred->load();
 		if (!$oCred->logged_in()) cDebug::error("must be logged in");
 		if ($oCred->restricted_login) cDebug::error("token not available in restricted login");
 		
 		//------------- generate the token --------------------------------
-		$sKey = cCommon::my_IP_address(). $oCred->host.$oCred->account.$oCred->username;
+		$sKey = cCommon::my_IP_address().$oCred->host.$oCred->account.$oCred->get_username();
 		$sHash = cHash::hash($sKey);
 		cDebug::write("Key is $sKey, hash is $sHash");
 		cHash::put_obj($sHash, $oCred, true );
