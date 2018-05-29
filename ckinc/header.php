@@ -67,28 +67,22 @@ class cHeader{
 	}
 	
 	//*******************************************************************
-	//from http://snipplr.com/view.php?codeview&id=2734
 	public static function get_server()
 	{
-		$sServerName = ( empty($_SERVER["HTTP_X_FORWARDED_SERVER"])?$_SERVER['SERVER_NAME']:$_SERVER["HTTP_X_FORWARDED_SERVER"]);
-		$sPort = ( empty($_SERVER["HTTP_X_FORWARDED_PORT"])?$_SERVER['SERVER_PORT']:$_SERVER["HTTP_X_FORWARDED_PORT"]);
-	
-		if (!empty ($_SERVER["HTTP_X_FORWARDED_PROTO"] ))
-			$sProto = $_SERVER["HTTP_X_FORWARDED_PROTO"];
-		else{
-			$aSplit = explode("/", $_SERVER['SERVER_PROTOCOL']);
-			$sProto = $aSplit[0];
-		}
-		$sProto = strtolower($sProto);
-		
-		if ($sProto == "https") {
-			$sPort = ($sPort=="443"?"":":$sPort");
-		}else{
-			$sPort = ($sPort=="80"?"":":$sPort");
-		}
+        $server_name = $_SERVER['SERVER_NAME'];
 
+        if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
+            $port = ":$_SERVER[SERVER_PORT]";
+        } else {
+            $port = '';
+        }
 
-		return $sProto . "://$sServerName$sPort";
+        if (!empty($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1')) {
+            $scheme = 'https';
+        } else {
+            $scheme = 'http';
+        }
+        return $scheme.'://'.$server_name.$port;
 	}
 	
 	//*******************************************************************
