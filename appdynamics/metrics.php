@@ -61,7 +61,7 @@ class cAppDynInfraMetric{
 	
 	//**************************************************************************
 	public static function getInfrastructureMetricTypes(){
-		$aMetricTypes = [cRender::METRIC_TYPE_ACTIVITY, cRender::METRIC_TYPE_RESPONSE_TIMES];
+		$aMetricTypes = [cAppDynMetric::METRIC_TYPE_ACTIVITY, cAppDynMetric::METRIC_TYPE_RESPONSE_TIMES];
 		$aMiscInfraMetricTypes = self::getInfrastructureMiscMetricTypes();
 		$aAgentMetricTypes = self::getInfrastructureAgentMetricTypes();
 		$aMemoryMetricTypes = self::getInfrastructureMemoryMetricTypes();
@@ -147,7 +147,7 @@ class cAppDynInfraMetric{
 	//**************************************************************************
 	public static function getInfrastructureMetric($psTier, $psNode=null, $psMetricType){			
 			switch($psMetricType){
-				case cRender::METRIC_TYPE_ACTIVITY:
+				case cAppDynMetric::METRIC_TYPE_ACTIVITY:
 					if ($psTier)
 						$sMetricUrl = cAppDynMetric::tierNodeCallsPerMin($psTier,$psNode);
 					else
@@ -155,7 +155,7 @@ class cAppDynInfraMetric{
 					$sCaption = "Calls per min";
 					$sShortCaption = "Activity";
 					break;
-				case cRender::METRIC_TYPE_RESPONSE_TIMES:
+				case cAppDynMetric::METRIC_TYPE_RESPONSE_TIMES:
 					if ($psTier)
 						$sMetricUrl = cAppDynMetric::tierNodeResponseTimes($psTier,$psNode);
 					else
@@ -248,6 +248,17 @@ class cAppDynInfraMetric{
 
 //######################################################################
 class cAppDynMetric{
+	const METRIC_TYPE_QS ="mt";
+	const METRIC_TYPE_RUMCALLS = "mrc";
+	const METRIC_TYPE_RUMRESPONSE = "mrr";
+	const METRIC_TYPE_TRANSRESPONSE = "mtr";
+	const METRIC_TYPE_DATABASE_TIME = "mdt";
+	const METRIC_TYPE_ACTIVITY = "mac";
+	const METRIC_TYPE_RESPONSE_TIMES = "mrt";
+	const METRIC_TYPE_BACKEND_RESPONSE = "mbr";
+	const METRIC_TYPE_BACKEND_ACTIVITY = "mba";
+	const METRIC_TYPE_JMX_DBPOOLS = "mtjdbp";
+	
 	const USAGE_METRIC = "moduleusage";
 	const RESPONSE_TIME = "Average Response Time (ms)";
 	const CALLS_PER_MIN = "Calls per Minute";
