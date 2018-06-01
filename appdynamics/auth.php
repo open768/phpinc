@@ -109,7 +109,7 @@ class cAppDynAudit{
 	}
 	
 	//**************************************************************************************
-	public static function pr_get_user_entries($poAccount){
+	public static function get_user_entries($poAccount){
 		return cHash::get(self::pr__get_user_key($poAccount));
 	}
 
@@ -144,6 +144,7 @@ class cAppDynAudit{
 	public static function get_audited_accounts(){
 		return cHash::get(self::ACCOUNTS_KEY);
 	}
+	
 }
 
 //#################################################################
