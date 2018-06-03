@@ -48,7 +48,7 @@ class cDebug{
 	public static function extra_debug($poThing){
 		if (self::$EXTRA_DEBUGGING){
 			$sDate = date('d-m-Y H:i:s');
-			echo "<p><font color='DarkRed'><code>** $sDate: $poThing</code></font><p>";
+			?><p><font color='DarkRed'><code><?=str_repeat("&nbsp;", self::$ENTER_DEPTH *4)?><?=$sDate?>: ** <?=$poThing?></code></font><p><?php
 			self::flush();
 		}
 	}
@@ -57,7 +57,7 @@ class cDebug{
 	public static function write($poThing){
 		if (self::is_debugging()){
 			$sDate = date('d-m-Y H:i:s');
-			echo "<p><font color=red><code>$sDate: $poThing</code></font><p>";
+			?><p><font color=red><code><?=str_repeat("&nbsp;", self::$ENTER_DEPTH *4)?><?=$sDate?>: <?=$poThing?></code></font><p><?php
 			self::flush();
 		}
 	}
@@ -140,7 +140,7 @@ class cDebug{
 				$sCaller = "$sClass.$sFunc";
 			}
 			
-			self::extra_debug("<font color='grey' face='courier' size=2>Enter ".str_repeat("----", self::$ENTER_DEPTH). "> $sCaller</font>");
+			self::extra_debug("<font color='grey' face='courier' size=2>Enter&gt; $sCaller</font>");
 			self::$ENTER_DEPTH++;
 		}
 	}
@@ -158,7 +158,7 @@ class cDebug{
 				}
 				$sCaller = "$sClass.$sFunc";
 			}
-			self::extra_debug("<font color='grey' face='courier' size=2>Leave ".str_repeat("----", self::$ENTER_DEPTH). "> $sCaller</font>");
+			self::extra_debug("<font color='grey' face='courier' size=2>Leave &gt; $sCaller</font>");
 		}
 	}
 	

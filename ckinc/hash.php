@@ -109,24 +109,24 @@ class cHash{
 		if (self::pr__exists_hash($psHash)){
 			if (self::$show_cache_hit) cDebug::write("exists in cache");
 			$sFile = self::getPath($psHash);
-			cDebug::extra_debug("$sFile");
+			//cDebug::extra_debug("$sFile");
 			$oResponse = cGzip::readObj($sFile);
 		}else
 			if (self::$show_cache_hit) cDebug::write("doesnt exist in cache");
-		
 		return $oResponse;
 	}
 	
 	//************************************************************************
 	public static function get($psAnything){
 		$sHash = self::hash($psAnything);
-		return self::get_obj($sHash);
+		$oThing = self::get_obj($sHash);
+		return $oThing;
 	}
 	
 	//************************************************************************
 	public static function put($psAnything, $poObj, $pbOverwrite=false){
 		$sHash = self::hash($psAnything);
-		return self::put_obj($sHash, $poObj, $pbOverwrite);
+		self::put_obj($sHash, $poObj, $pbOverwrite);
 	}
 	
 	//************************************************************************

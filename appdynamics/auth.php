@@ -154,18 +154,21 @@ class cAppDynAudit{
 class cAppDynCrypt{
 	public static $credentials = null;
 	
-	private static function get_key(){
+	private static function pr__check_credentials(){
 		if (self::$credentials == null) cDebug::error("account credentials missing");
-		
-		$sHash = "cAppDynCrypt.key.".self::$credentials->host.self::$credentials->account;
+		if (self::$credentials->host == null) cDebug::error("host missing");
+		if (self::$credentials->account == null) cDebug::error("account missing");
+	}
+	
+	private static function get_key(){
+		self::pr__check_credentials();
+		$sHash = "cAppDynCrypt.key.".(self::$credentials->host).(self::$credentials->account);
 		$sKey = "##key is not set##";
 		if (cHash::exists($sHash)){
 			$sKey = cHash::get($sHash);
-			cDebug::write("existing key $sKey");
 		}else{
 			$sKey = uniqid("",true);
 			cHash::put($sHash, $sKey);
-			cDebug::write("new key $sKey");
 		}
 		
 		//return cAppDSecret::SESSION_ENCRYPTION_KEY;
@@ -173,11 +176,11 @@ class cAppDynCrypt{
 	}
 	
 	public static function encrypt($psWhat){
-		if (self::$credentials == null) cDebug::error("account credentials missing");
+		self::pr__check_credentials();
 		return Cryptor::Encrypt($psWhat, self::get_key());
 	}
 	public static function decrypt($psWhat){
-		if (self::$credentials == null) cDebug::error("account credentials missing");
+		self::pr__check_credentials();
 		return Cryptor::Decrypt($psWhat, self::get_key());		
 	}
 }
@@ -227,6 +230,7 @@ class cAppDynCredentials{
 	
 	//**************************************************************************************
 	function load_from_header(){
+		cDebug::enter();
 		$username = null;
 		$password = null;
 		
@@ -244,12 +248,14 @@ class cAppDynCredentials{
 		$this->use_https = ($sUse_https=="yes");		
 		
 		$this->save();		//populate the session
+		cDebug::leave();
 	}
 	
 	//**************************************************************************************
 	//this performs the login
 	public function save(){
-		cDebug::write("saving");
+		cDebug::enter();
+		cDebug::write("saving TO SESSION");
 		
 		$_SESSION[self::HOST_KEY]  = $this->host;
 		$_SESSION[self::ACCOUNT_KEY]  = $this->account;
@@ -265,6 +271,7 @@ class cAppDynCredentials{
 		
 		$_SESSION[self::LOGGEDIN_KEY] = true;
 		$this->mbLogged_in = true;
+		cDebug::leave();
 	}
 	
 	//**************************************************************************************
@@ -320,12 +327,8 @@ class cAppDynCredentials{
 		$this->encrypted_username = cCommon::get_session(self::USERNAME_KEY);
 		$this->encrypted_password = cCommon::get_session(self::PASSWORD_KEY); 
 
-		if ($this->is_demo()){
-			$this->host = cAppDynCore::DEMO_HOST;
-		}else{
-			$this->host = cCommon::get_session(self::HOST_KEY);
-			$this->use_https = cCommon::get_session(self::USE_HTTPS_KEY);
-		}
+		$this->host = cCommon::get_session(self::HOST_KEY);
+		$this->use_https = cCommon::get_session(self::USE_HTTPS_KEY);
 
 		$this->restricted_login = cCommon::get_session(self::RESTRICTED_LOGIN_KEY);
 		$this->mbLogged_in = cCommon::get_session(self::LOGGEDIN_KEY);  
@@ -335,13 +338,16 @@ class cAppDynCredentials{
 	
 	//**************************************************************************************
 	public function is_demo(){
+		cDebug::enter();
 		if ($this->account == self::DEMO_ACCOUNT){
-			if (($this->get_username() == self::DEMO_USER) && ($this->get_password() == self::DEMO_PASS)){
+			if (($this->get_username() == self::DEMO_USER) && ( $this->get_password() == self::DEMO_PASS)){
+				cDebug::write("this is a demo login");
 				return true;
-			}else{
+			}else
 				cDebug::error("wrong demo login details");
-			}
 		}
+		cDebug::write("this is not a demo login");
+		cDebug::leave();
 		return false;
 	}
 	
