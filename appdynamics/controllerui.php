@@ -120,6 +120,19 @@ class cAppDynControllerUI{
 	}
 	
 	//###############################################################################################
+	//# Service End POints
+	public static function serviceEndPoints($poApp){
+		$sBaseUrl = cAppDynCore::GET_controller();
+		return $sBaseUrl."/#/location=APP_SERVICE_ENDPOINT_LIST&application=$poApp->id";
+	}
+	
+	public static function serviceEndPoint($poTier, $piServiceID){
+		$sBaseUrl = cAppDynCore::GET_controller();
+		$iApp=$poTier->app->id;
+		$iTier=$poTier->id;
+		return $sBaseUrl."/#/location=APP_SERVICE_ENDPOINT_DASHBOARD&application=$iApp&component=$iTier&serviceEndpoint=$piServiceID";
+	}
+	//###############################################################################################
 	//# Transactions
 	public static function businessTransactions($poApp){
 		$sBaseUrl = cAppDynCore::GET_controller();

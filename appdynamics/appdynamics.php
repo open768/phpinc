@@ -72,7 +72,7 @@ class cAppdMetricLeaf{
 }
 
 class cAppDDetails extends cAppdObj{
-   public $name, $id, $calls, $times;
+   public $name, $id, $calls, $times, $type;
    function __construct($psName, $psId, $poCalls, $poTimes) {
 		$this->name = $psName;
 		$this->id = $psId;

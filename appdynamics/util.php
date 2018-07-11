@@ -242,7 +242,8 @@ class cAppdynUtil {
 	
 	//*****************************************************************
 	public static function extract_error_name($psTier, $psMetric){
-		$sPattern = "/\|$psTier\|(.*)\|Errors per Minute/";
+		$sTier = preg_quote($psTier);
+		$sPattern = "/\|$sTier\|(.*)\|Errors per Minute/";
 		if (preg_match($sPattern, $psMetric, $aMatches))
 			return $aMatches[1];
 		else
@@ -251,7 +252,8 @@ class cAppdynUtil {
 	
 	//*****************************************************************
 	public static function extract_RUM_name($psType, $psMetric){
-		$sPattern = "/\|$psType\|([^\|]+)\|/";
+		$sType = preg_quote($psType);
+		$sPattern = "/\|$sType\|([^\|]+)\|/";
 		if (preg_match($sPattern, $psMetric, $aMatches))
 			return $aMatches[1];
 		else

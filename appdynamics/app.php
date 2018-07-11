@@ -51,7 +51,7 @@ class cAppDApp{
 		cDebug::enter();
 		$sMetricPath= cAppDynMetric::appBackends();
 		$aMetrics = cAppdynCore::GET_Metric_heirarchy($this->name, $sMetricPath,false); //dont cache
-		if ($aMetrics) uasort($aMetrics,"sort_by_name");
+		if ($aMetrics) uasort($aMetrics,"ad_sort_by_name");
 		cDebug::leave();
 		return $aMetrics;
 	}
@@ -110,7 +110,7 @@ class cAppDApp{
 	//*****************************************************************
 	public function GET_snaphot_info($psTransID, $poTimes){
 		/*should use instead
-		eg https://waitroseprod.saas.appdynamics.com/controller/restui/snapshot/snapshotListDataWithFilterHandle		{"firstInChain":false,"maxRows":600,"applicationIds":[1424],"businessTransactionIds":[],"applicationComponentIds":[4561],"applicationComponentNodeIds":[],"errorIDs":[],"errorOccured":null,"userExperience":[],"executionTimeInMilis":null,"endToEndLatency":null,"url":null,"sessionId":null,"userPrincipalId":null,"dataCollectorFilter":null,"archived":null,"guids":[],"diagnosticSnapshot":null,"badRequest":null,"deepDivePolicy":[],"rangeSpecifier":{"type":"BEFORE_NOW","durationInMinutes":15}}		
+		eg https://xxx.saas.appdynamics.com/controller/restui/snapshot/snapshotListDataWithFilterHandle		{"firstInChain":false,"maxRows":600,"applicationIds":[1424],"businessTransactionIds":[],"applicationComponentIds":[4561],"applicationComponentNodeIds":[],"errorIDs":[],"errorOccured":null,"userExperience":[],"executionTimeInMilis":null,"endToEndLatency":null,"url":null,"sessionId":null,"userPrincipalId":null,"dataCollectorFilter":null,"archived":null,"guids":[],"diagnosticSnapshot":null,"badRequest":null,"deepDivePolicy":[],"rangeSpecifier":{"type":"BEFORE_NOW","durationInMinutes":15}}		
 		*/
 		
 		$sApp = rawurlencode($this->name);

@@ -41,6 +41,15 @@ class cMetricOutput{
 	}
 }
 
+class cAppDynInfraMetricTypeDetails{
+	public $type;
+	public $metric;
+}
+
+function ad_sort_by_metric_short($po1, $po2){
+	return strcasecmp ($po1->metric->short, $po2->metric->short);
+}
+
 //######################################################################
 class cAppDynInfraMetric{
 	const METRIC_TYPE_INFR_AVAIL = "mtia";
@@ -60,6 +69,20 @@ class cAppDynInfraMetric{
 	const METRIC_TYPE_INFR_DOTNET_ANON_REQ = "mtidar";
 	
 	//**************************************************************************
+	public static function getInfrastructureMetricDetails($poTier){
+		$aTypes = self::getInfrastructureMetricTypes();
+		$aOut = [];
+		foreach ( $aTypes as $sType){
+			$oMetric = cAppDynInfraMetric::getInfrastructureMetric($poTier->name,null,$sType);
+			$oDetails = new cAppDynInfraMetricTypeDetails;
+			$oDetails->type = $sType;
+			$oDetails->metric = $oMetric;
+			$aOut[] = $oDetails;
+		}
+		uasort($aOut,"ad_sort_by_metric_short");
+		return $aOut;
+	}
+		
 	public static function getInfrastructureMetricTypes(){
 		$aMetricTypes = [cAppDynMetric::METRIC_TYPE_ACTIVITY, cAppDynMetric::METRIC_TYPE_RESPONSE_TIMES];
 		$aMiscInfraMetricTypes = self::getInfrastructureMiscMetricTypes();
@@ -614,6 +637,9 @@ class cAppDynMetric{
 		
 	public static function transExtResponseTimes($psTier, $psTrans, $psOther){
 		return self::transExtNames($psTier, $psTrans)."|$psOther|".self::RESPONSE_TIME;
+	}
+	public static function transExtErrors($psTier, $psTrans, $psOther){
+		return self::transExtNames($psTier, $psTrans)."|$psOther|".self::ERRORS;
 	}
 	
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

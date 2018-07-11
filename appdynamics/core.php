@@ -171,7 +171,9 @@ class cAppDynCore{
 		
 		$oHttp = new cHttp();
 		$oHttp->USE_CURL = false;
+		
 		$oHttp->set_credentials($sCred,$oCred->get_password());
+		//$oHttp->extra_header = "";	//TODO dont use the password here use the tokens
 		$oData = $oHttp->getjson($url);
 		
 		//----- 

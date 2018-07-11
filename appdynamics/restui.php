@@ -22,6 +22,16 @@ class cAppdynRestUITime{
 	public $timeRangeAdjusted=false;
 }
 
+class cAppdynRestUISnapshotFilter{
+	public $applicationIds = [];
+	public $applicationComponentIds = [];
+	public $sepIds = [];
+	public $rangeSpecifier = null;
+	
+	function __construct() {
+		$this->rangeSpecifier = new cAppdynRestUITime;
+	}
+}
 class cAppdynRestUIRequest{
 	public $applicationIds = [];
 	public $guids = [];
@@ -110,10 +120,56 @@ class cAppDynRestUI{
 		return $oResult;
 	}
 	
-	//************************************************************************************
-	/*
-	call graph
-	https://waitroseprod.saas.appdynamics.com/controller/restui/snapshot/getCallGraphRoot?rsdId=5727317326&timeRange=Custom_Time_Range.BETWEEN_TIMES.1522445638055.1522442038055.60
-	*/
+	public static function GET_service_end_points($poTier){
+		cDebug::enter();
+		//serviceEndpoint/list2/1424/1424/APPLICATION?time-range=last_1_hour.BEFORE_NOW.-1.-1.60
+		$iTid = $poTier->id;
+		$iAid = $poTier->app->id;
+		$sURL = "serviceEndpoint/list2/$iAid/$iAid/APPLICATION?time-range=last_1_hour.BEFORE_NOW.-1.-1.60";
+		$oResult = cAppdynCore::GET_restUI($sURL);
+		
+		//now filter the results for the tier id
+		$aEndPoints = [];
+		foreach( $oResult->serviceEndpointListEntries as $oService){
+			if ($oService->applicationComponentId == $iTid){
+				$oItem = new cAppDDetails($oService->name, $oService->id, null,null);
+				$oItem->type = $oService->type;
+				$aEndPoints[] = $oItem;
+			} 
+		}
+		uasort($aEndPoints,"ad_sort_by_name");
+		cDebug::leave();
+		return $aEndPoints;
+	}
+	
+	public static function GET_Service_end_point_snapshots($poTier, $piServiceEndPointID, $oTime){
+		cDebug::enter();
+		//{"applicationIds":[1424],"applicationComponentIds":[4561],"sepIds":[6553581],"rangeSpecifier":{"type":"BEFORE_NOW","durationInMinutes":60},"maxRows":600}
+		
+		$sURL = "snapshot/snapshotListDataWithFilterHandle";
+		$oFilter = new cAppdynRestUISnapshotFilter;
+		$oFilter->applicationIds[] = intval($poTier->app->id);
+		$oFilter->applicationComponentIds[] = intval($poTier->id);
+		$oFilter->sepIds[] = intval($piServiceEndPointID);
+		$oFilter->maxRows = 600;
+		$oFilter->rangeSpecifier->startTime = $oTime->start;
+		$oFilter->rangeSpecifier->endTime = $oTime->end;
 
+		$sPayload = json_encode($oFilter);
+		cDebug::extra_debug($sPayload);
+		$oResult = cAppdynCore::GET_restUI_with_payload($sURL,$sPayload);
+		
+		cDebug::leave();
+		return $oResult;
+	}
 }
+	
+	
+	
+//************************************************************************************
+/*
+call graph
+https://xxx.saas.appdynamics.com/controller/restui/snapshot/getCallGraphRoot?rsdId=5727317326&timeRange=Custom_Time_Range.BETWEEN_TIMES.1522445638055.1522442038055.60
+*/
+
+
