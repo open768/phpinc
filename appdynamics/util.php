@@ -261,6 +261,17 @@ class cAppdynUtil {
 	}
 	
 	//*****************************************************************
+	public static function extract_RUM_id($psType, $psMetricName){
+		$sType="Base Page";
+		if ($psType == cAppdynMetric::AJAX_REQ) $sType="AJAX Request";
+		$sPattern = "/\|$sType:(\d+)\|/";
+		if (preg_match($sPattern, $psMetricName, $aMatches))
+			return $aMatches[1];
+		else
+			cDebug::error("no match '$psMetricName' with '$sPattern'");
+	}
+	
+	//*****************************************************************
 	public static function extract_bt_id($psMetricName){
 		if (preg_match("/\|BT:(\d+)\|/", $psMetricName, $aMatches))
 			return $aMatches[1];

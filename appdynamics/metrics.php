@@ -702,6 +702,9 @@ class cAppDynMetric{
 	public static function webrumPageTCPTime($psType, $psPage){
 		return self::webRumMetric($psType, $psPage, "TCP Connect Time (ms)");
 	}
+	public static function webrumPageJavaScriptErrors($psType, $psPage){
+		return self::webRumMetric($psType, $psPage, "Page views with JavaScript Errors per Minute");
+	}
 	
 }
 ?>
