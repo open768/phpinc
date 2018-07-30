@@ -170,6 +170,14 @@ class cAppDynInfraMetric{
 	//**************************************************************************
 	public static function getInfrastructureMetric($psTier, $psNode=null, $psMetricType){			
 			switch($psMetricType){
+				case cAppDynMetric::METRIC_TYPE_ERRORS:
+					if ($psTier)
+						$sMetricUrl = cAppDynMetric::tierErrorsPerMin($psTier,$psNode);
+					else
+						$sMetricUrl = cAppDynMetric::appErrorsPerMin();
+					$sCaption = "Errors per min";
+					$sShortCaption = "Errors";
+					break;
 				case cAppDynMetric::METRIC_TYPE_ACTIVITY:
 					if ($psTier)
 						$sMetricUrl = cAppDynMetric::tierNodeCallsPerMin($psTier,$psNode);
@@ -277,6 +285,7 @@ class cAppDynMetric{
 	const METRIC_TYPE_TRANSRESPONSE = "mtr";
 	const METRIC_TYPE_DATABASE_TIME = "mdt";
 	const METRIC_TYPE_ACTIVITY = "mac";
+	const METRIC_TYPE_ERRORS = "mer";
 	const METRIC_TYPE_RESPONSE_TIMES = "mrt";
 	const METRIC_TYPE_BACKEND_RESPONSE = "mbr";
 	const METRIC_TYPE_BACKEND_ACTIVITY = "mba";
