@@ -71,9 +71,9 @@ class cCommon{
 	}
 	
 	//**************************************************************************
-	public static function echo($psWhat){
-		echo "$psWhat\n";
-		if (cDebug::is_debugging()) echo "<br>";
+	public static function do_echo($psWhat){
+		print "$psWhat\n";
+		if (cDebug::is_debugging()) print "<br>";
 	}
 
 	//**************************************************************************
