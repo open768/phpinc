@@ -650,70 +650,75 @@ class cAppDynMetric{
 	public static function transExtErrors($psTier, $psTrans, $psOther){
 		return self::transExtNames($psTier, $psTrans)."|$psOther|".self::ERRORS;
 	}
-	
+}
+
+class cAppDynWebRumMetric{
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	//* webrum
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	public static function webrumApp(){
-		return self::END_USER."|App";
+	public static function jobs(){
+		return cAppDynMetric::END_USER."|Synthetic Jobs";
 	}
-	public static function webrumCallsPerMin(){
-		return self::webrumApp()."|Page Requests per Minute";
+	public static function App(){
+		return cAppDynMetric::END_USER."|App";
 	}
-	public static function webrumResponseTimes(){
-		return self::webrumApp()."|End User Response Time (ms)";
+	public static function CallsPerMin(){
+		return self::App()."|Page Requests per Minute";
 	}
-	public static function webrumJavaScriptErrors(){
-		return self::webrumApp()."|Page views with JavaScript Errors per Minute";
+	public static function ResponseTimes(){
+		return self::App()."|End User Response Time (ms)";
 	}
-	public static function webrumFirstByte(){
-		return self::webrumApp()."|First Byte Time (ms)";
+	public static function JavaScriptErrors(){
+		return self::App()."|Page views with JavaScript Errors per Minute";
 	}
-	public static function webrumServerTime(){
-		return self::webrumApp()."|Application Server Time (ms)";
+	public static function FirstByte(){
+		return self::App()."|First Byte Time (ms)";
 	}
-	public static function webrumTCPTime(){
-		return self::webrumApp()."|TCP Connect Time (ms)";
+	public static function ServerTime(){
+		return self::App()."|Application Server Time (ms)";
+	}
+	public static function TCPTime(){
+		return self::App()."|TCP Connect Time (ms)";
 	}
 
-	public static function webrumAjax(){
-		return self::END_USER."|AJAX Requests";
+	public static function Ajax(){
+		return cAppDynMetric::END_USER."|AJAX Requests";
 	}
-	public static function webrumPages(){
-		return self::END_USER."|Base Pages";
+	public static function Pages(){
+		return cAppDynMetric::END_USER."|Base Pages";
 	}
 	
-	public Static function webRumMetric($psKind, $psPage, $psMetric)
+	public Static function Metric($psKind, $psPage, $psMetric)
 	{
 		switch ($psKind){
-			case self::BASE_PAGES:
-			case self::AJAX_REQ:
+			case cAppDynMetric::BASE_PAGES:
+			case cAppDynMetric::AJAX_REQ:
 				break;
 			default:
 				cDebug::error("unknown kind");
 		}
-		return self::END_USER."|$psKind|$psPage|$psMetric";
+		return cAppDynMetric::END_USER."|$psKind|$psPage|$psMetric";
 	}
 	
 	
-	public static function webrumPageCallsPerMin($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "Requests per Minute");
+	public static function PageCallsPerMin($psType, $psPage){
+		return self::Metric($psType, $psPage, "Requests per Minute");
 	}
-	public static function webrumPageResponseTimes($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "End User Response Time (ms)");
+	public static function PageResponseTimes($psType, $psPage){
+		return self::Metric($psType, $psPage, "End User Response Time (ms)");
 	}
-	public static function webrumPageFirstByte($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "First Byte Time (ms)");
+	public static function PageFirstByte($psType, $psPage){
+		return self::Metric($psType, $psPage, "First Byte Time (ms)");
 	}
-	public static function webrumPageServerTime($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "Application Server Time (ms)");
+	public static function PageServerTime($psType, $psPage){
+		return self::Metric($psType, $psPage, "Application Server Time (ms)");
 	}
-	public static function webrumPageTCPTime($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "TCP Connect Time (ms)");
+	public static function PageTCPTime($psType, $psPage){
+		return self::Metric($psType, $psPage, "TCP Connect Time (ms)");
 	}
-	public static function webrumPageJavaScriptErrors($psType, $psPage){
-		return self::webRumMetric($psType, $psPage, "Page views with JavaScript Errors per Minute");
+	public static function PageJavaScriptErrors($psType, $psPage){
+		return self::Metric($psType, $psPage, "Page views with JavaScript Errors per Minute");
 	}
-	
+
 }
 ?>

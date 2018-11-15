@@ -172,6 +172,11 @@ class cAppDynControllerUI{
 		$sURL = self::pr__get_app_location($poApp, "EUM_PAGE_DASHBOARD");
 		return $sURL."&addId=$psID";
 	}
+	public static function webrum_synthetics($poApp, $poTimes){
+		$sUrl = self::pr__get_app_location($poApp, "EUM_SYNTHETIC_SCHEDULE_LIST");
+		$sTime = self::time_command($poTimes);
+		return "$sUrl&$sTime";
+	}
 			
 }
 ?>
