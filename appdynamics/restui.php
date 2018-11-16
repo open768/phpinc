@@ -13,6 +13,11 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 **************************************************************************/
 require_once("$phpinc/appdynamics/core.php");
 
+class cAppdynRestUISynthList{
+	public $applicationId= -1;
+	public $timeRangeString ="";	
+}
+
 class cAppdynRestUITime{
 	public $type="BETWEEN_TIMES";
 	public $durationInMinutes = 60;
@@ -21,6 +26,7 @@ class cAppdynRestUITime{
 	public $timeRange=null;
 	public $timeRangeAdjusted=false;
 }
+
 
 class cAppdynRestUISnapshotFilter{
 	public $applicationIds = [];
@@ -43,6 +49,9 @@ class cAppdynRestUIRequest{
 	}
 }
 
+//#####################################################################################
+//#
+//#####################################################################################
 class cAppDynRestUI{
 	public static $oTimes = null;
 	
@@ -62,7 +71,7 @@ class cAppDynRestUI{
 	}
 
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	//* Nodes  (warning this uses an undocumented API)
+	//* Nodes  
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	public static function GET_Node_details($piAppID, $piNodeID){
 		$sURL = "dashboardNodeViewData/$piAppID/$piNodeID";
@@ -161,6 +170,20 @@ class cAppDynRestUI{
 		
 		cDebug::leave();
 		return $oResult;
+	}
+	
+	public static function GET_Synthetic_jobs($poApp, $oTime){
+		cDebug::enter();
+		$oRequest = new cAppdynRestUISynthList;
+		$oRequest->applicationId = (int)$poApp->id;
+		$oRequest->timeRangeString = cAppdynUtil::controller_short_time_command( $oTime,null);
+		//$oRequest->timeRangeString  = "last_1_hour.BEFORE_NOW.-1.-1.60";
+		$sURL = "synthetic/schedule/getJobList";
+		$sPayload = json_encode($oRequest);
+		
+		$oResult = cAppdynCore::GET_restUI_with_payload($sURL,$sPayload,false);
+		cDebug::leave();
+		return $oResult;		
 	}
 }
 	

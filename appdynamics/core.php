@@ -94,8 +94,9 @@ class cAppDynCore{
 
 		cDebug::enter();
 		
-		cDebug::write("getting $psCmd");
+		cDebug::write("getting $psCmd with payload $psPayload");
 		if ($pbCacheable && (!cDebug::$IGNORE_CACHE) && cHash::exists($psCmd)){
+			cDebug::extra_debug("getting cached response");
 			$oData = cHash::get($psCmd);
 			cDebug::leave();
 			return $oData;
@@ -115,6 +116,7 @@ class cAppDynCore{
 		//----- actually do it
 		$url = $sAD_REST.$psCmd;
 		cDebug::extra_debug("Url: $url");
+		cDebug::extra_debug("header: $sExtraHeader");
 		
 		$oHttp = new cHttp();
 		$oHttp->USE_CURL = false;
