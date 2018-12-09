@@ -49,6 +49,18 @@ class cAppdynRestUIRequest{
 	}
 }
 
+class cAppdSynthResponse{
+	public $id;
+	public $name;
+	public $app;
+	public $rate;
+	public $executions;
+	public $durations;
+	public $config;
+	public $raw_data;
+}
+
+
 //#####################################################################################
 //#
 //#####################################################################################
@@ -129,6 +141,7 @@ class cAppDynRestUI{
 		return $oResult;
 	}
 	
+	//************************************************************************************
 	public static function GET_service_end_points($poTier){
 		cDebug::enter();
 		//serviceEndpoint/list2/1424/1424/APPLICATION?time-range=last_1_hour.BEFORE_NOW.-1.-1.60
@@ -151,6 +164,7 @@ class cAppDynRestUI{
 		return $aEndPoints;
 	}
 	
+	//************************************************************************************
 	public static function GET_Service_end_point_snapshots($poTier, $piServiceEndPointID, $oTime){
 		cDebug::enter();
 		//{"applicationIds":[1424],"applicationComponentIds":[4561],"sepIds":[6553581],"rangeSpecifier":{"type":"BEFORE_NOW","durationInMinutes":60},"maxRows":600}
@@ -172,27 +186,46 @@ class cAppDynRestUI{
 		return $oResult;
 	}
 	
-	public static function GET_Synthetic_jobs($poApp, $oTime){
+	//************************************************************************************
+	public static function GET_Synthetic_jobs($poApp, $oTime, $pbDetails){
 		cDebug::enter();
 		$oRequest = new cAppdynRestUISynthList;
 		$oRequest->applicationId = (int)$poApp->id;
 		$oRequest->timeRangeString = cAppdynUtil::controller_short_time_command( $oTime,null);
-		//$oRequest->timeRangeString  = "last_1_hour.BEFORE_NOW.-1.-1.60";
 		$sURL = "synthetic/schedule/getJobList";
 		$sPayload = json_encode($oRequest);
 		
-		$oResult = cAppdynCore::GET_restUI_with_payload($sURL,$sPayload,false);
+		try{
+			$oResult = cAppdynCore::GET_restUI_with_payload($sURL,$sPayload,true);
+		}catch (Exception $e){
+			$oResult = null;
+		}
+		
+		$aSyth = [];
+		foreach ($oResult->jobListDatas as $oJob){
+			$oSummary = new cAppdSynthResponse;
+			$oSummary->app = $poApp;
+			$oSummary->id = $oJob->config->id;
+			$oSummary->rate = $oJob->config->rate;
+			$oSummary->name = $oJob->config->description;
+			
+			if ($pbDetails){
+				if ($oJob->metrics->sessionDuration->count >0)
+					$oSummary->durations = $oJob->metrics->sessionDuration;	
+				if ($oJob->metrics->jobExecutions->count >0)
+					$oSummary->executions = $oJob->metrics->jobExecutions;	
+				if (cDebug::is_debugging() )
+					$oSummary->raw_data = $oJob;	
+				$oSummary->config = $oJob->config->performanceCriteria;
+			}
+			$aSyth[] = $oSummary;
+		}
 		cDebug::leave();
-		return $oResult;		
+		return $aSyth;		
 	}
 }
 	
 	
 	
-//************************************************************************************
-/*
-call graph
-https://xxx.saas.appdynamics.com/controller/restui/snapshot/getCallGraphRoot?rsdId=5727317326&timeRange=Custom_Time_Range.BETWEEN_TIMES.1522445638055.1522442038055.60
-*/
 
 

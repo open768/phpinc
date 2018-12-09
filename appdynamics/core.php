@@ -95,12 +95,14 @@ class cAppDynCore{
 		cDebug::enter();
 		
 		cDebug::write("getting $psCmd with payload $psPayload");
-		if ($pbCacheable && (!cDebug::$IGNORE_CACHE) && cHash::exists($psCmd)){
+		$sHashKey = $psCmd.$psPayload;
+		if ($pbCacheable && (!cDebug::$IGNORE_CACHE) && cHash::exists($sHashKey)){
 			cDebug::extra_debug("getting cached response");
-			$oData = cHash::get($psCmd);
+			$oData = cHash::get($sHashKey);
 			cDebug::leave();
 			return $oData;
 		}
+			
 		
 		//-------------- get authentication info
 		$oCred = new cAppDynCredentials();
@@ -133,10 +135,10 @@ class cAppDynCore{
 			}else
 				throw($e);
 		}
-		cDebug::vardump($oData);
 		
 		//----- 
-		if ($pbCacheable)	cHash::put($psCmd, $oData,true);
+		if ($pbCacheable)	
+			cHash::put($sHashKey, $oData,true);
 
 		cDebug::leave();
 		return $oData;
