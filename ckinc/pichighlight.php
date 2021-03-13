@@ -116,7 +116,7 @@ class cImageHighlight{
 				$sKey = $psProduct . $oItem["t"] . $oItem["l"];
 
 				//check if the array entry exists and the thumbnail exists
-				if (array_key_exists($sKey, $aThumbs))
+				if (isset($aThumbs[$sKey]))
 					if (file_exists($sReal))continue;	
 
 				//---------------split this out---------------------

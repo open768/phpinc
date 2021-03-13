@@ -31,7 +31,7 @@
 				$aMatches = [];
 				if (preg_match("/\D+(\d+)/", $sDescr, $aMatches)){
 					$sSol = $aMatches[1];
-					if (!array_key_exists ($sSol, $aData))	$aData[$sSol] = [];
+					if (!isset($aData[$sSol]))	$aData[$sSol] = [];
 					$aData[$sSol][] = $aItem; 
 					$aTop[$sSol] = 1;
 					$iMatched ++;

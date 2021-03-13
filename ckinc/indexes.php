@@ -58,7 +58,7 @@ class cIndexes{
 		$aData = cObjStore::get_file( "", $sFile);
 		
 		if (!$aData) $aData=[];
-		if ( !array_key_exists( $psSol, $aData)) $aData[$psSol] = 0;
+		if ( !isset($aData[$psSol])) $aData[$psSol] = 0;
 		
 		$aData[$psSol] = $aData[$psSol] +1;
 		cDebug::write("updating top sol index for sol $psSol");
@@ -70,8 +70,8 @@ class cIndexes{
 		$sFile = self::get_filename(self::SOL_PREFIX, $psSuffix);
 		$aData = cObjStore::get_file( $psSol, $sFile);
 		if (!$aData) $aData=[];
-		if (!array_key_exists( $psInstrument, $aData)) $aData[$psInstrument] = [];
-		if (!array_key_exists( $psProduct, $aData[$psInstrument])) $aData[$psInstrument][$psProduct] = 0;
+		if (!isset($aData[$psInstrument])) $aData[$psInstrument] = [];
+		if (!isset($aData[$psInstrument])) $aData[$psInstrument][$psProduct] = 0;
 		$aData[$psInstrument][$psProduct] = $aData[$psInstrument][$psProduct] + 1;
 		cObjStore::put_file( $psSol, $sFile, $aData);
 	}
@@ -110,8 +110,8 @@ class cIndexes{
 								$aFiles = scandir($prodPath);
 								foreach ($aFiles as $sFile)
 									if ( $sFile === $psProdFile){
-										if (!array_key_exists ($sSol, $aData)) $aData[$sSol] = [];
-										if (!array_key_exists ($sInstr, $aData[$sSol])) $aData[$sSol][$sInstr] = [];
+										if (!isset($aData[$sSol])) $aData[$sSol] = [];
+										if (!isset($aData[$sSol][$sInstr])) $aData[$sSol][$sInstr] = [];
 										$aData[$sSol][$sInstr][$sProduct] = $poInstrData;
 									}
 							}

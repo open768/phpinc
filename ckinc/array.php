@@ -23,7 +23,7 @@ class cAssocArray{
 	private $data = [];
 	
 	public function get($psKey){
-		if (array_key_exists($psKey,$this->data))
+		if (isset($this->data[$psKey]))
 			return $this->data[$psKey];
 		else	
 			return null;
@@ -36,7 +36,7 @@ class cAssocArray{
 		return array_keys($this->data);
 	}
 	public function key_exists($psKey){
-		return array_key_exists($psKey,$this->data);
+		return isset($this->data[$psKey]);
 	}
 	
 	public function count(){

@@ -38,7 +38,7 @@ class cAuth{
 	public static function add_to_role($psUserID, $psRole){
 		$aRoleDetails = cObjStore::get_file(self::ROLES_FOLDER, $psRole);
 		if (!$aRoleDetails) $aRoleDetails = [];
-		if (! array_key_exists( $psUserID, $aRoleDetails)){
+		if (! isset( $aRoleDetails[ $psUserID])){
 			cDebug::write("Adding $psUserID to role $psRole");
 			$aRoleDetails[$psUserID] = true;
 			cObjStore::put_file(self::ROLES_FOLDER, $psRole,$aRoleDetails );
@@ -65,7 +65,7 @@ class cAuth{
 			return false;
 		}
 		
-		$bResult = array_key_exists($sUserID, $aRoleDetails );
+		$bResult = isset($aRoleDetails[$sUserID]);
 		cDebug::write("user '$sUserID' role '$psRole' result '$bResult'");
 		cDebug::leave();
 		return $bResult;

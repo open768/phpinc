@@ -138,7 +138,7 @@ class cDebug{
 				$aCaller = self::get_caller(1);
 				$sFunc = $aCaller['function'];
 				$sClass = '';
-				if ( array_key_exists("class", $aCaller)){
+				if ( isset($aCaller['class'])){
 					$sClass = $aCaller['class'];
 				}
 				$sCaller = "$sClass.$sFunc";
@@ -157,7 +157,7 @@ class cDebug{
 				$aCaller = self::get_caller(1);
 				$sFunc = $aCaller['function'];
 				$sClass = '';
-				if (array_key_exists("class", $aCaller))	{
+				if (isset($aCaller['class']))	{
 					$sClass = $aCaller['class'];
 				}
 				$sCaller = "$sClass.$sFunc";
