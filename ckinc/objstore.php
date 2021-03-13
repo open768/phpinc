@@ -1,13 +1,19 @@
 <?php
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //% OBJSTORE - simplistic store objects without a database!
+//%
+//% Problem - creates thousands files on busy websites that exceed inode quotas.
+//%  so reduce this SQLlite3
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 require_once("$phpinc/ckinc/gz.php");
 require_once("$phpinc/ckinc/common.php");
+require_once("$phpinc/ckinc/hash.php");
+require_once("$phpinc/ckinc/objstoredb.php");
 
 cObjStore::$rootFolder= "$root/[objdata]";
 
+//TBD functions to be made non static so that a different realm can be used by different 
 class cObjStore{
 	public static $rootFolder = "";
 	public static $OBJDATA_REALM = null;
@@ -46,25 +52,30 @@ class cObjStore{
 	}
 	
 	//********************************************************************
-	//TODO migrate to using hash.php
+	//TODO migrate to using objstore
 	public static function get_file( $psFolder, $psFile){
 		$aData = null;
+		cDebug::enter();
 		
 		$num_args = func_num_args();
 		if ($num_args != 2) cDebug::error("get_file: incorrect number of arguments - expected 2 got $num_args ");
 		
 		$sFolder = self::pr_get_folder_path( $psFolder);
-		//cDebug::extra_debug("looking for file:$psFile in folder:$sFolder");
-		if (!is_dir($sFolder)){
-			cDebug::extra_debug("no objstore data at all in folder: $psFolder");
-			return $aData;
-		}
-		
 		$sFile = "$sFolder/$psFile";
-		//cDebug::write("File: $sFile");
-		if (file_exists($sFile))
+
+		if (file_exists($sFile)){
 			$aData = cGzip::readObj($sFile);
+			//TBD write to objstoreDB and kill_file
+		}elseif( cHash::exists($sFile)){
+			cDebug::write("found in hash");
+			$aData = cHash::get($sFile);
+			//TDB write to objstoreDB and kill hash
+		}else{
+			//TBD get from objstoreDB
+		}
+
 		
+		cDebug::leave();
 		return $aData;
 	}
 	
@@ -77,19 +88,9 @@ class cObjStore{
 		//check that there is something to write
 		if ($poData == null) cDebug::error("put_file: no data to write");
 		
-		//check that the folder exists
 		$sFolder = self::pr_get_folder_path( $psFolder);
-		if (!file_exists($sFolder)){
-			cDebug::extra_debug("creating folder: $sFolder");
-			mkdir($sFolder, 0700, true);
-		}
-		cDebug::extra_debug("folder exists: $sFolder");
-
-		
-		//write out the file
 		$sFile = "$sFolder/$psFile";
 		cDebug::write("writing to: $sFile");
-		
 		cGzip::writeObj($sFile, $poData);
 	}
 	

@@ -16,7 +16,7 @@ require_once("$phpinc/ckinc/objstore.php");
 require_once("$phpinc/ckinc/indexes.php");
 require_once("$phpinc/ckinc/http.php");
 require_once("$phpinc/ckinc/hash.php");
-require_once("$phpinc/curiosity/curiosity.php");
+require_once("$spaceinc/curiosity/curiosity.php");
 
 class cImageHighlight{
 	const INDEX_SUFFIX = "Highlite";
@@ -97,8 +97,8 @@ class cImageHighlight{
 		$oMSLImg = null;
 		
 		//get existing thumbnail details  
-		$sPathHash = cHash::hash("$psSol/$psInstrument/$psProduct/".self::THUMBS_FILENAME);
-		$aThumbs = cHash::get_obj($sPathHash);
+		$sPath = "$psSol/$psInstrument/$psProduct/".self::THUMBS_FILENAME;
+		$aThumbs = cHash::get($sPath);
 		if ($aThumbs == null)	$aThumbs = [];
 
 		//get the highlights for the selected product
@@ -142,7 +142,7 @@ class cImageHighlight{
 		
 			//update the objstore if necessary
 			if ($bUpdated)
-				cHash::put_obj($sPathHash, $aThumbs, true);
+				cHash::put($sPath, $aThumbs, true);
 				
 			//we dont want to hang onto the original jpeg
 			if ($oMSLImg){

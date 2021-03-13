@@ -19,6 +19,7 @@ class cCachedHttp{
 	const INFINITE = -1;
 	public $CACHE_EXPIRY = 3600;  //(seconds)
 	public $USE_CURL = true;
+	public $ALLOW_SELF_SIGNED_CERT = true;
 	private $oCache = null;
 	private $sCacheFile = null;
 	public 	$fileHashing = true;
@@ -35,21 +36,28 @@ class cCachedHttp{
 	
 	//*****************************************************************************
 	public function getCachedUrl($psURL){	
-		return $this->pr_do_get($psURL, false);
+		cDebug::enter();
+		$oResult= $this->pr_do_get($psURL, false);
+		cDebug::leave();
+		return $oResult;
 	}
 
 	//*****************************************************************************
 	public function getXML($psURL){
+		cDebug::enter();
+		
 		cDebug::write("Getting XML from: $psURL");
 		$sXML = $this->getCachedUrl($psURL);
 		cDebug::write("converting string to XML: ");
 		$oXML = simplexml_load_string($sXML);
 		cDebug::write("finished conversion");
+		cDebug::leave();
 		return $oXML;
 	}
 	
 	//*****************************************************************************
 	public function getCachedUrltoFile($psURL){	
+		cDebug::enter();
 		$sHash = cHash::hash($psURL);
 		cHash::$CACHE_EXPIRY = $this->$CACHE_EXPIRY;		
 		$sPath = cHash::getPath($sHash);
@@ -57,46 +65,54 @@ class cCachedHttp{
 		if (! cHash::exists($sHash)){
 			cHash::make_hash_folder( $sHash);
 			$oHttp = new cHttp();
+			$oHttp->ALLOW_SELF_SIGNED_CERT = $this->ALLOW_SELF_SIGNED_CERT;
 			$oHttp->show_progress = true;
 			$oHttp->fetch_to_file($psURL, $sPath, true, 60, true);
 		}
+		cDebug::leave();
 		return $sPath;
 	}
 
 	//*****************************************************************************
 	public function getCachedJson($psURL){	
-		return $this->pr_do_get($psURL, true);
+		cDebug::enter();
+		$oResult=$this->pr_do_get($psURL, true);
+		cDebug::leave();
+		return $oResult;
+		
 	}
 	
 	//*****************************************************************************
 	//*
 	//*****************************************************************************
 	private function pr_do_get($psURL, $pbJson){
+		cDebug::enter();
 
 		$oHttp = new cHttp();
 		$oHttp->USE_CURL = $this->USE_CURL;
+		$oHttp->ALLOW_SELF_SIGNED_CERT = $this->ALLOW_SELF_SIGNED_CERT;
 		$oHttp->show_progress = $this->show_progress;
 		$oHttp->HTTPS_CERT_FILENAME = $this->HTTPS_CERT_FILENAME;
 		
 		$oResponse = null;
 		cDebug::write("getting url:$psURL");
 		
-		$sHash = cHash::hash($psURL);
 		cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;
-		if (cHash::exists($sHash)){
-			cDebug::extra_debug("cached: $sHash");
-			$oResponse = cHash::get_obj($sHash);
+		if (cHash::exists($psURL, true)){
+			cDebug::extra_debug("cached: $psURL");
+			$oResponse = cHash::get($psURL);
 		}else{
-			cDebug::extra_debug("not cached");
+			cDebug::extra_debug("obj not cached $psURL");
 			if ($pbJson)
 				$oResponse = $oHttp->getJson($psURL);
 			else
 				$oResponse = $oHttp->fetch_url($psURL);
 				
 			if ($oResponse) 
-				cHash::put_obj($sHash, $oResponse, true);
+				cHash::put($psURL, $oResponse, true);
 		}
 		
+		cDebug::leave();
 		return $oResponse;
 	}
 

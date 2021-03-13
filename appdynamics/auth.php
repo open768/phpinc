@@ -372,14 +372,14 @@ class cAppDynCredentials{
 		$sKey = cCommon::my_IP_address().$oCred->host.$oCred->account.$oCred->get_username();
 		$sHash = cHash::hash($sKey);
 		cDebug::write("Key is $sKey, hash is $sHash");
-		cHash::put_obj($sHash, $oCred, true );
+		cHash::pr__put_obj($sHash, $oCred, true );
 			
 		return $sHash;
 	}
 	
 	//**************************************************************************************
 	public static function login_with_token($psToken ){
-		$oCred = cHash::get_obj($psToken);
+		$oCred = cHash::pr__get_obj($psToken);
 		if ($oCred == null) cDebug::error("token not found");
 		if (get_class($oCred) !== "cAppDynCredentials") cDebug::error("unexpected class");
 

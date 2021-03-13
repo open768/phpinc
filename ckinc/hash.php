@@ -11,37 +11,43 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
 //
-// ** TBA allow instances of Hash to set their own folders. **
+// ** TBA allow instances of Hash to set their own folders. and set cache expiry policies**
 // ** Currently this is set to cache folders **
 //
+//TODO: switch this to use sqllite in a single file - reduce the number of inodes used
 **************************************************************************/
 
 require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/gz.php");
+require_once("$phpinc/ckinc/sqlite.php");
 
 class cHash{
 	const HASH_FOLDER = "[cache]/[hash]";
 	const FOREVER = -1;
-	public static $CACHE_EXPIRY =  2592000 ;  //(1 month in seconds)
+	private $HASH_REALM = "general";
+	public static $CACHE_EXPIRY =  3600 ;  //(1 hour)
 	public static $show_filenames = false;
 	public static $show_hashes = false;
 	public static $show_cache_hit = false;
+	public static $shown_deprecated_warning = false;
 	
 	//####################################################################
 	//####################################################################
-	private static function pr__exists_hash($psHash){
+	private static function pr__exists_hash($psHash, $pbCached=false){
 		$sFile = self::getPath($psHash);
 		$bExists = file_exists($sFile);
 		if (self::$show_hashes) cDebug::write("hash: $bExists - $psHash");
 		
 		// check the expiry date on the file - if its too old zap it
-		if ($bExists && (self::$CACHE_EXPIRY <> self::FOREVER)){
+		if ($bExists && $pbCached && (self::$CACHE_EXPIRY <> self::FOREVER)){
+			cDebug::extra_debug("checking for hash expiry");
 			$iDiff = time() - filemtime($sFile) - self::$CACHE_EXPIRY;
 			if ($iDiff > 0){
 				cDebug::write("hash file expired $psHash - $iDiff seconds ago");
 				unlink($sFile);
 				$bExists = false;
-			}
+			}else
+				cDebug::write("hash file will expire in $iDiff seconds");
 		}
 		
 		return $bExists;
@@ -75,6 +81,10 @@ class cHash{
 	
 	//************************************************************************
 	public static function getPath($psHash){
+		if (!self::$shown_deprecated_warning){
+			cDebug::warning("file based hash will be deprecated");
+			self::$shown_deprecated_warning = true;
+		}
 		$sFolder = self::get_folder($psHash);
 		$sFile = "$sFolder/$psHash";
 		if 	(self::$show_filenames) cDebug::write("hash_file: $sFile");
@@ -93,7 +103,7 @@ class cHash{
 	}
 	
 	//************************************************************************
-	public static function put_obj( $psHash, $poObj, $pbOverwrite=false){
+	public static function pr__put_obj( $psHash, $poObj, $pbOverwrite=false, $pbCached=false){
 		$sFile = self::getPath($psHash);
 		if (!$pbOverwrite && self::pr__exists_hash($psHash))
 			cDebug::error("hash exists: $psHash");
@@ -104,7 +114,7 @@ class cHash{
 	}
 
 	//************************************************************************
-	public static function get_obj( $psHash){
+	public static function pr__get_obj( $psHash, $pbCached=false){
 		$oResponse = null;
 		if (self::pr__exists_hash($psHash)){
 			if (self::$show_cache_hit) cDebug::write("exists in cache");
@@ -117,21 +127,21 @@ class cHash{
 	}
 	
 	//************************************************************************
-	public static function get($psAnything){
+	public static function get($psAnything, $pbCached=false){
 		$sHash = self::hash($psAnything);
-		$oThing = self::get_obj($sHash);
+		$oThing = self::pr__get_obj($sHash, $pbCached);
 		return $oThing;
 	}
 	
 	//************************************************************************
-	public static function put($psAnything, $poObj, $pbOverwrite=false){
+	public static function put($psAnything, $poObj, $pbOverwrite=false, $pbCached=false){
 		$sHash = self::hash($psAnything);
-		self::put_obj($sHash, $poObj, $pbOverwrite);
+		self::pr__put_obj($sHash, $poObj, $pbOverwrite);
 	}
 	
 	//************************************************************************
-	public static function exists($psAnything){
+	public static function exists($psAnything, $pbCached=false){
 		$sHash = self::hash($psAnything);
-		return self::pr__exists_hash($sHash);
+		return self::pr__exists_hash($sHash, $pbCached);
 	}
 }

@@ -29,6 +29,7 @@ class cHttp{
 	private $password = null;
 	public $response_headers = [];
 	public $request_payload = null;
+	public $ALLOW_SELF_SIGNED_CERT = true;
 	
 	//*****************************************************************************
 	public function set_credentials($psUserName, $psPassword){
@@ -218,6 +219,8 @@ class cHttp{
 	//#
 	//############################################################################
 	private function pr__curl_init($psUrl){
+		cDebug::enter();
+
 		$oCurl = new cCurl($psUrl);	
 		$oCurl->setopt( CURLOPT_URL, $psUrl);
 		$oCurl->setopt( CURLOPT_FAILONERROR, 1);
@@ -226,6 +229,10 @@ class cHttp{
 		if (cDebug::is_extra_debugging()){
 			cDebug::extra_debug("enabling CURL_verbosity");
 			$oCurl->setopt( CURLOPT_VERBOSE, 1);
+		}
+		if ($this->ALLOW_SELF_SIGNED_CERT){
+			cDebug::extra_debug("allowing self signed certs");
+			$oCurl->setopt( CURLOPT_SSL_VERIFYPEER, 0);
 		}
 		
 		//use gzip compression to save bandwidth
@@ -256,6 +263,7 @@ class cHttp{
 			$oCurl->setopt( CURLOPT_CAPATH, $sCertPath); //broken
 		}
 		
+		cDebug::leave();
 		return $oCurl;
 	}
 	
@@ -275,8 +283,12 @@ class cHttp{
 	private function pr__fetch_curl_url($psUrl){
 		global $root;
 		
+		cDebug::enter();
+
 		$oCurl = $this->pr__curl_init($psUrl);	
 		return  $oCurl->exec();
+		
+		cDebug::leave();	
 	}
 	
 	//*****************************************************************************
@@ -296,6 +308,11 @@ class cHttp{
 		$oCurl = $this->pr__curl_init($psUrl);	
 		$oCurl->setopt( CURLOPT_RETURNTRANSFER, 0);
 		$oCurl->setopt( CURLOPT_FILE, $fHandle);
+		if ($this->ALLOW_SELF_SIGNED_CERT){
+			cDebug::extra_debug("allowing self signed certs");
+			$oCurl->setopt( CURLOPT_SSL_VERIFYPEER, 0);
+		}
+		
 		
 		set_time_limit($piTimeOut);
 		try{

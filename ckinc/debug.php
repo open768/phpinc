@@ -91,6 +91,10 @@ class cDebug{
 		self::write("<b><font size='+2'>in <font color='brick'>$sClass:$sFunc (line $sLine)</font> error: <font color='brick'>$psText</font></font></b><pre>");
 		throw new Exception($psText);
 	}
+	//**************************************************************************
+	public static function warning($psText){
+		self::write("<b><font size='+2'color='brick'>Warning:</font></b> $psText");
+	}
 	
 	//**************************************************************************
 	public static function check_GET_or_POST(){
