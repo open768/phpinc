@@ -49,12 +49,12 @@ class cTags{
 		if (!$aData) $aData=[];
 		
 		//update the structure (array of arrays)
-		if (!array_key_exists($psTag, $aData)){
+		if (!isset($aData[$psTag])){
 			cDebug::write("creating tag entry: $psTag");
 			$aData[$psTag] = [];
 		}
 		
-		if (!array_key_exists($psUser, $aData[$psTag])){
+		if (!isset($aData[$psTag][$psUser])){
 			cDebug::write("adding user $psUser to tags : $psTag");
 			$aData[$psTag][$psUser] = 1;
 		}else{
@@ -122,7 +122,7 @@ class cTags{
 	static function update_top_sol_index( $psSol){
 		$aData = cObjStore::get_file( "", self::TOP_SOL_TAG_FILE);
 		if (!$aData) $aData=[];
-		if ( !array_key_exists( $psSol, $aData)){
+		if ( !isset( $aData[$psSol])){
 			$aData[$psSol] = 1;
 			cDebug::write("updating top sol index for sol $psSol");
 			cObjStore::put_file( "", self::TOP_SOL_TAG_FILE, $aData);
@@ -133,7 +133,7 @@ class cTags{
 	static function update_sol_index( $psSol, $psInstrument, $psProduct , $psTag){
 		$aData = cObjStore::get_file( $psSol, self::SOL_TAG_FILE);
 		if (!$aData) $aData=[];
-		if (!array_key_exists( $psInstrument, $aData)) $aData[$psInstrument] = [];
+		if (!isset( $aData[$psInstrument]) $aData[$psInstrument] = [];
 		$aData[$psInstrument][] = ["p"=>$psProduct , "t"=>$psTag];
 		cObjStore::put_file( $psSol, self::SOL_TAG_FILE, $aData);
 	}
@@ -143,7 +143,7 @@ class cTags{
 		$sFolder="$psSol/$psInstrument";
 		$aData = cObjStore::get_file( $sFolder, self::INSTR_TAG_FILE);
 		if (!$aData) $aData=[];
-		if (!array_key_exists( $psProduct, $aData)) $aData[$psProduct] = [];
+		if (!isset( $aData[$psProduct])) $aData[$psProduct] = [];
 		$aData[$psProduct][] = $psTag;
 		cObjStore::put_file( $sFolder, self::INSTR_TAG_FILE, $aData);
 	}		
@@ -164,7 +164,7 @@ class cTags{
 		
 		//update the count
 		$count =0;
-		if (array_key_exists($psTag, $aData)) $count = $aData[$psTag];
+		if (isset($aData[$psTag])) $count = $aData[$psTag];
 		$count++;
 		$aData[$psTag] = $count;
 		cDebug::vardump($aData);
@@ -189,9 +189,9 @@ class cTags{
 				$sInstr = $aSplit[1];
 				$sProduct = $aSplit[2];
 				
-				if (!array_key_exists($sSol, $aAllTags)) $aAllTags[$sSol] = [];
-				if (!array_key_exists($sInstr, $aAllTags[$sSol])) $aAllTags[$sSol][$sInstr] = [];
-				if (!array_key_exists($sProduct, $aAllTags[$sSol][$sInstr])) $aAllTags[$sSol][$sInstr][$sProduct] = [];
+				if (!isset($aAllTags[$sSol])) $aAllTags[$sSol] = [];
+				if (!isset($aAllTags[$sSol][$sInstr])) $aAllTags[$sSol][$sInstr] = [];
+				if (!isset($aAllTags[$sSol][$sInstr][$sProduct])) $aAllTags[$sSol][$sInstr][$sProduct] = [];
 				$aAllTags[$sSol][$sInstr][$sProduct][$sTag]=1;
 			}
 		}
@@ -206,11 +206,11 @@ class cTags{
 				foreach ($aInstrData as $sProduct=>$aProductData){
 					foreach ($aProductData as $sTag=>$iValue){
 						//update the sol data 
-						if (!array_key_exists( $sInstr, $aSolDataOut)) $aSolDataOut[$sInstr] = [];
+						if (!isset( $aSolDataOut[$sInstr])) $aSolDataOut[$sInstr] = [];
 						$aSolDataOut[$sInstr][] = ["p"=>$sProduct , "t"=>$sTag];
 
 						//update the instrument data
-						if (!array_key_exists( $sProduct, $aInstrDataOut)) $aInstrDataOut[$sProduct] = [];
+						if (!isset( $aInstrDataOut[$sProduct])) $aInstrDataOut[$sProduct] = [];
 						$aInstrDataOut[$sProduct][] = $sTag;
 
 					}
@@ -232,7 +232,7 @@ class cTags{
 
 		//remove entry from top tag file 
 		$aData = cObjStore::get_file( "", self::TOP_TAG_FILE);
-		if (array_key_exists($psTag, $aData)) {
+		if (isset($aData[$psTag])) {
 			unset($aData[$psTag]);
 			cObjStore::put_file( "", self::TOP_TAG_FILE, $aData);
 		}else{

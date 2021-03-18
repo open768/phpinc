@@ -98,7 +98,7 @@ class cDebug{
 	
 	//**************************************************************************
 	public static function check_GET_or_POST(){
-		global $_GET, $_POST;
+		global $_GET, $_POST, $_SERVER;
 		
 		if (isset($_GET[self::DEBUG_STR]) || isset($_POST[self::DEBUG_STR])){
 			self::on();
@@ -109,6 +109,7 @@ class cDebug{
 		if (isset($_GET[self::DEBUG2_STR]) || isset($_POST[self::DEBUG2_STR])){
 			self::on(true);
 			self::write("Extra debugging is on");
+			self::write("URI is ".$_SERVER["REQUEST_SCHEME"]."://".$_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"]);			
 		}elseif (self::$DEBUGGING){
 			self::write("for extra debugging use debug2");
 		}
