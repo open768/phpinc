@@ -1,13 +1,24 @@
 <?php
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//% OBJSTOREDB - simplistic store objects without a database!
+/**************************************************************************
+Copyright (C) Chicken Katsu 2021
+
+This code is protected by copyright under the terms of the 
+Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
+http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+
+For licenses that allow for commercial use please contact cluck@chickenkatsu.co.uk
+or leave a message on github
+
+// USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
+//
+//% OBJSTOREDB - simplistic store objects without a relational database!
 //%
 //% solves Problem -  thousands files on busy websites that exceed inode quotas.
 //%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+**************************************************************************/
 
-require_once("$phpinc/ckinc/gz.php");
 require_once("$phpinc/ckinc/common.php");
+require_once("$phpinc/ckinc/gz.php");
 require_once("$phpinc/ckinc/hash.php");
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -72,7 +83,8 @@ class cOBjStoreDB{
 			cDebug::extra_debug("database opened");				
 			self::$database = $oDB ;
 			$oDB->enableExceptions(true);
-		}
+		}else
+			cDebug::extra_debug("database allready open");
 		cDebug::leave();
 	}
 	
@@ -117,10 +129,10 @@ class cOBjStoreDB{
 		
 		//add a timestamp to say when this database was created
 		cDebug::extra_debug("writing creation timestamp");				
+		$sNow = date('d-m-Y H:i:s');
 		$oObj = new cOBjStoreDB();
 		$oObj->realm = self::OBJSTORE_REALM;
-		$oObj->put( self::OBJSTORE_CREATE_KEY,  date('d-m-Y H:i:s'));
-		
+		$oObj->put( self::OBJSTORE_CREATE_KEY, $sNow);
 		cDebug::leave();
 	}
 	
@@ -129,26 +141,91 @@ class cOBjStoreDB{
 	//#####################################################################
 	
 	//********************************************************************************
-	public function put($psKey, $psValue, $pbOverride=true){
+	public function put($psKey, $pvAnything, $pbOverride=true){
 		cDebug::enter();
 		self::pr_check_for_db();
 		if ($this->realm == null) cDebug::error("realm is null");
 		
+		//write the compressed string to the database
+		$sHash = cHash::hash($psKey);
 		$oDB = self::$database;
+		cDebug::extra_debug("hash: $sHash");
 		
-		$sSQL = "INSERT OR REPLACE INTO :t VALUES (:r, :h, :c, :d)";
-		if (! $pbOverride) $sSQL = "INSERT INTO :t VALUES (:r, :h, :c, :d)";
+		$sSQL = "INSERT OR REPLACE INTO :t VALUES (?, ?, ?, ?)";
+		if (! $pbOverride) $sSQL = "INSERT INTO :t VALUES (?, ?, ?, ?)";
 		$sSQL = str_replace(":t",self::TABLE_NAME, $sSQL);
 		$oStmt = $oDB->prepare($sSQL);
-		$oStmt->bindValue(":r", $this->realm);
-		$oStmt->bindValue(":h", cHash::hash($psKey));
-		$oStmt->bindValue(":c", $psValue);
-		$oStmt->bindValue(":d", date('d-m-Y H:i:s'));
+		cDebug::extra_debug("SQL: $sSQL");				
+		$oStmt->bindValue(1, $this->realm);
+		$oStmt->bindValue(2, $sHash);
+		$oStmt->bindValue(3, cGzip::encode($pvAnything));
+		$oStmt->bindValue(4, date('d-m-Y H:i:s'));
 		$oResult = $oStmt->execute();
 		
 		cDebug::leave();		
 	}
 	
+	//********************************************************************************
+	public function get($psKey, $pbCheckExpiration = false){
+		cDebug::enter();
+		self::pr_check_for_db();
+		if ($this->realm == null) cDebug::error("realm is null");
+		
+		//read from the database and decompress
+		$sHash = cHash::hash($psKey);
+		$oDB = self::$database;
+		cDebug::extra_debug("hash: $sHash");
+		
+		$sSQL = "SELECT :r,:c,:d FROM :t where :r=? AND :h=?";
+		$sSQL = str_replace(":t",self::TABLE_NAME, $sSQL);
+		$sSQL = str_replace(":r",self::COL_REALM, $sSQL);
+		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
+		$sSQL = str_replace(":c",self::COL_CONTENT, $sSQL);
+		$sSQL = str_replace(":d",self::COL_DATE, $sSQL);
+		cDebug::extra_debug("SQL: $sSQL");				
+		
+		$oStmt = $oDB->prepare($sSQL);
+		$oStmt->bindValue(1, $this->realm);
+		$oStmt->bindValue(2, $sHash);
+		$oResultSet = $oStmt->execute();
+		$aResult = $oResultSet->fetchArray();
+		//cDebug::vardump($aResult);
+		
+		$vResult = null;
+		if (is_array($aResult)){	
+			$sEncoded = $aResult[1];
+			cDebug::extra_debug("found Encoded: $sEncoded");				
+			$vResult = cGzip::decode($sEncoded);
+			//cDebug::vardump($vResult);
+		}
+		
+		cDebug::leave();		
+		return $vResult;
+	}
+	//********************************************************************************
+	public function kill($psKey){
+		cDebug::enter();
+		self::pr_check_for_db();
+		if ($this->realm == null) cDebug::error("realm is null");
+		
+		//read from the database and decompress
+		$sHash = cHash::hash($psKey);
+		$oDB = self::$database;
+		cDebug::extra_debug("hash: $sHash");
+		
+		$sSQL = "DELETE from :t where :r=? AND :h=?";
+		$sSQL = str_replace(":t",self::TABLE_NAME, $sSQL);
+		$sSQL = str_replace(":r",self::COL_REALM, $sSQL);
+		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
+		cDebug::extra_debug("SQL: $sSQL");				
+		
+		$oStmt = $oDB->prepare($sSQL);
+		$oStmt->bindValue(1, $this->realm);
+		$oStmt->bindValue(2, $sHash);
+		$oResultSet = $oStmt->execute();
+		
+		cDebug::leave();		
+	}
 		
 }
 ?>

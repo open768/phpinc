@@ -28,6 +28,28 @@ class cGzip{
 	}
 	
 	//********************************************************************
+	public static function encode($pvAnything){
+		cDebug::enter();
+		
+		$sSerial = serialize($pvAnything);
+		cDebug::extra_debug("serialised: $sSerial");
+		$sZipped = gzencode($sSerial);
+		$sEncoded = base64_encode ($sZipped);
+		cDebug::extra_debug("encoded: $sEncoded");
+		cDebug::leave();
+		return $sEncoded;
+	}
+	
+	//********************************************************************
+	public static function decode($psEncoded){
+		cDebug::enter();
+		$sZipped = base64_decode($psEncoded);
+		$sSerial = gzdecode($sZipped);
+		cDebug::leave();
+		return unserialize($sSerial);
+	}
+	
+	//********************************************************************
 	public static function writeObj($psFile, $poData){
 		$sSerial = serialize($poData);
 		$sSerial = addslashes($sSerial);
