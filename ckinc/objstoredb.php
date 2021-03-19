@@ -18,12 +18,12 @@ require_once("$phpinc/ckinc/hash.php");
 class cOBjStoreDB{
 	public $rootFolder = null;
 	public static $database = null; //static as same database obj used between instances
+	public static $table_exists = false;
 	
 	const DB_folder = "[db]";
-	const DB_FILENAME = "SQL.db";
+	const DB_FILENAME = "objstore.db";
 	const TABLE_NAME = "objstore";
-	const COL_FOLDER = "FO";
-	const COL_FILE = "FI";
+	const COL_HASH = "HA";
 	const COL_CONTENT = "CO";
 	const COL_DATE = "DA";
 	
@@ -33,8 +33,12 @@ class cOBjStoreDB{
     function __construct() {
 		global $root;
 		cDebug::enter();
+		//cDebug::extra_debug("SQLLIte version:");
+		//cDebug::vardump(SQLite3::version());
 		$this->rootFolder = "$root/[db]";
 		$this->pr_check_for_db();
+		$this->pr_create_table();
+
 		cDebug::leave();
     }
 	
@@ -60,7 +64,10 @@ class cOBjStoreDB{
 				cDebug::extra_debug("database file doesnt exist $sPath");				
 			
 			cDebug::extra_debug("opening database  $sPath");				
-			$oDB = new SQLlite3($sPath); //ooh errors here, no sqllite3 in unizero version i'm using
+			$oDB = new SQLite3($sPath); 
+			cDebug::extra_debug("database opened");				
+			self::$database = $oDB ;
+			$oDB->enableExceptions(true);
 		}
 		cDebug::leave();
 	}
@@ -68,18 +75,41 @@ class cOBjStoreDB{
 	//********************************************************************************
 	private static function pr_create_table(){
 		cDebug::enter();
-		self::pr_check_for_db();
 		
-		//create the table if it doesnt exist
-		cDebug::extra_debug("creating table if not present");
-		$self::$database->query(
-			'CREATE TABLE IF NOT EXISTS "'.self::TABLE_NAME.'" ('.
-				'"'.self::COL_FOLDER.'" TEXT,'.
-				'"'.self::COL_FILE.'" TEXT,'.
-				'"'.self::COL_CONTENT.'" TEXT,'.
-				'"'.self::COL_DATE.'" DATETIME DEFAULT CURRENT_TIMESTAMP'.
-			')'
-		);		
+		//skip if table exists
+		if (self::$database == null){
+			cDebug::error("database is not open");
+		}
+		$db = self::$database;
+		
+		//skip if table exists
+		if (self::$table_exists){
+			cDebug::extra_debug("table allready checked exists");				
+			cDebug::leave();
+			return;
+		}
+		
+		//check if table exists
+		cDebug::extra_debug("checking table exists");				
+		$stmt = $db->prepare('SELECT name FROM sqlite_master WHERE name=":t"');
+		$stmt->bindValue(':t', self::TABLE_NAME);
+		$result = $stmt->execute();
+		if ($result->fetchArray()){
+			cDebug::extra_debug("table does exist");				
+			cDebug::leave();
+			return;
+		}
+		
+		//table doesnt exist
+		cDebug::extra_debug("table does not exist");				
+		$stmt = $db->prepare('CREATE TABLE ":t" ( ":h" TEXT, ":c" TEXT, ":d" DATETIME DEFAULT CURRENT_TIMESTAMP)');
+		$stmt->bindValue(':t', self::TABLE_NAME);
+		$stmt->bindValue(':h', self::COL_HASH);
+		$stmt->bindValue(':c', self::COL_CONTENT);
+		$stmt->bindValue(':d', self::COL_DATE);
+		$result = $stmt->execute();
+		cDebug::extra_debug("table created");				
+		
 		cDebug::leave();
 	}
 	
@@ -106,7 +136,8 @@ class cOBjStoreDB{
 		$bCreate = !file_exists($sFilename);
 		$oDB = new SQLlite3($sFilename);
 		self::$database = $oDB;
-		if ($bCreate) self::pr_create_table();
+		if ($bCreate) 
+			self::pr_create_table();
 		
 		//--------------------------------------------------
 		cDebug::leave();
