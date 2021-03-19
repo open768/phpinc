@@ -17,15 +17,19 @@ require_once("$phpinc/ckinc/hash.php");
 // THIS IS A WORK IN PROGRESS objstoredb is not being used
 class cOBjStoreDB{
 	public $rootFolder = null;
+	public $realm = null;
 	public static $database = null; //static as same database obj used between instances
 	public static $table_exists = false;
 	
 	const DB_folder = "[db]";
 	const DB_FILENAME = "objstore.db";
 	const TABLE_NAME = "objstore";
+	const COL_REALM = "RE";
 	const COL_HASH = "HA";
 	const COL_CONTENT = "CO";
 	const COL_DATE = "DA";
+	const OBJSTORE_REALM = "_objstore_";
+	const OBJSTORE_CREATE_KEY = "created on";
 	
 	//#####################################################################
 	//# constructor
@@ -80,7 +84,7 @@ class cOBjStoreDB{
 		if (self::$database == null){
 			cDebug::error("database is not open");
 		}
-		$db = self::$database;
+		$oDB = self::$database;
 		
 		//skip if table exists
 		if (self::$table_exists){
@@ -91,10 +95,10 @@ class cOBjStoreDB{
 		
 		//check if table exists
 		cDebug::extra_debug("checking table exists");				
-		$stmt = $db->prepare('SELECT name FROM sqlite_master WHERE name=":t"');
-		$stmt->bindValue(':t', self::TABLE_NAME);
-		$result = $stmt->execute();
-		if ($result->fetchArray()){
+		$sSQL = 'SELECT name FROM sqlite_master WHERE name=":t"';
+		$sSQL = str_replace(":t",self::TABLE_NAME, $sSQL);
+		$oResult = $oDB->query($sSQL);
+		if ($oResult->fetchArray()){
 			cDebug::extra_debug("table does exist");				
 			cDebug::leave();
 			return;
@@ -102,13 +106,20 @@ class cOBjStoreDB{
 		
 		//table doesnt exist
 		cDebug::extra_debug("table does not exist");				
-		$stmt = $db->prepare('CREATE TABLE ":t" ( ":h" TEXT, ":c" TEXT, ":d" DATETIME DEFAULT CURRENT_TIMESTAMP)');
-		$stmt->bindValue(':t', self::TABLE_NAME);
-		$stmt->bindValue(':h', self::COL_HASH);
-		$stmt->bindValue(':c', self::COL_CONTENT);
-		$stmt->bindValue(':d', self::COL_DATE);
-		$result = $stmt->execute();
+		$sSQL = 'CREATE TABLE ":t" ( ":r" TEXT not null, ":h" TEXT not null, ":c" TEXT, ":d" DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ":r", ":h"))';
+		$sSQL = str_replace(":t",self::TABLE_NAME, $sSQL);
+		$sSQL = str_replace(":r",self::COL_REALM, $sSQL);
+		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
+		$sSQL = str_replace(":c",self::COL_CONTENT, $sSQL);
+		$sSQL = str_replace(":d",self::COL_DATE, $sSQL);		
+		$oResult = $oDB->exec($sSQL);
 		cDebug::extra_debug("table created");				
+		
+		//add a timestamp to say when this database was created
+		cDebug::extra_debug("writing creation timestamp");				
+		$oObj = new cOBjStoreDB();
+		$oObj->realm = self::OBJSTORE_REALM;
+		$oObj->put( self::OBJSTORE_CREATE_KEY,  date('d-m-Y H:i:s'));
 		
 		cDebug::leave();
 	}
@@ -116,77 +127,28 @@ class cOBjStoreDB{
 	//#####################################################################
 	//# PUBLICS
 	//#####################################################################
-	public static function open_db(){
-		//get the database object
-		$bCreate = false;
-		
-		cDebug::enter();
-		//--------------------------------------------------
-		
-		if (self::$database !== null)
-		{	
-			cDebug::extra_debug("database allready open");
-			cDebug::leave();
-			return self::$database;
-		}
-		
-		$sFilename = self::$rootFolder."/".self::DB_FILENAME;
-		cDebug::extra_debug("opening SQL database $sFilename");
-		//if the file doesnt exist create the database
-		$bCreate = !file_exists($sFilename);
-		$oDB = new SQLlite3($sFilename);
-		self::$database = $oDB;
-		if ($bCreate) 
-			self::pr_create_table();
-		
-		//--------------------------------------------------
-		cDebug::leave();
-		return $oDB;
-	}
 	
 	//********************************************************************************
-	public static function put($psFolder, $psFile, $psContent){
+	public function put($psKey, $psValue, $pbOverride=true){
 		cDebug::enter();
 		self::pr_check_for_db();
+		if ($this->realm == null) cDebug::error("realm is null");
 		
-		$sSQL = 
-			'INSERT INTO '.
-				'"'.self::TABLE_NAME.'"'.
-			'" ("'.self::COL_FOLDER.'", "'.self::COL_FILE.'", "'.self::COL_CONTENT.'")'.
-				' VALUES (?, ?, ?)';
-		cDebug::extra_debug("SQL is $sSQL");
-		$oStmt = self::$database->prepare($sSQL);
-		$oStmt->bindValue(1,$psFolder);
-		$oStmt->bindValue(2,$psfile);
-		$oStmt->bindValue(3,$psContent);
-		$oStmt->execute();
-		$oStmt->finalize();
+		$oDB = self::$database;
+		
+		$sSQL = "INSERT OR REPLACE INTO :t VALUES (:r, :h, :c, :d)";
+		if (! $pbOverride) $sSQL = "INSERT INTO :t VALUES (:r, :h, :c, :d)";
+		$sSQL = str_replace(":t",self::TABLE_NAME, $sSQL);
+		$oStmt = $oDB->prepare($sSQL);
+		$oStmt->bindValue(":r", $this->realm);
+		$oStmt->bindValue(":h", cHash::hash($psKey));
+		$oStmt->bindValue(":c", $psValue);
+		$oStmt->bindValue(":d", date('d-m-Y H:i:s'));
+		$oResult = $oStmt->execute();
 		
 		cDebug::leave();		
 	}
 	
-	//********************************************************************************
-	public static function get($psFolder, $psFile){
-		cDebug::enter();
-		self::pr_check_for_db();
 		
-		$sSQL = 
-			'SELECT '.
-				'"'.self::COL_CONTENT.'"'.
-			' FROM "'.self::TABLE_NAME.'"'.
-			' WHERE '.
-				' "'.self::COL_FOLDER.'"=? AND "'.self::COL_FILE.'"=?';
-				
-		cDebug::extra_debug("SQL is $sSQL");
-		$oStmt = self::$database->prepare($sSQL);
-		$oStmt->bindValue(1,$psFolder);
-		$oStmt->bindValue(2,$psfile);
-		$oResult = $oStmt->execute();
-		$aData = $oResult->fetchArray(SQLITE3_NUM);
-		$oStmt->finalize();
-		
-		cDebug::leave();
-		return $aData[0];
-	}
 }
 ?>
