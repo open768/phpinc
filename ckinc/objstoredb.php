@@ -136,6 +136,11 @@ class cOBjStoreDB{
 		cDebug::leave();
 	}
 	
+	//********************************************************************************
+	private function pr_check_realm(){
+		if ($this->realm == null) cDebug::error("realm is null");
+	}
+	
 	//#####################################################################
 	//# PUBLICS
 	//#####################################################################
@@ -144,7 +149,7 @@ class cOBjStoreDB{
 	public function put($psKey, $pvAnything, $pbOverride=true){
 		cDebug::enter();
 		self::pr_check_for_db();
-		if ($this->realm == null) cDebug::error("realm is null");
+		$this->pr_check_realm();
 		
 		//write the compressed string to the database
 		$sHash = cHash::hash($psKey);
@@ -166,10 +171,19 @@ class cOBjStoreDB{
 	}
 	
 	//********************************************************************************
+	public function put_oldstyle($psFolder, $psFile, $poData){
+		cDebug::enter();
+		$this->pr_check_realm();
+		$sFullpath = $psFolder & "/" & $psFile;
+		$this->put($sFullpath, $poData);
+		cDebug::leave();		
+	}
+	
+	//********************************************************************************
 	public function get($psKey, $pbCheckExpiration = false){
 		cDebug::enter();
 		self::pr_check_for_db();
-		if ($this->realm == null) cDebug::error("realm is null");
+		$this->pr_check_realm();
 		
 		//read from the database and decompress
 		$sHash = cHash::hash($psKey);
@@ -202,11 +216,34 @@ class cOBjStoreDB{
 		cDebug::leave();		
 		return $vResult;
 	}
+
+	//********************************************************************************
+	public function get_oldstyle($psFolder, $psFile){
+		cDebug::enter();
+		
+		$this->pr_check_realm();
+		$oData = null;
+		$sFullpath = $psFolder & "/" & $psFile;
+		if (cObjStore::file_exists($psFolder, $psFile))
+		{
+			cDebug::extra_debug("migrating from cObjstore: $sFullpath");				
+			$oData = cObjStore::get_file($psFolder, $psFile);
+			$this->put($sFullpath, $oData);
+			cObjStore::kill_file($psFolder, $psFile);
+		}else{
+			cDebug::extra_debug("not found in cObjstore: $sFullpath");				
+			$oData = $this->get($sFullpath);
+		}
+		
+		cDebug::leave();		
+		return $oData;
+	}
+	
 	//********************************************************************************
 	public function kill($psKey){
 		cDebug::enter();
 		self::pr_check_for_db();
-		if ($this->realm == null) cDebug::error("realm is null");
+		$this->pr_check_realm();
 		
 		//read from the database and decompress
 		$sHash = cHash::hash($psKey);

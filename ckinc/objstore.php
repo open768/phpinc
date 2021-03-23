@@ -17,6 +17,7 @@ cObjStore::$rootFolder= "$root/[objdata]";
 class cObjStore{
 	public static $rootFolder = "";
 	public static $OBJDATA_REALM = null;
+	public static $obsolete_message_sent = false;
 	
 	//#####################################################################
 	//# PRIVATES
@@ -29,17 +30,33 @@ class cObjStore{
 		return $sOut;
 	}
 	
+	//********************************************************************
+	private static function pr_show_obsolete_msg(){
+		if (!self::$obsolete_message_sent){
+			cDebug::warning("cObjStore is deprecated, use cObjStoreDb instead");
+			self::$obsolete_message_sent = true;
+		}
+	}
+	
 	//#####################################################################
 	//# PUBLIC
 	//#####################################################################
 	public static function kill_folder($psFolder){
+		cDebug::enter();
+		
+		self::pr_show_obsolete_msg();
 		$sPath = self::pr_get_folder_path( $psFolder);
 		cDebug::write("killing folder $sPath");
 		cCommon::delTree($sPath);
+		
+		cDebug::leave();
 	}
 	
 	//********************************************************************
 	public static function kill_file( $psFolder, $psFile){
+		cDebug::enter();
+
+		self::pr_show_obsolete_msg();
 		$num_args = func_num_args();
 		if ($num_args != 2) cDebug::error("kill_file: incorrect number of arguments - expected 2 got $num_args ");
 
@@ -49,14 +66,27 @@ class cObjStore{
 			unlink($file);
 			cDebug::write("deleted file $file");
 		}
+		cDebug::leave();
 	}
 	
 	//********************************************************************
-	//TODO migrate to using objstore
+	public static function file_exists($psFolder, $psFile){
+		cDebug::enter();
+		
+		self::pr_show_obsolete_msg();
+		$sFolder = self::pr_get_folder_path( $psFolder);
+		$sFile = "$sFolder/$psFile";
+		
+		cDebug::leave();
+		return file_exists($sFile);
+	}
+	
+	//********************************************************************
 	public static function get_file( $psFolder, $psFile){
 		$aData = null;
 		cDebug::enter();
 		
+		self::pr_show_obsolete_msg();
 		$num_args = func_num_args();
 		if ($num_args != 2) cDebug::error("get_file: incorrect number of arguments - expected 2 got $num_args ");
 		
@@ -65,23 +95,20 @@ class cObjStore{
 
 		if (file_exists($sFile)){
 			$aData = cGzip::readObj($sFile);
-			//TBD write to objstoreDB and kill_file
 		}elseif( cHash::exists($sFile)){
 			cDebug::write("found in hash");
 			$aData = cHash::get($sFile);
-			//TDB write to objstoreDB and kill hash
-		}else{
-			//TBD get from objstoreDB
 		}
 
-		
 		cDebug::leave();
 		return $aData;
 	}
 	
 	//********************************************************************
 	public static function put_file( $psFolder, $psFile, $poData){
+		cDebug::enter();
 			
+		self::pr_show_obsolete_msg();
 		$num_args = func_num_args();
 		if ($num_args != 3) cDebug::error("put_file: incorrect number of arguments - expected 3 got $num_args ");
 		
@@ -89,21 +116,30 @@ class cObjStore{
 		if ($poData == null) cDebug::error("put_file: no data to write");
 		
 		$sFolder = self::pr_get_folder_path( $psFolder);
+		if (!is_dir($sFolder)){
+			cDebug::write("making folder: for hash $psHash");
+			mkdir($sFolder, 0700, true);
+		}
+		
 		$sFile = "$sFolder/$psFile";
 		cDebug::write("writing to: $sFile");
 		cGzip::writeObj($sFile, $poData);
+		
+		cDebug::leave();
 	}
 	
 	//********************************************************************
 	static function push_to_array( $psFolder, $psFile, $poData){
+		cDebug::enter();
 		//always get the latest file
 		$aData = self::get_file( $psFolder, $psFile);
 		//update the data
 		if (!$aData) $aData=[];
-		$aData[] = $poData;
+		$aData[] = $poData; //add to the array
 		//put the data back
 		self::put_file( $psFolder, $psFile, $aData);
 		
+		cDebug::leave();
 		return $aData;
 	}
 }
