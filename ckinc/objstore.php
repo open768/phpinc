@@ -77,8 +77,11 @@ class cObjStore{
 		$sFolder = self::pr_get_folder_path( $psFolder);
 		$sFile = "$sFolder/$psFile";
 		
+		$bResult = file_exists($sFile);
+		if (!$bResult) cDebug::extra_debug("file doesnt exist : $sFile");
+		
 		cDebug::leave();
-		return file_exists($sFile);
+		return $bResult;
 	}
 	
 	//********************************************************************

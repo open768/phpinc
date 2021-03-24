@@ -174,7 +174,7 @@ class cOBjStoreDB{
 	public function put_oldstyle($psFolder, $psFile, $poData){
 		cDebug::enter();
 		$this->pr_check_realm();
-		$sFullpath = $psFolder & "/" & $psFile;
+		$sFullpath = $psFolder . "/" . $psFile;
 		$this->put($sFullpath, $poData);
 		cDebug::leave();		
 	}
@@ -223,7 +223,8 @@ class cOBjStoreDB{
 		
 		$this->pr_check_realm();
 		$oData = null;
-		$sFullpath = $psFolder & "/" & $psFile;
+		$sFullpath = $psFolder . "/" . $psFile;
+		cDebug::extra_debug("path is $sFullpath");
 		if (cObjStore::file_exists($psFolder, $psFile))
 		{
 			cDebug::extra_debug("migrating from cObjstore: $sFullpath");				
@@ -261,6 +262,15 @@ class cOBjStoreDB{
 		$oStmt->bindValue(2, $sHash);
 		$oResultSet = $oStmt->execute();
 		
+		cDebug::leave();		
+	}
+	
+	//********************************************************************************
+	public function kill_oldstyle($psfolder, $psFile){
+		cDebug::enter();
+		$sFullpath = $psFolder . "/" . $psFile;
+		cObjStore::kill($psfolder, $psFile);
+		$this->kill($sFullpath);
 		cDebug::leave();		
 	}
 		

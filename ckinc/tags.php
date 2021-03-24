@@ -24,28 +24,43 @@ class cTags{
 	const PROD_TAG_FILE = "[tag].txt";
 	const TAG_FOLDER = "[tags]";
 	const RECENT_TAG = "TAG";
+	static $oObjStore = null;
+	
+	
+	//********************************************************************
+	static function pr_init_objstore(){
+		if (!self::$oObjStore){
+			self::$oObjStore = new cObjStoreDB();
+			self::$oObjStore->realm = "TAGS";
+		}
+	}
 	
 	//********************************************************************
 	static function get_tag_names( $psSol, $psInstrument, $psProduct){
+		cDebug::enter();
+		
 		$sFolder = "$psSol/$psInstrument/$psProduct";
-		$aTags = cObjStore::get_file( $sFolder, self::PROD_TAG_FILE);
+		$aTags = self::$oObjStore->get_oldstyle( $sFolder, self::PROD_TAG_FILE);
 		if (!$aTags) $aTags=[];
 		
 		$aKeys = [];
 		foreach ($aTags as $sKey=>$oValue)
 			array_push($aKeys, $sKey);
 			
+		cDebug::leave();
 		return $aKeys;
 	}
 
 	//********************************************************************
 	static function set_tag( $psSol, $psInstrument, $psProduct , $psTag, $psUser){
+		cDebug::enter();
+		
 		$sFolder = "$psSol/$psInstrument/$psProduct";
 		$psTag = strtolower ($psTag);
 		$psTag= preg_replace("/[^a-z0-9\-]/", '', $psTag);
 		
 		//get the file from the object store
-		$aData = cObjStore::get_file( $sFolder, self::PROD_TAG_FILE);
+		$aData = self::$oObjStore->get_oldstyle( $sFolder, self::PROD_TAG_FILE);
 		if (!$aData) $aData=[];
 		
 		//update the structure (array of arrays)
@@ -63,7 +78,7 @@ class cTags{
 		}
 		
 		//put the file back
-		cObjStore::put_file( $sFolder, self::PROD_TAG_FILE, $aData);
+		self::$oObjStore->put_oldstyle( $sFolder, self::PROD_TAG_FILE, $aData);
 
 		//now update the top_index
 		self::update_top_index( $psTag);
@@ -74,45 +89,63 @@ class cTags{
 		self::update_instr_index( $psSol, $psInstrument, $psProduct , $psTag);
 		
 		
-		//and update the specific tag details for the image
+		//and update the index for the image
 		self::update_tag_index( $psTag, $sFolder);
+		cDebug::leave();
 	}
 	
 	//********************************************************************
 	static function get_top_tags(){
-		$aTags = cObjStore::get_file( "", self::TOP_TAG_FILE);
-		cDebug::vardump($aTags);
+		cDebug::enter();
+		
+		$aTags = self::$oObjStore->get_oldstyle( "", self::TOP_TAG_FILE);
+		//cDebug::vardump($aTags);
 		if ($aTags) ksort($aTags);
+		cDebug::leave();
 		return $aTags;
 	}
 	
 	//********************************************************************
 	static function get_tag_index( $psTag){
+		cDebug::enter();
+		
 		$filename = $psTag.".txt";
 
-		$aTags = cObjStore::get_file( self::TAG_FOLDER, $filename);
+		$aTags = self::$oObjStore->get_oldstyle( self::TAG_FOLDER, $filename);
+		cDebug::leave();
 		if ($aTags) sort($aTags);
 		return $aTags;
 	}
 	
 	//********************************************************************
 	static function get_sol_tags( $psSol){
-		return cObjStore::get_file( $psSol, self::SOL_TAG_FILE);
+		cDebug::enter();
+		
+		$aData =  self::$oObjStore->get_oldstyle( $psSol, self::SOL_TAG_FILE);
+		cDebug::leave();
+		return $aData;
 	}
 	
 	//********************************************************************
 	static function get_top_sol_index(){
-		return cObjStore::get_file( "", self::TOP_SOL_TAG_FILE);
+		cDebug::enter();
+		
+		$aData = self::$oObjStore->get_oldstyle( "", self::TOP_SOL_TAG_FILE);
+		cDebug::leave();
+		return $aData;
 	}
 	
 	//********************************************************************
 	static function get_sol_tag_count( $psSol){
-		$aData = cObjStore::get_file( $psSol, self::SOL_TAG_FILE);
+		cDebug::enter();
+		
+		$aData = self::$oObjStore->get_oldstyle( $psSol, self::SOL_TAG_FILE);
 		$iCount = 0;
 		if ($aData != null)
 			foreach ($aData as $sInstr=>$aTags)
 				foreach ($aTags as $oItem)
 					$iCount ++;
+		cDebug::leave();
 		return $iCount;
 	}
 	
@@ -120,46 +153,60 @@ class cTags{
 	//# UPDATE functions
 	//######################################################################
 	static function update_top_sol_index( $psSol){
-		$aData = cObjStore::get_file( "", self::TOP_SOL_TAG_FILE);
+		cDebug::enter();
+		
+		$aData = self::$oObjStore->get_oldstyle( "", self::TOP_SOL_TAG_FILE);
 		if (!$aData) $aData=[];
 		if ( !isset( $aData[$psSol])){
 			$aData[$psSol] = 1;
 			cDebug::write("updating top sol index for sol $psSol");
-			cObjStore::put_file( "", self::TOP_SOL_TAG_FILE, $aData);
+			self::$oObjStore->put_oldstyle( "", self::TOP_SOL_TAG_FILE, $aData);
 		}
+		cDebug::leave();
 	}
 		
 	//********************************************************************
 	static function update_sol_index( $psSol, $psInstrument, $psProduct , $psTag){
-		$aData = cObjStore::get_file( $psSol, self::SOL_TAG_FILE);
+		cDebug::enter();
+		
+		$aData = self::$oObjStore->get_oldstyle( $psSol, self::SOL_TAG_FILE);
 		if (!$aData) $aData=[];
-		if (!isset( $aData[$psInstrument]) $aData[$psInstrument] = [];
+		if (!isset( $aData[$psInstrument])) $aData[$psInstrument] = [];
 		$aData[$psInstrument][] = ["p"=>$psProduct , "t"=>$psTag];
-		cObjStore::put_file( $psSol, self::SOL_TAG_FILE, $aData);
+		self::$oObjStore->put_oldstyle( $psSol, self::SOL_TAG_FILE, $aData);
+		cDebug::leave();
 	}
 		
 	//********************************************************************
 	static function update_instr_index( $psSol, $psInstrument, $psProduct , $psTag){
+		cDebug::enter();
+		
 		$sFolder="$psSol/$psInstrument";
-		$aData = cObjStore::get_file( $sFolder, self::INSTR_TAG_FILE);
+		$aData = self::$oObjStore->get_oldstyle( $sFolder, self::INSTR_TAG_FILE);
 		if (!$aData) $aData=[];
 		if (!isset( $aData[$psProduct])) $aData[$psProduct] = [];
 		$aData[$psProduct][] = $psTag;
-		cObjStore::put_file( $sFolder, self::INSTR_TAG_FILE, $aData);
+		self::$oObjStore->put_oldstyle( $sFolder, self::INSTR_TAG_FILE, $aData);
+		cDebug::leave();
 	}		
 
 	//********************************************************************
 	static function update_tag_index( $psTag, $psValue){
+		cDebug::enter();
+		
 		$filename = $psTag.".txt";
 		cObjStore::push_to_array( self::TAG_FOLDER, $filename, $psValue);
+		cDebug::leave();
 	}
 	
 	//********************************************************************
 	static function update_top_index( $psTag){
+		cDebug::enter();
+		
 		cDebug::write("updating index for tag : $psTag");
 
 		// get the existing tags
-		$aData = cObjStore::get_file( "", self::TOP_TAG_FILE);
+		$aData = self::$oObjStore->get_oldstyle( "", self::TOP_TAG_FILE);
 		if (!$aData) $aData=[];
 		
 		//update the count
@@ -167,16 +214,19 @@ class cTags{
 		if (isset($aData[$psTag])) $count = $aData[$psTag];
 		$count++;
 		$aData[$psTag] = $count;
-		cDebug::vardump($aData);
+		//cDebug::vardump($aData);
 		
 		//write out the data
-		cObjStore::put_file( "", self::TOP_TAG_FILE, $aData);
+		self::$oObjStore->put_oldstyle( "", self::TOP_TAG_FILE, $aData);
+		cDebug::leave();
 	}
 	
 	//######################################################################
 	//# admin functions
 	//######################################################################
 	static function reindex(){
+		cDebug::enter();
+		
 		$aAllTags = [];
 		
 		//get all the tags
@@ -214,27 +264,28 @@ class cTags{
 						$aInstrDataOut[$sProduct][] = $sTag;
 
 					}
-					cObjStore::put_file( "$sSol/$sInstr/$sProduct", self::PROD_TAG_FILE, $aProductData);				
+					self::$oObjStore->put_oldstyle( "$sSol/$sInstr/$sProduct", self::PROD_TAG_FILE, $aProductData);				
 				}
-				cObjStore::put_file( "$sSol/$sInstr", self::INSTR_TAG_FILE, $aInstrDataOut);				
+				self::$oObjStore->put_oldstyle( "$sSol/$sInstr", self::INSTR_TAG_FILE, $aInstrDataOut);				
 			}
-			cObjStore::put_file( $sSol, self::SOL_TAG_FILE, $aSolDataOut);				
+			self::$oObjStore->put_oldstyle( $sSol, self::SOL_TAG_FILE, $aSolDataOut);				
 		}
-		cObjStore::put_file( "", self::TOP_SOL_TAG_FILE, $aTopSols);
+		self::$oObjStore->put_oldstyle( "", self::TOP_SOL_TAG_FILE, $aTopSols);
 
 		
-		cDebug::write("ok");
+		cDebug::leave();
 	}
 	
 	//********************************************************************
 	static function kill_tag( $psTag){
-		cDebug::write("in kill_tag");
+		cDebug::enter();
+		
 
 		//remove entry from top tag file 
-		$aData = cObjStore::get_file( "", self::TOP_TAG_FILE);
+		$aData = self::$oObjStore->get_oldstyle( "", self::TOP_TAG_FILE);
 		if (isset($aData[$psTag])) {
 			unset($aData[$psTag]);
-			cObjStore::put_file( "", self::TOP_TAG_FILE, $aData);
+			self::$oObjStore->put_oldstyle( "", self::TOP_TAG_FILE, $aData);
 		}else{
 			cDebug::write("tag not found");
 			return;
@@ -242,7 +293,7 @@ class cTags{
 
 		//remove tag index file 
 		$filename = $psTag.".txt";
-		$aTags = cObjStore::get_file( self::TAG_FOLDER, $filename);
+		$aTags = self::$oObjStore->get_oldstyle( self::TAG_FOLDER, $filename);
 		if ($aTags != null){
 			cObjStore::kill_file( self::TAG_FOLDER, $filename);
 		}else{
@@ -254,7 +305,8 @@ class cTags{
 		foreach ($aTags as $sFolder)
 			cObjStore::kill_file( $sFolder, self::PROD_TAG_FILE);
 	
-		cDebug::write("ok");
+		cDebug::leave();
 	}
 }
+cTags::pr_init_objstore();
 ?>
