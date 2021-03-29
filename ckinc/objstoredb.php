@@ -29,6 +29,7 @@ require_once("$phpinc/ckinc/hash.php");
 class cOBjStoreDB{
 	public $rootFolder = null;
 	public $realm = null;
+	private static $warned_oldstyle = false;
 	public static $database = null; //static as same database obj used between instances
 	public static $table_exists = false;
 	
@@ -141,6 +142,76 @@ class cOBjStoreDB{
 		if ($this->realm == null) cDebug::error("realm is null");
 	}
 	
+	//********************************************************************************
+	private function pr_warn_deprecated(){
+		if (!self::$warned_oldstyle){
+			cDebug::warning("oldstyle functions are to be deprecated");
+			self::$warned_oldstyle = true;
+		}
+	}
+	
+	//#####################################################################
+	//# PUBLICS - OLD STYLE - to be deprecated
+	//#####################################################################
+	//********************************************************************************
+	public function put_oldstyle($psFolder, $psFile, $poData){
+		cDebug::enter();
+		self::pr_warn_deprecated();
+		
+		$this->pr_check_realm();
+		$sFullpath = $psFolder . "/" . $psFile;
+		$this->put($sFullpath, $poData);
+		cDebug::leave();		
+	}
+	
+	//********************************************************************************
+	public function put_array_oldstyle($psFolder, $psFile, $poData){
+		cDebug::enter();
+		
+		self::pr_warn_deprecated();
+		$sFullpath = $psFolder . "/" . $psFile;
+		$aData = $this->get( $sFullpath);
+		if (!$aData) $aData=[];
+		$aData[] = $poData; //add to the array
+		$this->put($sFullpath,$aData,true);
+		cDebug::leave();		
+		return $aData;
+	}
+	
+	//********************************************************************************
+	public function get_oldstyle($psFolder, $psFile){
+		cDebug::enter();
+		
+		self::pr_warn_deprecated();
+		$this->pr_check_realm();
+		$oData = null;
+		$sFullpath = $psFolder . "/" . $psFile;
+		cDebug::extra_debug("path is $sFullpath");
+		if (cObjStore::file_exists($psFolder, $psFile))
+		{
+			cDebug::extra_debug("migrating from cObjstore: $sFullpath");				
+			$oData = cObjStore::get_file($psFolder, $psFile);
+			$this->put($sFullpath, $oData);
+			cObjStore::kill_file($psFolder, $psFile);
+		}else{
+			cDebug::extra_debug("not found in cObjstore: $sFullpath");				
+			$oData = $this->get($sFullpath);
+		}
+		
+		cDebug::leave();		
+		return $oData;
+	}
+	
+	//********************************************************************************
+	public function kill_oldstyle($psfolder, $psFile){
+		cDebug::enter();
+		self::pr_warn_deprecated();
+		$sFullpath = $psFolder . "/" . $psFile;
+		cObjStore::kill($psfolder, $psFile);
+		$this->kill($sFullpath);
+		cDebug::leave();		
+	}
+	
 	//#####################################################################
 	//# PUBLICS
 	//#####################################################################
@@ -167,15 +238,6 @@ class cOBjStoreDB{
 		$oStmt->bindValue(4, date('d-m-Y H:i:s'));
 		$oResult = $oStmt->execute();
 		
-		cDebug::leave();		
-	}
-	
-	//********************************************************************************
-	public function put_oldstyle($psFolder, $psFile, $poData){
-		cDebug::enter();
-		$this->pr_check_realm();
-		$sFullpath = $psFolder . "/" . $psFile;
-		$this->put($sFullpath, $poData);
 		cDebug::leave();		
 	}
 	
@@ -217,28 +279,6 @@ class cOBjStoreDB{
 		return $vResult;
 	}
 
-	//********************************************************************************
-	public function get_oldstyle($psFolder, $psFile){
-		cDebug::enter();
-		
-		$this->pr_check_realm();
-		$oData = null;
-		$sFullpath = $psFolder . "/" . $psFile;
-		cDebug::extra_debug("path is $sFullpath");
-		if (cObjStore::file_exists($psFolder, $psFile))
-		{
-			cDebug::extra_debug("migrating from cObjstore: $sFullpath");				
-			$oData = cObjStore::get_file($psFolder, $psFile);
-			$this->put($sFullpath, $oData);
-			cObjStore::kill_file($psFolder, $psFile);
-		}else{
-			cDebug::extra_debug("not found in cObjstore: $sFullpath");				
-			$oData = $this->get($sFullpath);
-		}
-		
-		cDebug::leave();		
-		return $oData;
-	}
 	
 	//********************************************************************************
 	public function kill($psKey){
@@ -265,14 +305,6 @@ class cOBjStoreDB{
 		cDebug::leave();		
 	}
 	
-	//********************************************************************************
-	public function kill_oldstyle($psfolder, $psFile){
-		cDebug::enter();
-		$sFullpath = $psFolder . "/" . $psFile;
-		cObjStore::kill($psfolder, $psFile);
-		$this->kill($sFullpath);
-		cDebug::leave();		
-	}
 		
 }
 ?>
