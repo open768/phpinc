@@ -26,12 +26,9 @@ class cCachedHttp{
 	public 	$show_progress = false;
 	public  $HTTPS_CERT_FILENAME = null;
 
-
-
 	//*****************************************************************************
 	public function deleteCachedURL($psURL){
-		$sHash = cHash::hash($psURL);
-		cHash::delete_hash($sHash);
+		cHash::delete($psURL);
 	}
 	
 	//*****************************************************************************
@@ -56,10 +53,10 @@ class cCachedHttp{
 	}
 	
 	//*****************************************************************************
-	public function getCachedUrltoFile($psURL){	
+	public function getCachedUrltoFile($psURL){	//for large files too big for sql
 		cDebug::enter();
 		$sHash = cHash::hash($psURL);
-		cHash::$CACHE_EXPIRY = $this->$CACHE_EXPIRY;		
+		cHash::$CACHE_EXPIRY = $this->$CACHE_EXPIRY;		//dangerous fudge
 		$sPath = cHash::getPath($sHash);
 		
 		if (! cHash::exists($sHash)){

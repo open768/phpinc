@@ -144,4 +144,10 @@ class cHash{
 		$sHash = self::hash($psAnything);
 		return self::pr__exists_hash($sHash, $pbCached);
 	}
+	
+	//************************************************************************
+	public static function delete($psAnything){
+		$sHash = self::hash($psURL);
+		self::delete_hash($sHash);
+	}
 }
