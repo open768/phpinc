@@ -32,10 +32,10 @@ class cGzip{
 		cDebug::enter();
 		
 		$sSerial = serialize($pvAnything);
-		cDebug::extra_debug("serialised: $sSerial");
+		//cDebug::extra_debug("serialised: $sSerial");
 		$sZipped = gzencode($sSerial);
 		$sEncoded = base64_encode ($sZipped);
-		cDebug::extra_debug("encoded: $sEncoded");
+		//cDebug::extra_debug("encoded: $sEncoded");
 		cDebug::leave();
 		return $sEncoded;
 	}
