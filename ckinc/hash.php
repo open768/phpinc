@@ -147,7 +147,9 @@ class cHash{
 	
 	//************************************************************************
 	public static function delete($psAnything){
-		$sHash = self::hash($psURL);
+		cDebug::enter();
+		$sHash = self::hash($psAnything);
 		self::delete_hash($sHash);
+		cDebug::leave();
 	}
 }
