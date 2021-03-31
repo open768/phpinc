@@ -14,9 +14,11 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 require_once("$phpinc/ckinc/http.php");
 require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/hash.php");
+require_once("$phpinc/ckinc/objstoredb.php");
 
 class cCachedHttp{
 	const INFINITE = -1;
+	private static $oObjStore = null;
 	public $CACHE_EXPIRY = 3600;  //(seconds)
 	public $USE_CURL = true;
 	public $ALLOW_SELF_SIGNED_CERT = true;
@@ -26,6 +28,18 @@ class cCachedHttp{
 	public 	$show_progress = false;
 	public  $HTTPS_CERT_FILENAME = null;
 
+	//********************************************************************
+	public static function pr_init_objstore(){
+		if (!self::$oObjStore){
+			$oObjStore = new cObjStoreDB();
+			$oObjStore->realm = "CACHTTP";
+			$oObjStore->check_expiry = true;
+			$oObjStore->expire_time = 3600;
+			$oObjStore->set_table("HTMLCAC");
+			
+			self::$oObjStore = $oObjStore;
+		}
+	}
 	//*****************************************************************************
 	public function deleteCachedURL($psURL){
 		cHash::delete($psURL);
@@ -93,25 +107,25 @@ class cCachedHttp{
 		
 		$oResponse = null;
 		cDebug::write("getting url:$psURL");
+		if (cHash::exists($psURL, true)) cHash::delete($psURL); //remove the old chash cached item
 		
-		cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;
-		if (cHash::exists($psURL, true)){
-			cDebug::extra_debug("cached: $psURL");
-			$oResponse = cHash::get($psURL);
-		}else{
+		$oData = self::$oObjStore->get($psURL,true);
+		if ($oData == null){
 			cDebug::extra_debug("obj not cached $psURL");
 			if ($pbJson)
-				$oResponse = $oHttp->getJson($psURL);
+				$oData = $oHttp->getJson($psURL);
 			else
-				$oResponse = $oHttp->fetch_url($psURL);
+				$oData = $oHttp->fetch_url($psURL);
 				
-			if ($oResponse) 
-				cHash::put($psURL, $oResponse, true);
+			if ($oData) 
+				self::$oObjStore->put($psURL, $oData, true);
 		}
 		
 		cDebug::leave();
-		return $oResponse;
+		return $oData;
 	}
-
 }
+
+cCachedHttp::pr_init_objstore();
+
 ?>
