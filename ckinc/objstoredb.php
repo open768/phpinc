@@ -70,7 +70,7 @@ class cOBjStoreDB{
 	//#####################################################################
 	private function pr_check_for_db(){
 		global $root;
-		cDebug::enter();
+		//cDebug::enter();
 		if (self::$database == null ){
 			cDebug::warning("database not opened");
 			
@@ -91,25 +91,24 @@ class cOBjStoreDB{
 			cDebug::extra_debug("database opened");				
 			self::$database = $oDB ;
 			$oDB->enableExceptions(true);
-		}else
-			cDebug::extra_debug("database allready open");
-		cDebug::leave();
+		}
+
+		//cDebug::leave();
 	}
 	
 	//********************************************************************************
 	private function pr_create_table(){
-		cDebug::enter();
+		//cDebug::enter();
 		
-		//skip if table exists
-		if (self::$database == null){
-			cDebug::error("database is not open");
-		}
+		//skip if table exists - dont need to check
+		//if (self::$database == null) cDebug::error("database is not open");
+		
 		$oDB = self::$database;
 		
 		//skip if table exists
 		if (self::$table_exists){
-			cDebug::extra_debug("table allready checked exists");				
-			cDebug::leave();
+			//cDebug::extra_debug("table allready checked exists");				
+			//cDebug::leave();
 			return;
 		}
 		
@@ -119,8 +118,8 @@ class cOBjStoreDB{
 		$sSQL = str_replace(":t",$this->table, $sSQL);
 		$oResult = $oDB->query($sSQL);
 		if ($oResult->fetchArray()){
-			cDebug::extra_debug("table does exist");				
-			cDebug::leave();
+			//cDebug::extra_debug("table does exist");				
+			//cDebug::leave();
 			return;
 		}
 		
@@ -141,7 +140,7 @@ class cOBjStoreDB{
 		$oObj = new cOBjStoreDB();
 		$oObj->realm = self::OBJSTORE_REALM;
 		$oObj->put( self::OBJSTORE_CREATE_KEY, $sNow);
-		cDebug::leave();
+		//cDebug::leave();
 	}
 	
 	//********************************************************************************
@@ -243,13 +242,13 @@ class cOBjStoreDB{
 		//write the compressed string to the database
 		$sHash = cHash::hash($psKey);
 		$oDB = self::$database;
-		cDebug::extra_debug("hash: $sHash");
+		//cDebug::extra_debug("hash: $sHash");
 		
 		$sSQL = "INSERT OR REPLACE INTO :t VALUES (?, ?, ?, ?)";
 		if (! $pbOverride) $sSQL = "INSERT INTO :t VALUES (?, ?, ?, ?)";
 		$sSQL = str_replace(":t",$this->table, $sSQL);
 		$oStmt = $oDB->prepare($sSQL);
-		cDebug::extra_debug("SQL: $sSQL");				
+		//cDebug::extra_debug("SQL: $sSQL");				
 		$oStmt->bindValue(1, $this->realm);
 		$oStmt->bindValue(2, $sHash);
 		$oStmt->bindValue(3, cGzip::encode($pvAnything));
@@ -268,7 +267,7 @@ class cOBjStoreDB{
 		//read from the database and decompress
 		$sHash = cHash::hash($psKey);
 		$oDB = self::$database;
-		cDebug::extra_debug("hash: $sHash");
+		//cDebug::extra_debug("hash: $sHash");
 		
 		$sSQL = "SELECT :r,:c,:d FROM :t where :r=? AND :h=?";
 		$sSQL = str_replace(":t",$this->table, $sSQL);
@@ -276,7 +275,7 @@ class cOBjStoreDB{
 		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
 		$sSQL = str_replace(":c",self::COL_CONTENT, $sSQL);
 		$sSQL = str_replace(":d",self::COL_DATE, $sSQL);
-		cDebug::extra_debug("SQL: $sSQL");				
+		//cDebug::extra_debug("SQL: $sSQL");				
 		
 		$oStmt = $oDB->prepare($sSQL);
 		$oStmt->bindValue(1, $this->realm);
@@ -302,7 +301,7 @@ class cOBjStoreDB{
 					$this->kill($psKey);
 					$vResult = null;
 				}else
-					cDebug::extra_debug("item will expire in $iDiff seconds");
+					cDebug::extra_debug("<font style='background-color:lavender'>cached: item will expire in $iDiff seconds</font>");
 			}
 		}
 		
