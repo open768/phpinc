@@ -30,6 +30,7 @@ class cOBjStoreDB{
 	private static $warned_oldstyle = false;
 	private static $database = null; //static as same database obj used between instances
 	private static $table_exists = false;
+	public static $SHOW_SQL = false;
 	
 	public $rootFolder = null;
 	public $realm = null;
@@ -116,6 +117,7 @@ class cOBjStoreDB{
 		cDebug::extra_debug("checking table exists");				
 		$sSQL = 'SELECT name FROM sqlite_master WHERE name=":t"';
 		$sSQL = str_replace(":t",$this->table, $sSQL);
+		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
 		$oResult = $oDB->query($sSQL);
 		if ($oResult->fetchArray()){
 			//cDebug::extra_debug("table does exist");				
@@ -131,6 +133,7 @@ class cOBjStoreDB{
 		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
 		$sSQL = str_replace(":c",self::COL_CONTENT, $sSQL);
 		$sSQL = str_replace(":d",self::COL_DATE, $sSQL);		
+		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
 		$oResult = $oDB->exec($sSQL);
 		cDebug::extra_debug("table created");				
 		
@@ -247,6 +250,7 @@ class cOBjStoreDB{
 		$sSQL = "INSERT OR REPLACE INTO :t VALUES (?, ?, ?, ?)";
 		if (! $pbOverride) $sSQL = "INSERT INTO :t VALUES (?, ?, ?, ?)";
 		$sSQL = str_replace(":t",$this->table, $sSQL);
+		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
 		$oStmt = $oDB->prepare($sSQL);
 		//cDebug::extra_debug("SQL: $sSQL");				
 		$oStmt->bindValue(1, $this->realm);
@@ -275,7 +279,7 @@ class cOBjStoreDB{
 		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
 		$sSQL = str_replace(":c",self::COL_CONTENT, $sSQL);
 		$sSQL = str_replace(":d",self::COL_DATE, $sSQL);
-		//cDebug::extra_debug("SQL: $sSQL");				
+		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
 		
 		$oStmt = $oDB->prepare($sSQL);
 		$oStmt->bindValue(1, $this->realm);
