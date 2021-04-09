@@ -20,6 +20,7 @@ or leave a message on github
 require_once("$phpinc/ckinc/common.php");
 require_once("$phpinc/ckinc/gz.php");
 require_once("$phpinc/ckinc/hash.php");
+require_once("$phpinc/ckinc/sqlite.php");
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%% Database 
@@ -29,16 +30,15 @@ require_once("$phpinc/ckinc/hash.php");
 class cOBjStoreDB{
 	private static $warned_oldstyle = false;
 	private static $database = null; //static as same database obj used between instances
-	private static $table_exists = false;
 	public static $SHOW_SQL = false;
 	
+	private static $oSQLite = null;
 	public $rootFolder = null;
 	public $realm = null;
 	public $check_expiry = false;
 	public $expire_time = null;
 	public $table = null;
 	
-	const DB_folder = "[db]";
 	const DB_FILENAME = "objstore.db";
 	const TABLE_NAME = "objstore";
 	const COL_REALM = "RE";
@@ -55,13 +55,11 @@ class cOBjStoreDB{
     function __construct() {
 		global $root;
 		cDebug::enter();
-		//cDebug::extra_debug("SQLLIte version:");
-		//cDebug::vardump(SQLite3::version());
-		$this->rootFolder = "$root/[db]";
 		$this->table = self::TABLE_NAME;
-		
-		$this->pr_check_for_db();
-		$this->pr_create_table();
+		if (self::$oSQLite == null){
+			self::$oSQLite = new cSqlLite(self::DB_FILENAME);
+			$this->pr_create_table();
+		}
 		cDebug::leave();
     }
 	
@@ -69,59 +67,23 @@ class cOBjStoreDB{
 	//#####################################################################
 	//# PRIVATES
 	//#####################################################################
-	private function pr_check_for_db(){
-		global $root;
-		//cDebug::enter();
-		if (self::$database == null ){
-			cDebug::warning("database not opened");
-			
-			//check if folder exists for database
-			$sFolder = $root."/".self::DB_folder;
-			if (!is_dir($sFolder)){
-				cDebug::extra_debug("making folder $sFolder");
-				mkdir($sFolder);
-			}
-			
-			//now open the database
-			$sPath = $sFolder."/".self::DB_FILENAME;
-			if (!file_exists($sPath)) 
-				cDebug::extra_debug("database file doesnt exist $sPath");				
-			
-			cDebug::extra_debug("opening database  $sPath");				
-			$oDB = new SQLite3($sPath); 
-			cDebug::extra_debug("database opened");				
-			self::$database = $oDB ;
-			$oDB->enableExceptions(true);
-		}
-
-		//cDebug::leave();
-	}
 	
-	//********************************************************************************
 	private function pr_create_table(){
-		//cDebug::enter();
+		cDebug::enter();
+		$oSQL = self::$oSQLite;
 		
-		//skip if table exists - dont need to check
-		//if (self::$database == null) cDebug::error("database is not open");
-		
-		$oDB = self::$database;
-		
-		//skip if table exists
-		if (self::$table_exists){
-			//cDebug::extra_debug("table allready checked exists");				
-			//cDebug::leave();
-			return;
-		}
 		
 		//check if table exists
 		cDebug::extra_debug("checking table exists");				
 		$sSQL = 'SELECT name FROM sqlite_master WHERE name=":t"';
 		$sSQL = str_replace(":t",$this->table, $sSQL);
 		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
-		$oResult = $oDB->query($sSQL);
-		if ($oResult->fetchArray()){
-			//cDebug::extra_debug("table does exist");				
-			//cDebug::leave();
+		$oResultSet = $oSQL->query($sSQL);
+		if ($oResultSet == null)
+			
+		if ($oResultSet->fetchArray() !== null){
+			cDebug::extra_debug("table does exist");				
+			cDebug::leave();
 			return;
 		}
 		
@@ -134,7 +96,8 @@ class cOBjStoreDB{
 		$sSQL = str_replace(":c",self::COL_CONTENT, $sSQL);
 		$sSQL = str_replace(":d",self::COL_DATE, $sSQL);		
 		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
-		$oResult = $oDB->exec($sSQL);
+
+		$oStmt = $oSQL->query($sSQL);
 		cDebug::extra_debug("table created");				
 		
 		//add a timestamp to say when this database was created
@@ -143,7 +106,7 @@ class cOBjStoreDB{
 		$oObj = new cOBjStoreDB();
 		$oObj->realm = self::OBJSTORE_REALM;
 		$oObj->put( self::OBJSTORE_CREATE_KEY, $sNow);
-		//cDebug::leave();
+		cDebug::leave();
 	}
 	
 	//********************************************************************************
@@ -239,8 +202,8 @@ class cOBjStoreDB{
 	//********************************************************************************
 	public function put($psKey, $pvAnything, $pbOverride=true){
 		cDebug::enter();
-		self::pr_check_for_db();
 		$this->pr_check_realm();
+		$oSQL = self::$oSQLite;
 		
 		//write the compressed string to the database
 		$sHash = cHash::hash($psKey);
@@ -251,13 +214,12 @@ class cOBjStoreDB{
 		if (! $pbOverride) $sSQL = "INSERT INTO :t VALUES (?, ?, ?, ?)";
 		$sSQL = str_replace(":t",$this->table, $sSQL);
 		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
-		$oStmt = $oDB->prepare($sSQL);
-		//cDebug::extra_debug("SQL: $sSQL");				
+		$oStmt = $oSQL->prepare($sSQL);
 		$oStmt->bindValue(1, $this->realm);
 		$oStmt->bindValue(2, $sHash);
 		$oStmt->bindValue(3, cGzip::encode($pvAnything));
 		$oStmt->bindValue(4, date('d-m-Y H:i:s'));
-		$oResult = $oStmt->execute();
+		$oResultSet = $oSQL->exec_stmt($oStmt);
 		
 		cDebug::leave();		
 	}
@@ -265,13 +227,11 @@ class cOBjStoreDB{
 	//********************************************************************************
 	public function get($psKey, $pbCheckExpiration = false){
 		cDebug::enter();
-		self::pr_check_for_db();
 		$this->pr_check_realm();
 		
 		//read from the database and decompress
 		$sHash = cHash::hash($psKey);
-		$oDB = self::$database;
-		//cDebug::extra_debug("hash: $sHash");
+		$oSQL = self::$oSQLite;
 		
 		$sSQL = "SELECT :r,:c,:d FROM :t where :r=? AND :h=?";
 		$sSQL = str_replace(":t",$this->table, $sSQL);
@@ -281,19 +241,20 @@ class cOBjStoreDB{
 		$sSQL = str_replace(":d",self::COL_DATE, $sSQL);
 		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
 		
-		$oStmt = $oDB->prepare($sSQL);
+		$oStmt = $oSQL->prepare($sSQL);
 		$oStmt->bindValue(1, $this->realm);
 		$oStmt->bindValue(2, $sHash);
-		$oResultSet = $oStmt->execute();
-		$aResult = $oResultSet->fetchArray();
-		//cDebug::vardump($aResult);
-		
+		$oResultSet = $oSQL->exec_stmt($oStmt);
+		if ($oResultSet == null){
+			cDebug::leave();		
+			return null;
+		}
+
 		$vResult = null;
+		$aResult = $oResultSet->fetchArray();
 		if (is_array($aResult)){	
 			$sEncoded = $aResult[1];
-			//cDebug::extra_debug("found Encoded: $sEncoded");				
 			$vResult = cGzip::decode($sEncoded);
-			//cDebug::vardump($vResult);
 			
 			if ($pbCheckExpiration){
 				$sItemDate= $aResult[2]; //this is a string
@@ -317,8 +278,8 @@ class cOBjStoreDB{
 	//********************************************************************************
 	public function kill($psKey){
 		cDebug::enter();
-		self::pr_check_for_db();
 		$this->pr_check_realm();
+		$oSQL = self::$oSQLite;
 		
 		//read from the database and decompress
 		$sHash = cHash::hash($psKey);
@@ -331,13 +292,14 @@ class cOBjStoreDB{
 		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
 		cDebug::extra_debug("SQL: $sSQL");				
 		
-		$oStmt = $oDB->prepare($sSQL);
+		$oStmt = $oSQL->prepare($sSQL);
 		$oStmt->bindValue(1, $this->realm);
 		$oStmt->bindValue(2, $sHash);
-		$oResultSet = $oStmt->execute();
+		$oResultSet = $oSQL->exec_stmt($oStmt);
 		
 		cDebug::leave();		
 	}
+	
 	
 		
 }
