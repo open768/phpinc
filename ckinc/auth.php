@@ -12,9 +12,20 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 **************************************************************************/
 require_once "$phpinc/ckinc/facebook.php";
 require_once "$phpinc/ckinc/header.php";
+require_once("$phpinc/ckinc/objstoredb.php");
 
 class cAuth{
 	const ROLES_FOLDER = "[roles]";
+	static $oObjStore = null;
+
+	static function pr_init_objstore(){
+		if (!self::$oObjStore){
+			$oStore = new cObjStoreDB();
+			$oStore->realm = "AUTH";
+			$oStore->set_table("AUTH");
+			self::$oObjStore = $oStore;
+		}
+	}
 	
 	//**********************************************************
 	public static function get_user(){
@@ -36,12 +47,12 @@ class cAuth{
 		
 	//**********************************************************
 	public static function add_to_role($psUserID, $psRole){
-		$aRoleDetails = cObjStore::get_file(self::ROLES_FOLDER, $psRole);
+		$aRoleDetails = self::$oObjStore->get_oldstyle(self::ROLES_FOLDER, $psRole);
 		if (!$aRoleDetails) $aRoleDetails = [];
 		if (! isset( $aRoleDetails[ $psUserID])){
 			cDebug::write("Adding $psUserID to role $psRole");
 			$aRoleDetails[$psUserID] = true;
-			cObjStore::put_file(self::ROLES_FOLDER, $psRole,$aRoleDetails );
+			self::$oObjStore->put_oldstyle(self::ROLES_FOLDER, $psRole,$aRoleDetails );
 		}
 	}
 	
@@ -58,7 +69,7 @@ class cAuth{
 			return false;
 		}
 
-		$aRoleDetails = cObjStore::get_file(self::ROLES_FOLDER, $psRole);
+		$aRoleDetails = self::$oObjStore->get_oldstyle(self::ROLES_FOLDER, $psRole);
 		if (!$aRoleDetails){
 			cDebug::write("role '$psRole' is not known");
 			cDebug::leave();
@@ -83,4 +94,6 @@ class cAuth{
 	}
 	
 }
+cAuth::pr_init_objstore();
+
 ?>
