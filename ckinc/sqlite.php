@@ -11,12 +11,67 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
 // for sql errors see - 
 **************************************************************************/
-const SQLITE_LOCKED = 6;
-const SQLITE_BUSY = 5;
 
+//#############################################################################
+//#
+//#############################################################################
+abstract class cSQLAction{
+	public $sActionType;
+	public function __construct($psActionType){
+		$this->sActionType = $psActionType;
+	}
+	public abstract function execute( SQLite3 $oDB);
+}
+
+class cSQLPrepareAction extends cSQLAction{
+	private $sSQL;
+	public function __construct(string $psSQL){
+		parent::__construct("prepare");
+		$this->sSQL = $psSQL;
+	}
+	public function execute(SQLite3 $oDB){
+		cDebug::enter();
+		$oResultset = $oDB->prepare($this->sSQL);
+		cDebug::leave();
+		return $oResultset;
+	}
+}
+class cSQLQueryAction extends cSQLAction{
+	private $sSQL;
+	public function __construct(string $psSQL){
+		parent::__construct("query");
+		$this->sSQL = $psSQL;
+	}
+	public function execute(SQLite3 $oDB){
+		cDebug::enter();
+		$oResultset = $oDB->query($this->sSQL);
+		cDebug::leave();
+		return $oResultset;
+	}
+}
+class cSQLExecStmtAction extends cSQLAction{
+	private $oStmt;
+	public function __construct($poStmt){
+		parent::__construct("ExecStmt");
+		$this->oStmt = $poStmt;
+	}
+	public function execute(SQLite3 $oDB){
+		cDebug::enter();
+		if ($this->oStmt == null) cDebug::error("null statement");
+		$oResultset = $this->oStmt->Execute();
+		cDebug::leave();
+		return $oResultset;
+	}
+}
+
+//#############################################################################
+//#
+//#############################################################################
 class  cSqlLite {
 	const DB_folder = "[db]";
-	const SQL_RETRY_DELAY = 50;
+	const RETRY_DELAY = 100;
+	const SQLITE_LOCKED = 6;
+	const SQLITE_BUSY = 5;
 	
 	private $rootFolder = null;
 	public $dbname = null;
@@ -26,19 +81,23 @@ class  cSqlLite {
 	//#####################################################################
 	//# constructor
 	//#####################################################################
-	function __construct($psDB) {
+	function __construct(string $psDB) {
 		global $root;
+		cDebug::enter();
+
 		//cDebug::extra_debug("SQLLIte version:");
 		//cDebug::vardump(SQLite3::version());
 		$this->db_filename = $psDB;
 		$this->rootFolder = "$root/[db]";
 		$this->pr_check_for_db($psDB);
+		
+		cDebug::leave();
 	}
 
 	//#####################################################################
 	//# PRIVATES
 	//#####################################################################
-	private function pr_check_for_db($psDB){
+	private function pr_check_for_db(string $psDB){
 		global $root;
 		//cDebug::enter();
 		if ($this->database == null ){
@@ -65,6 +124,49 @@ class  cSqlLite {
 
 		//cDebug::leave();
 	}
+	
+	//********************************************************************************
+	//removed repeated code to handle SQL busy or locked
+	private function pr_do_action( cSQLAction $poAction){
+		$bRetryAction = true;
+		$iRetryCount=0;
+		$oResultSet=null;
+		cDebug::enter();
+		
+		$oDB = $this->database;
+		while($bRetryAction){
+			$iErr = 0;
+			try{
+				$oResultSet = $poAction->execute($oDB);
+				if ($oResultSet == null) {
+					$iErr = $oDB->lastErrorCode();
+				}else
+					$bRetryAction=false;
+			}catch(Exception $e){
+				$iErr = $oDB->lastErrorCode();
+			}
+			
+			switch($iErr){
+				case 0:
+					break;
+				case self::SQLITE_LOCKED:
+				case self::SQLITE_BUSY:
+					if ($iRetryCount<3){
+						$iRetryCount ++;
+						$bRetryAction=true;
+						usleep(self::RETRY_DELAY);
+					}else
+						throw new Exception("Database locked - $poAction->sActionType given up after 3 tries");
+					break;
+				default:
+					throw new Exception ("SQL Error : $iErr");
+			}
+		}
+		
+		cDebug::leave();		
+		return $oResultSet;
+	}
+	
 
 	//#####################################################################
 	//# PUBLICS
@@ -86,114 +188,28 @@ class  cSqlLite {
 	
 	//********************************************************************************
 	public function prepare($psSQL){
-		$bRetryOnLock = true;
-		$iRetryCount=0;
-		$oResult=null;
 		cDebug::enter();
-		
-		if ($psSQL == null) cDebug::error("null SQL");
-		if (!strpos($psSQL,"?")) cDebug::error("SQL unsuitable for prepare: $psSQL");
-		
-		$oDB = $this->database;
-		cDebug::extra_debug("SQL: $psSQL");
-		while($bRetryOnLock){
-			try{
-				$oResult = $oDB->prepare($psSQL);
-				$bRetryOnLock=false;
-			}catch(Exception $e){
-				$iErr = $oDB->lastErrorCode();
-				
-				switch($iErr){
-					case SQLITE_LOCKED:
-					case SQLITE_BUSY:
-						if ($bRetryOnLock && $iRetryCount<3){
-							$iRetryCount ++;
-							$bRetryOnLock=false;
-							usleep(self::SQL_RETRY_DELAY);
-						}else
-							throw new Exception("Database locked - prepare given up after 3 tries");
-						break;
-					default:
-						throw new Exception ("SQL Error : $iErr");
-				}
-			}
-		}
-		
-		if ($oResult == null) cDebug::error("null statement for: $psSQL");
-		cDebug::leave();		
-		return $oResult;
+		$oAction = new cSQLPrepareAction($psSQL);
+		$oResultSet = $this->pr_do_action($oAction);
+		cDebug::leave();	
+		return $oResultSet;
 	}
 	//********************************************************************************
 	public function query($psSQL){
-		$bRetryOnLock = true;
-		$iRetryCount=0;
-		$oResult=null;
 		cDebug::enter();
-		
-		if ($psSQL == null) cDebug::error("null SQL");
-		
-		$oDB = $this->database;
-		cDebug::extra_debug("SQL: $psSQL");
-		while($bRetryOnLock){
-			try{
-				$oResult = $oDB->query($psSQL);
-				$bRetryOnLock=false;
-			}catch(Exception $e){
-				$iErr = $oDB->lastErrorCode();
-				
-				switch($iErr){
-					case SQLITE_LOCKED:
-					case SQLITE_BUSY:
-						if ($bRetryOnLock && $iRetryCount<3){
-							$iRetryCount ++;
-							$bRetryOnLock=false;
-							usleep(self::SQL_RETRY_DELAY);
-						}else
-							throw new Exception("Database locked - prepare given up after 3 tries");
-						break;
-					default:
-						throw new Exception ("SQL Error : $iErr");
-				}
-			}
-		}
-		cDebug::leave();		
-		return $oResult;
+		$oAction = new cSQLQueryAction($psSQL);
+		$oResultSet = $this->pr_do_action($oAction);
+		cDebug::leave();	
+		return $oResultSet;
 	}
 	
 	//********************************************************************************
 	public function exec_stmt($poStmt){
-		$bRetryOnLock = true;
-		$iRetryCount=0;
-		$oResult=null;
 		cDebug::enter();
-		if ($poStmt == null) cDebug::error("null statement");
-		
-		$oDB = $this->database;
-		while($bRetryOnLock){
-			try{
-				$oResult = $poStmt->execute();
-				$bRetryOnLock=false;
-			}catch(Exception $e){
-				$iErr = $oDB->lastErrorCode();
-				
-				switch($iErr){
-					case SQLITE_LOCKED:
-					case SQLITE_BUSY:
-						if ($bRetryOnLock && $iRetryCount<3){
-							$iRetryCount ++;
-							$bRetryOnLock=false;
-							usleep(self::SQL_RETRY_DELAY);
-						}else
-							throw new Exception("Database locked - prepare given up after 3 tries");
-						break;
-					default:
-						throw new Exception ("SQL Error : $iErr");
-				}
-			}
-		}
-		
+		$oAction = new cSQLExecStmtAction($poStmt);
+		$oResultSet = $this->pr_do_action($oAction);
 		cDebug::leave();		
-		return $oResult;
+		return $oResultSet;
 	}
 	
 }
