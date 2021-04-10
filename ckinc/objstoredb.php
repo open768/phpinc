@@ -57,9 +57,11 @@ class cOBjStoreDB{
 		cDebug::enter();
 		$this->table = self::TABLE_NAME;
 		if (self::$oSQLite == null){
+			cDebug::extra_debug("creating cSqlLite instance");
 			self::$oSQLite = new cSqlLite(self::DB_FILENAME);
 			$this->pr_create_table();
-		}
+		}else
+			cDebug::extra_debug(" cSqlLite instance exists");
 		cDebug::leave();
     }
 	
@@ -79,7 +81,7 @@ class cOBjStoreDB{
 		$sSQL = str_replace(":t",$this->table, $sSQL);
 		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
 		$oResultSet = $oSQL->query($sSQL);
-		if ($oResultSet == null)
+		if ($oResultSet == null) cDebug::error("null response: $sSQL");
 			
 		if ($oResultSet->fetchArray() !== null){
 			cDebug::extra_debug("table does exist");				
