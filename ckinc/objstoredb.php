@@ -58,7 +58,8 @@ class cOBjStoreDB{
 		$this->table = self::TABLE_NAME;
 		if (self::$oSQLite == null){
 			cDebug::extra_debug("creating cSqlLite instance");
-			self::$oSQLite = new cSqlLite(self::DB_FILENAME);
+			$oDB = new cSqlLite(self::DB_FILENAME);
+			self::$oSQLite = $oDB;
 			$this->pr_create_table();
 		}else
 			cDebug::extra_debug(" cSqlLite instance exists");

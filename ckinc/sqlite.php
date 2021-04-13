@@ -69,7 +69,9 @@ class cSQLExecStmtAction extends cSQLAction{
 //#############################################################################
 class  cSqlLite {
 	const DB_folder = "[db]";
-	const RETRY_DELAY = 100;
+	const RETRY_DELAY = 300;
+	const BUSY_TIMEOUT = 1000;
+	const NRETRIES = 4;
 	const SQLITE_LOCKED = 6;
 	const SQLITE_BUSY = 5;
 	
@@ -120,6 +122,7 @@ class  cSqlLite {
 			cDebug::extra_debug("database opened");				
 			$this->database = $oDB ;
 			$oDB->enableExceptions(true);
+			$oDB->busyTimeout(self::BUSY_TIMEOUT);
 		}
 
 		//cDebug::leave();
@@ -151,7 +154,7 @@ class  cSqlLite {
 					break;
 				case self::SQLITE_LOCKED:
 				case self::SQLITE_BUSY:
-					if ($iRetryCount<3){
+					if ($iRetryCount< self::NRETRIES){
 						$iRetryCount ++;
 						$bRetryAction=true;
 						usleep(self::RETRY_DELAY);
