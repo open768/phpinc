@@ -139,6 +139,7 @@ class  cSqlLite {
 		$oDB = $this->database;
 		while($bRetryAction){
 			$iErr = 0;
+			$sErr = null;
 			try{
 				$oResultSet = $poAction->execute($oDB);
 				if ($oResultSet == null) {
@@ -147,6 +148,7 @@ class  cSqlLite {
 					$bRetryAction=false;
 			}catch(Exception $e){
 				$iErr = $oDB->lastErrorCode();
+				$sErr = $oDB->lastErrorMsg();
 			}
 			
 			switch($iErr){
@@ -159,10 +161,10 @@ class  cSqlLite {
 						$bRetryAction=true;
 						usleep(self::RETRY_DELAY);
 					}else
-						throw new Exception("Database locked - $poAction->sActionType given up after 3 tries");
+						throw new Exception("Database locked - $poAction->sActionType given up after ".self::NRETRIES."tries");
 					break;
 				default:
-					throw new Exception ("SQL Error : $iErr");
+					throw new Exception ("SQL Error : code=$iErr, msg=$sErr");
 			}
 		}
 		

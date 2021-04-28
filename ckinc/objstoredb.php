@@ -30,7 +30,7 @@ require_once("$phpinc/ckinc/sqlite.php");
 class cOBjStoreDB{
 	private static $warned_oldstyle = false;
 	private static $database = null; //static as same database obj used between instances
-	public static $SHOW_SQL = false;
+	public $SHOW_SQL = false;
 	
 	private static $oSQLite = null;
 	public $rootFolder = null;
@@ -80,12 +80,14 @@ class cOBjStoreDB{
 		cDebug::extra_debug("checking table exists");				
 		$sSQL = 'SELECT name FROM sqlite_master WHERE name=":t"';
 		$sSQL = str_replace(":t",$this->table, $sSQL);
-		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
+		if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 		$oResultSet = $oSQL->query($sSQL);
 		if ($oResultSet == null) cDebug::error("null response: $sSQL");
 			
-		if ($oResultSet->fetchArray() !== null){
+		$aResults = $oResultSet->fetchArray();
+		if ( $aResults ){
 			cDebug::extra_debug("table does exist");				
+			//cDebug::vardump($aResults); //DEBUG
 			cDebug::leave();
 			return;
 		}
@@ -98,7 +100,7 @@ class cOBjStoreDB{
 		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
 		$sSQL = str_replace(":c",self::COL_CONTENT, $sSQL);
 		$sSQL = str_replace(":d",self::COL_DATE, $sSQL);		
-		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
+		if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 
 		$oStmt = $oSQL->query($sSQL);
 		cDebug::extra_debug("table created");				
@@ -213,10 +215,14 @@ class cOBjStoreDB{
 		$oDB = self::$database;
 		//cDebug::extra_debug("hash: $sHash");
 		
-		$sSQL = "INSERT OR REPLACE INTO :t VALUES (?, ?, ?, ?)";
-		if (! $pbOverride) $sSQL = "INSERT INTO :t VALUES (?, ?, ?, ?)";
+		$sSQL = "REPLACE INTO :t (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
+		if (! $pbOverride) $sSQL = "INSERT INTO :t (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
 		$sSQL = str_replace(":t",$this->table, $sSQL);
-		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
+		$sSQL = str_replace(":r",self::COL_REALM, $sSQL);
+		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
+		$sSQL = str_replace(":c",self::COL_CONTENT, $sSQL);
+		$sSQL = str_replace(":d",self::COL_DATE, $sSQL);
+		if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 		$oStmt = $oSQL->prepare($sSQL);
 		$oStmt->bindValue(1, $this->realm);
 		$oStmt->bindValue(2, $sHash);
@@ -242,7 +248,7 @@ class cOBjStoreDB{
 		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
 		$sSQL = str_replace(":c",self::COL_CONTENT, $sSQL);
 		$sSQL = str_replace(":d",self::COL_DATE, $sSQL);
-		if (self::$SHOW_SQL) cDebug::extra_debug($sSQL);
+		if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 		
 		$oStmt = $oSQL->prepare($sSQL);
 		$oStmt->bindValue(1, $this->realm);

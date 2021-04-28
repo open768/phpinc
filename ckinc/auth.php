@@ -19,17 +19,21 @@ class cAuth{
 	static $oObjStore = null;
 
 	static function pr_init_objstore(){
-		if (!self::$oObjStore){
+		cDebug::enter();
+		if (self::$oObjStore == null){
 			$oStore = new cObjStoreDB();
 			$oStore->realm = "AUTH";
-			$oStore->set_table("AUTH");
+			//$oStore->SHOW_SQL = true; //DEBUG
+			$oStore->set_table("CKAUTH");	//possibly auth is a reserved name
 			self::$oObjStore = $oStore;
 		}
+		cDebug::leave();
 	}
 	
 	//**********************************************************
 	public static function get_user(){
 		cDebug::enter();
+
 		$sUser = cFacebook_ServerSide::getSessionUser();
 		cDebug::write("user is $sUser");
 		cDebug::leave();
@@ -47,12 +51,13 @@ class cAuth{
 		
 	//**********************************************************
 	public static function add_to_role($psUserID, $psRole){
-		$aRoleDetails = self::$oObjStore->get_oldstyle(self::ROLES_FOLDER, $psRole);
+		$oObjStore = self::$oObjStore;
+		$aRoleDetails = $oObjStore->get_oldstyle(self::ROLES_FOLDER, $psRole);
 		if (!$aRoleDetails) $aRoleDetails = [];
 		if (! isset( $aRoleDetails[ $psUserID])){
 			cDebug::write("Adding $psUserID to role $psRole");
 			$aRoleDetails[$psUserID] = true;
-			self::$oObjStore->put_oldstyle(self::ROLES_FOLDER, $psRole,$aRoleDetails );
+			$oObjStore->put_oldstyle(self::ROLES_FOLDER, $psRole,$aRoleDetails );
 		}
 	}
 	
@@ -60,6 +65,7 @@ class cAuth{
 	public static function is_role( $psRole){
 		global $root;
 		cDebug::enter();
+		$oObjStore = self::$oObjStore;
 		
 		//check whether this role is in the list of roles that the user has.
 		$sUserID = self::get_user_id();
@@ -69,7 +75,7 @@ class cAuth{
 			return false;
 		}
 
-		$aRoleDetails = self::$oObjStore->get_oldstyle(self::ROLES_FOLDER, $psRole);
+		$aRoleDetails = $oObjStore->get_oldstyle(self::ROLES_FOLDER, $psRole);
 		if (!$aRoleDetails){
 			cDebug::write("role '$psRole' is not known");
 			cDebug::leave();
