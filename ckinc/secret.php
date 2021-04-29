@@ -25,6 +25,7 @@ class cSecret{
 	const GOOGLE_TRACKING_ID = "UA-51550338-1";
 	const GOOGLE_ANALYTICS_ID = "GTM-TPJNTX";
 	const NASA_OPEN_MARS_API_KEY = "jDeinkexXcfc58NAte5iObILNQj1jZOyCaKFgVXd";
+	const APPD_KEY = "AD-AAB-ABD-JXD";
 }
 
 ?>
