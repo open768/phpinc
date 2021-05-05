@@ -18,4 +18,4 @@ phpshell/
 phpminify/
 php-openssl-crypt/
 appdynamics/secret.php
-phpinc/ckinc/secret.php
+ckinc/secret.php
