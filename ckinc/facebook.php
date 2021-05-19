@@ -98,9 +98,9 @@ class cFacebook_ServerSide{
 	public static function getAppID(){
 		if (cHeader::is_localhost()){
 			cDebug::write("using development credentials for localhost");
-			return ["I"=>cSecret::FB_DEV_APP, "S"=>cSecret::FB_DEV_SECRET];
+			return ["I"=>cSecret::$FB_DEV_APP, "S"=>cSecret::$FB_DEV_SECRET];
 		}else
-			return  ["I"=>cSecret::FB_APP, "S"=>cSecret::FB_SECRET];
+			return  ["I"=>cSecret::$FB_APP, "S"=>cSecret::$FB_SECRET];
 	}
 	
 	//*******************************************************************
