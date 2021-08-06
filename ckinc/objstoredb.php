@@ -29,10 +29,9 @@ require_once("$phpinc/ckinc/sqlite.php");
 // THIS IS A WORK IN PROGRESS objstoredb is not being used
 class cOBjStoreDB{
 	private static $warned_oldstyle = false;
-	private static $database = null; //static as same database obj used between instances
 	public $SHOW_SQL = false;
 	
-	private static $oSQLite = null;
+	private static $oSQLite = null; //static as same database obj used between instances
 	public $rootFolder = null;
 	public $realm = null;
 	public $check_expiry = false;
@@ -128,7 +127,7 @@ class cOBjStoreDB{
 	}
 	
 	//#####################################################################
-	//# PUBLICS - OLD STYLE - to be deprecated
+	//# PUBLICS - OLD STYLE - to be deprecated after everything is migrated
 	//#####################################################################
 	//********************************************************************************
 	public function put_oldstyle($psFolder, $psFile, $poData){
@@ -142,7 +141,14 @@ class cOBjStoreDB{
 	}
 	
 	//********************************************************************************
-	public function put_array_oldstyle($psFolder, $psFile, $poData){
+	// this is a really dumb function - this will not scale when there are thousands of users
+	// problem is every user will pull and push data needlessly into the database
+	//what should happen is that 
+	//		there is a count stored for this object, 
+	//		a mutex used to increase that count, ( this needs to be protected)
+	//		the count used as part of the key to store the data
+	//there should be an equivalent function to read an array.
+	public function add_to_array_oldstyle($psFolder, $psFile, $poData){
 		cDebug::enter();
 		
 		self::pr_warn_deprecated();
@@ -212,7 +218,6 @@ class cOBjStoreDB{
 		
 		//write the compressed string to the database
 		$sHash = cHash::hash($psKey);
-		$oDB = self::$database;
 		//cDebug::extra_debug("hash: $sHash");
 		
 		$sSQL = "REPLACE INTO :t (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
@@ -292,7 +297,6 @@ class cOBjStoreDB{
 		
 		//read from the database and decompress
 		$sHash = cHash::hash($psKey);
-		$oDB = self::$database;
 		cDebug::extra_debug("hash: $sHash");
 		
 		$sSQL = "DELETE from :t where :r=? AND :h=?";

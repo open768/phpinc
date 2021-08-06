@@ -112,7 +112,11 @@ class cFacebook_ServerSide{
 		//store the details
 		self::$oObjStore->put_oldstyle(self::FB_USER_FOLDER,$psUserID, $poData);
 		
-		//add to list of FB users
+		//add to list of FB users 
+		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		//%this is not scalable imagine if there were thousands of users - it would kill the PHP server 
+		//%TBD to find a better way of working with arrays.
+		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		$aFBUsers = self::$oObjStore->get_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS);
 		if (!$aFBUsers) $aFBUsers = [];
 		$aFBUsers[$psUserID] = 1;

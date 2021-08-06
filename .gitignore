@@ -9,6 +9,7 @@ test/
 
 # project files
 \[backup\]/
+appd/
 facebook/
 sbbcode/
 phpquery/Google Code Archive - Long-term storage for Google Code Project Hosting-.url
@@ -17,5 +18,5 @@ pubsub/
 phpshell/
 phpminify/
 php-openssl-crypt/
-appdynamics/secret.php
-ckinc/secret.php
+space/
+secret.php

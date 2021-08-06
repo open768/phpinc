@@ -1,6 +1,6 @@
 <?php
 $phpinc = realpath("$root/../phpinc");
-$spaceinc = realpath("$root/../spaceinc");
+$spaceinc = realpath("$phpinc/space");
 
 require_once("$phpinc/ckinc/debug.php");
 
