@@ -43,9 +43,9 @@ class cSQLQueryAction extends cSQLAction{
 		$this->sSQL = $psSQL;
 	}
 	public function execute(SQLite3 $oDB){
-		cDebug::enter();
+		//cDebug::enter();
 		$oResultset = $oDB->query($this->sSQL);
-		cDebug::leave();
+		//cDebug::leave();
 		return $oResultset;
 	}
 }
@@ -56,10 +56,10 @@ class cSQLExecStmtAction extends cSQLAction{
 		$this->oStmt = $poStmt;
 	}
 	public function execute(SQLite3 $oDB){
-		cDebug::enter();
+		//cDebug::enter();
 		if ($this->oStmt == null) cDebug::error("null statement");
 		$oResultset = $this->oStmt->Execute();
-		cDebug::leave();
+		//cDebug::leave();
 		return $oResultset;
 	}
 }
@@ -85,7 +85,7 @@ class  cSqlLite {
 	//#####################################################################
 	function __construct(string $psDB) {
 		global $root;
-		cDebug::enter();
+		//cDebug::enter();
 
 		//cDebug::extra_debug("SQLLIte version:");
 		//cDebug::vardump(SQLite3::version());
@@ -93,7 +93,7 @@ class  cSqlLite {
 		$this->rootFolder = "$root/[db]";
 		$this->pr_check_for_db($psDB);
 		
-		cDebug::leave();
+		//cDebug::leave();
 	}
 
 	//#####################################################################
@@ -134,7 +134,7 @@ class  cSqlLite {
 		$bRetryAction = true;
 		$iRetryCount=0;
 		$oResultSet=null;
-		cDebug::enter();
+		//cDebug::enter();
 		
 		$oDB = $this->database;
 		while($bRetryAction){
@@ -168,7 +168,7 @@ class  cSqlLite {
 			}
 		}
 		
-		cDebug::leave();		
+		//cDebug::leave();		
 		return $oResultSet;
 	}
 	
@@ -193,27 +193,27 @@ class  cSqlLite {
 	
 	//********************************************************************************
 	public function prepare($psSQL){
-		cDebug::enter();
+		//cDebug::enter();
 		$oAction = new cSQLPrepareAction($psSQL);
 		$oResultSet = $this->pr_do_action($oAction);
-		cDebug::leave();	
+		//cDebug::leave();	
 		return $oResultSet;
 	}
 	//********************************************************************************
 	public function query($psSQL){
-		cDebug::enter();
+		//cDebug::enter();
 		$oAction = new cSQLQueryAction($psSQL);
 		$oResultSet = $this->pr_do_action($oAction);
-		cDebug::leave();	
+		//cDebug::leave();	
 		return $oResultSet;
 	}
 	
 	//********************************************************************************
 	public function exec_stmt($poStmt){
-		cDebug::enter();
+		//cDebug::enter();
 		$oAction = new cSQLExecStmtAction($poStmt);
 		$oResultSet = $this->pr_do_action($oAction);
-		cDebug::leave();		
+		//cDebug::leave();		
 		return $oResultSet;
 	}
 	

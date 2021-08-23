@@ -44,6 +44,7 @@ class cHttp{
 		cDebug::enter();
 		$response = $this->fetch_url($psURL);
 		$oResponse = json_decode($response);
+		
 		cDebug::leave();
 		
 		return $oResponse;
@@ -72,11 +73,12 @@ class cHttp{
 	}
 	
 	public function fetch_to_file($psUrl, $psPath, $pbOverwrite=false, $piTimeOut=60, $pbGzip=false){
-		cDebug::extra_debug(__CLASS__.".".__FUNCTION__);
+		cDebug::enter();
 		if ($this->USE_CURL)
 			return $this->pr__fetch_curl_to_file($psUrl, $psPath, $pbOverwrite, $piTimeOut, $pbGzip);
 		else
 			cDebug::error("non Curl fetch file not implemented");
+		cDebug::leave();
 	}
 		
 	//*****************************************************************************
@@ -91,6 +93,7 @@ class cHttp{
 	public function fetch_large_url($psUrl, $psFilename, $pbOverwrite=false)
 	{
 		global $root;
+		cDebug::enter();
 		
 		//check the folder is there
 		$sDir = "$root/".$this->LARGE_URL_DIR;
@@ -101,7 +104,10 @@ class cHttp{
 		
 		$sPath = $this->large_url_path($psFilename);
 		$this->show_progress = true;
-		return $this->fetch_to_file($psUrl, $sPath, $pbOverwrite, 600);
+		$sFilename = $this->fetch_to_file($psUrl, $sPath, $pbOverwrite, 600);
+		cDebug::leave();
+		return $sFilename;
+		
 	}
 	
 	//############################################################################
@@ -110,7 +116,7 @@ class cHttp{
 	private function pr__fetch_basic_url($psUrl , $pbAllowNull = true){
 		global $http_response_header;
 		
-		cDebug::enter();
+		//cDebug::enter();
 		$sHTML = null;
 
 		$oContext = null;
@@ -139,9 +145,9 @@ class cHttp{
 		$aHttpContext["header"] =  $sHeader;
 		$aContext["http"] = $aHttpContext;
 		//cDebug::vardump($aContext);
-		cDebug::enter("stream_context_create");
+		//cDebug::enter("stream_context_create");
 		$oContext = stream_context_create($aContext);
-		cDebug::leave("stream_context_create");
+		//cDebug::leave("stream_context_create");
 
 		//********************************************************************
 		try{
@@ -167,7 +173,7 @@ class cHttp{
 		if ($sHTML == null && !$pbAllowNull)
 			cDebug::error("null response received : ");
 		
-		cDebug::leave();
+		//cDebug::leave();
 		return $sHTML;
 	}
 	
@@ -219,7 +225,7 @@ class cHttp{
 	//#
 	//############################################################################
 	private function pr__curl_init($psUrl){
-		cDebug::enter();
+		//cDebug::enter();
 
 		$oCurl = new cCurl($psUrl);	
 		$oCurl->setopt( CURLOPT_URL, $psUrl);
@@ -263,7 +269,7 @@ class cHttp{
 			$oCurl->setopt( CURLOPT_CAPATH, $sCertPath); //broken
 		}
 		
-		cDebug::leave();
+		//cDebug::leave();
 		return $oCurl;
 	}
 	
@@ -283,12 +289,12 @@ class cHttp{
 	private function pr__fetch_curl_url($psUrl){
 		global $root;
 		
-		cDebug::enter();
+		//cDebug::enter();
 
 		$oCurl = $this->pr__curl_init($psUrl);	
 		return  $oCurl->exec();
 		
-		cDebug::leave();	
+		//cDebug::leave();	
 	}
 	
 	//*****************************************************************************

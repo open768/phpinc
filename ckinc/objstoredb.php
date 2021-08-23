@@ -53,7 +53,7 @@ class cOBjStoreDB{
 	//#####################################################################
     function __construct() {
 		global $root;
-		cDebug::enter();
+		//cDebug::enter();
 		$this->table = self::TABLE_NAME;
 		if (self::$oSQLite == null){
 			cDebug::extra_debug("creating cSqlLite instance");
@@ -62,7 +62,7 @@ class cOBjStoreDB{
 			$this->pr_create_table();
 		}else
 			cDebug::extra_debug(" cSqlLite instance exists");
-		cDebug::leave();
+		//cDebug::leave();
     }
 	
 	
@@ -71,7 +71,7 @@ class cOBjStoreDB{
 	//#####################################################################
 	
 	private function pr_create_table(){
-		cDebug::enter();
+		//cDebug::enter();
 		$oSQL = self::$oSQLite;
 		
 		
@@ -87,7 +87,7 @@ class cOBjStoreDB{
 		if ( $aResults ){
 			cDebug::extra_debug("table does exist");				
 			//cDebug::vardump($aResults); //DEBUG
-			cDebug::leave();
+			//cDebug::leave();
 			return;
 		}
 		
@@ -110,7 +110,7 @@ class cOBjStoreDB{
 		$oObj = new cOBjStoreDB();
 		$oObj->realm = self::OBJSTORE_REALM;
 		$oObj->put( self::OBJSTORE_CREATE_KEY, $sNow);
-		cDebug::leave();
+		//cDebug::leave();
 	}
 	
 	//********************************************************************************
@@ -131,13 +131,13 @@ class cOBjStoreDB{
 	//#####################################################################
 	//********************************************************************************
 	public function put_oldstyle($psFolder, $psFile, $poData){
-		cDebug::enter();
+		//cDebug::enter();
 		self::pr_warn_deprecated();
 		
 		$this->pr_check_realm();
 		$sFullpath = $psFolder . "/" . $psFile;
 		$this->put($sFullpath, $poData);
-		cDebug::leave();		
+		//cDebug::leave();		
 	}
 	
 	//********************************************************************************
@@ -149,7 +149,7 @@ class cOBjStoreDB{
 	//		the count used as part of the key to store the data
 	//there should be an equivalent function to read an array.
 	public function add_to_array_oldstyle($psFolder, $psFile, $poData){
-		cDebug::enter();
+		//cDebug::enter();
 		
 		self::pr_warn_deprecated();
 		$sFullpath = $psFolder . "/" . $psFile;
@@ -158,12 +158,12 @@ class cOBjStoreDB{
 		$aData[] = $poData; //add to the array
 		$this->put($sFullpath,$aData,true);
 		cDebug::leave();		
-		return $aData;
+		//return $aData;
 	}
 	
 	//********************************************************************************
 	public function get_oldstyle($psFolder, $psFile){
-		cDebug::enter();
+		//cDebug::enter();
 		
 		self::pr_warn_deprecated();
 		$this->pr_check_realm();
@@ -181,7 +181,7 @@ class cOBjStoreDB{
 			$oData = $this->get($sFullpath);
 		}
 		
-		cDebug::leave();		
+		//cDebug::leave();		
 		return $oData;
 	}
 	
@@ -200,19 +200,19 @@ class cOBjStoreDB{
 	//#####################################################################
 	
 	public function set_table($psTable){
-		cDebug::enter();
+		//cDebug::enter();
 
 		if ($this->table !== $psTable){
 			$this->table = $psTable;
 			$this->pr_create_table();
 		}
 		
-		cDebug::leave();		
+		//cDebug::leave();		
 	}
 	
 	//********************************************************************************
 	public function put($psKey, $pvAnything, $pbOverride=true){
-		cDebug::enter();
+		//cDebug::enter();
 		$this->pr_check_realm();
 		$oSQL = self::$oSQLite;
 		
@@ -235,12 +235,12 @@ class cOBjStoreDB{
 		$oStmt->bindValue(4, date('d-m-Y H:i:s'));
 		$oResultSet = $oSQL->exec_stmt($oStmt);
 		
-		cDebug::leave();		
+		//cDebug::leave();		
 	}
 	
 	//********************************************************************************
 	public function get($psKey, $pbCheckExpiration = false){
-		cDebug::enter();
+		//cDebug::enter();
 		$this->pr_check_realm();
 		
 		//read from the database and decompress
@@ -284,7 +284,7 @@ class cOBjStoreDB{
 			}
 		}
 		
-		cDebug::leave();		
+		//cDebug::leave();		
 		return $vResult;
 	}
 

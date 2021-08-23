@@ -18,6 +18,14 @@ class cSession{
 	}
 	
 	//*******************************************************************
+	public static function clear_session(){
+		cDebug::enter();
+		@session_destroy ();
+		session_start ();
+		cDebug::leave();
+	}
+	
+	//*******************************************************************
 	public static function start(){
 		cDebug::error("deprecated method called cSession::start");
 	}
@@ -38,12 +46,17 @@ class cSession{
 	}
 	//*******************************************************************
 	public static function info(){
-		if (session_status() == PHP_SESSION_NONE)
+		if (!self::is_session_started())
 			cDebug::error("no session");
 		else{
 			cDebug::write("session contents");
 			cDebug::vardump($_SESSION);
 		}
+	}
+	
+	//*******************************************************************
+	public static function is_session_started(){
+		return (session_status() === PHP_SESSION_ACTIVE);
 	}
 }
 ?>

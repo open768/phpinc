@@ -7,7 +7,10 @@ require_once("$phpinc/ckinc/debug.php");
 //----------- start the session --------------------
 require_once "$phpinc/ckinc/session.php";
 //cSession::set_folder();  //dont set the session as this folder will never be cleaned up
-session_start();
+if (!cSession::is_session_started()) {
+	cDebug::extra_debug("session status is not active - starting session:");
+	session_start();
+}
 
 
 class cHeader{

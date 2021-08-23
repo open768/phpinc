@@ -11,6 +11,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
 **************************************************************************/
+require_once("$phpinc/ckinc/session.php");
 
 class cDebug{
 	private static $DEBUGGING=false;
@@ -33,6 +34,10 @@ class cDebug{
 
 		self::$DEBUGGING=true;
 		self::$EXTRA_DEBUGGING = $pbExtraDebugging;
+		if (!cSession::is_session_started()) {
+			session_start();
+			cDebug::extra_debug("session status is not active - starting session:");
+		}
 		self::write("Debugging on");
 		$aCaller = self::get_caller(1);
 		$sFunc = $aCaller['function'];
