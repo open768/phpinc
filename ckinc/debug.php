@@ -40,8 +40,10 @@ class cDebug{
 		}
 		self::write("Debugging on");
 		$aCaller = self::get_caller(1);
-		$sFunc = $aCaller['function'];
-		self::write("Caller is $sFunc");
+		if ($aCaller){
+			$sFunc = $aCaller['function'];
+			self::write("Caller is $sFunc");
+		}
 	}
 	
 	public static function off(){
