@@ -21,6 +21,7 @@ class cCommon{
 	const ENGLISH_DATE_FORMAT = "d/m/Y H:i";
 	const EXCEL_DATE_FORMAT = "Y-m-d H:i:s";
 	const RGRAPH_DATE_FORMAT = "Y-m-d\TH:i:s";
+	const UTC_DATE_FORMAT = "Y-m-d\TH:i:s\Z";
 	const MINS_IN_HOUR = 60;
 	const HOUR_IN_DAY = 24;
 	const MINS_IN_DAY = self::HOUR_IN_DAY * self::MINS_IN_HOUR;
