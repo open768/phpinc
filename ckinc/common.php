@@ -46,6 +46,17 @@ class cCommon{
 	}
 	
 	//**************************************************************************
+	public static function put_in_wbrs($psInput, $piInterval=20){
+		if (substr_count($psInput, " ") > 0)
+			return $psInput;
+		else{
+			$aSplit = str_split($psInput, $piInterval);
+			$sJoined = implode("<wbr>",$aSplit);
+			return $sJoined;
+		}
+	}
+	
+	//**************************************************************************
 	//code for following function based on http://php.net/manual/en/function.rmdir.php
 	public static function delTree($psDir) { 
 		$aFiles = array_diff(scandir($psDir), array('.','..')); 
@@ -102,7 +113,31 @@ class cCommon{
 	}
 	
 	public static function fixed_width_div($piWidth, $psContent){
-		?><div style='width:<?=$piWidth?>px;max-width:<?=$piWidth?>px;word-break:break-all'><?=$psContent?></div><?php
+		$sBroken = self::put_in_wbrs($psContent);
+		?><div style='width:<?=$piWidth?>px;max-width:<?=$piWidth?>px;'><?=$sBroken?></div><?php
+	}
+	
+	//**************************************************************************
+	public static function errorbox($psMessage){
+		?>
+			<p>
+			<div class='errorbox'>
+				<h2>Oops there was an error</h2>
+				<p>
+				<?=$psMessage?>
+			</div>
+		<?php
+		cDebug::flush();
+	}
+	//**************************************************************************
+	public static function messagebox($psMessage){
+		?>
+			<p>
+			<div class='errorbox'>
+				<?=$psMessage?>
+			</div>
+		<?php
+		cDebug::flush();
 	}
 	
 }

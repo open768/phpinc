@@ -22,6 +22,7 @@ class cDebug{
 	
 	private static $ENTER_DEPTH = 0;
 	
+	//##############################################################################
 	public static function is_debugging(){
 		return (self::$DEBUGGING || self::is_extra_debugging());
 	}
@@ -39,7 +40,7 @@ class cDebug{
 			cDebug::extra_debug("session status is not active - starting session:");
 		}
 		self::write("Debugging on");
-		$aCaller = self::get_caller(1);
+		$aCaller = self::pr_get_caller(1);
 		if ($aCaller){
 			$sFunc = $aCaller['function'];
 			self::write("Caller is $sFunc");
@@ -52,6 +53,7 @@ class cDebug{
 		self::$EXTRA_DEBUGGING = false;
 	}
 	
+	//##############################################################################
 	public static function extra_debug($poThing){
 		if (self::$EXTRA_DEBUGGING){
 			$sDate = date('d-m-Y H:i:s');
@@ -88,10 +90,10 @@ class cDebug{
 	//**************************************************************************
 	public static function error($psText){
 		try{
-			$aCaller = self::get_caller(1);
-			$sFunc = $aCaller['function'];
-			$sClass = $aCaller['class'];
-			$sLine = $aCaller['line'];
+			$aCaller = self::pr_get_caller(1);
+			$sFunc = @$aCaller['function'];
+			$sClass = @$aCaller['class'];
+			$sLine = @$aCaller['line'];
 		}
 		catch (Exception $e)
 		{}
@@ -103,7 +105,8 @@ class cDebug{
 		self::write("<b><font size='+2'color='brick'>Warning:</font></b> $psText");
 	}
 	
-	//**************************************************************************
+	
+	//##############################################################################
 	public static function check_GET_or_POST(){
 		global $_GET, $_POST, $_SERVER;
 		
@@ -130,20 +133,12 @@ class cDebug{
 			self::write("nocache option is available");
 	}
 	
-	public static function stacktrace(){
-		if (self::$EXTRA_DEBUGGING || (self::$DEBUGGING && $pbForce)){
-			echo "<pre>";
-			debug_print_backtrace();
-			echo "</pre>";
-		}else
-			self::write(__FUNCTION__." only available in debug2");
-	}
-	
+	//##############################################################################
 	public static function enter( $psOverrideName = null){
 		if (self::$EXTRA_DEBUGGING){
 			$sCaller = $psOverrideName;
 			if ($psOverrideName == null){
-				$aCaller = self::get_caller(1);
+				$aCaller = self::pr_get_caller(1);
 				$sFunc = $aCaller['function'];
 				$sClass = '';
 				if ( isset($aCaller['class'])){
@@ -157,12 +152,13 @@ class cDebug{
 		}
 	}
 
+	//**************************************************************************
 	public static function leave($psOverrideName = null){
 		if (self::$EXTRA_DEBUGGING){
-			self::$ENTER_DEPTH--;
+				
 			$sCaller = $psOverrideName;
 			if ($psOverrideName == null){
-				$aCaller = self::get_caller(1);
+				$aCaller = self::pr_get_caller(1);
 				$sFunc = $aCaller['function'];
 				$sClass = '';
 				if (isset($aCaller['class']))	{
@@ -170,11 +166,26 @@ class cDebug{
 				}
 				$sCaller = "$sClass.$sFunc";
 			}
+			self::$ENTER_DEPTH--;
+			if (self::$ENTER_DEPTH < 0) {
+				self::$ENTER_DEPTH = 0;
+				//self::warning("too many leave calls");
+			}
 			self::extra_debug("<font color='grey' face='courier' size=2>Leave &gt; $sCaller</font>");
 		}
 	}
 	
-	public static function get_caller( $piLimit=0){
+	//##############################################################################
+	private static function pr_get_caller( $piLimit=0){
 		return @debug_backtrace(0,$piLimit+2)[$piLimit+1];
+	}
+	//**************************************************************************
+	private static function pr_stacktrace(){
+		if (self::$EXTRA_DEBUGGING || (self::$DEBUGGING && $pbForce)){
+			echo "<pre>";
+			debug_print_backtrace();
+			echo "</pre>";
+		}else
+			self::write(__FUNCTION__." only available in debug2");
 	}
 }
