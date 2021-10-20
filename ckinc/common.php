@@ -121,7 +121,7 @@ class cCommon{
 	public static function errorbox($psMessage){
 		?>
 			<p>
-			<div class='errorbox'>
+			<div class='w3-panel w3-red w3-leftbar'>
 				<h2>Oops there was an error</h2>
 				<p>
 				<?=$psMessage?>
@@ -133,7 +133,7 @@ class cCommon{
 	public static function messagebox($psMessage){
 		?>
 			<p>
-			<div class='errorbox'>
+			<div class='w3-panel w3-blue w3-round-large w3-padding-16 w3-leftbar'>
 				<?=$psMessage?>
 			</div>
 		<?php

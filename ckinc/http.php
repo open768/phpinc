@@ -41,11 +41,11 @@ class cHttp{
 
 	//*****************************************************************************
 	public function getJson($psURL){
-		cDebug::enter();
+		//cDebug::enter();
 		$response = $this->fetch_url($psURL);
 		$oResponse = json_decode($response);
 		
-		cDebug::leave();
+		//cDebug::leave();
 		
 		return $oResponse;
 	}
@@ -60,7 +60,7 @@ class cHttp{
 	
 	//*****************************************************************************
 	public  function fetch_url($psUrl){
-		cDebug::enter();
+		//cDebug::enter();
 		cDebug::extra_debug($psUrl);
 		
 		if ($this->USE_CURL)
@@ -68,17 +68,17 @@ class cHttp{
 		else
 			$sHTML = $this->pr__fetch_basic_url($psUrl);
 		
-		cDebug::leave();
+		//cDebug::leave();
 		return $sHTML;
 	}
 	
 	public function fetch_to_file($psUrl, $psPath, $pbOverwrite=false, $piTimeOut=60, $pbGzip=false){
-		cDebug::enter();
+		//cDebug::enter();
 		if ($this->USE_CURL)
 			return $this->pr__fetch_curl_to_file($psUrl, $psPath, $pbOverwrite, $piTimeOut, $pbGzip);
 		else
 			cDebug::error("non Curl fetch file not implemented");
-		cDebug::leave();
+		//cDebug::leave();
 	}
 		
 	//*****************************************************************************
@@ -93,7 +93,7 @@ class cHttp{
 	public function fetch_large_url($psUrl, $psFilename, $pbOverwrite=false)
 	{
 		global $root;
-		cDebug::enter();
+		//cDebug::enter();
 		
 		//check the folder is there
 		$sDir = "$root/".$this->LARGE_URL_DIR;
@@ -105,7 +105,7 @@ class cHttp{
 		$sPath = $this->large_url_path($psFilename);
 		$this->show_progress = true;
 		$sFilename = $this->fetch_to_file($psUrl, $sPath, $pbOverwrite, 600);
-		cDebug::leave();
+		//cDebug::leave();
 		return $sFilename;
 		
 	}
