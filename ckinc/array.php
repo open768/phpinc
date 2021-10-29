@@ -83,6 +83,11 @@ class c2DArray{
 	}
 	
 	//********************************************************************
+	public function length(){
+		return count($this->rowNames());
+	}
+	
+	//********************************************************************
 	public function get($psRow, $psCol){
 		$oRow = $this->pr__get_row($psRow, false);
 		if ($oRow == null) return null;
