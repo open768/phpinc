@@ -52,18 +52,22 @@ class cRenderCards{
 	//**************************************************************************
 	public static function action_end(){
 		?></div><!-- mdl actions --><?php
+		cDebug::flush();
 	}
 	//**************************************************************************
 	public static function title_end(){
 		?></div><!-- mdl title --><?php
+		cDebug::flush();
 	}
 	//**************************************************************************
 	public static function body_end(){
 		?></div><!-- mdl body --><?php
+		cDebug::flush();
 	}
 	//**************************************************************************
 	public static function card_end(){
 		?></div><p><!--mdl-card--><?php
+		cDebug::flush();
 	}
 	
 	//**************************************************************************

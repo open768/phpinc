@@ -34,7 +34,7 @@ class cHttp{
 	//*****************************************************************************
 	public function set_credentials($psUserName, $psPassword){
 		$this->authenticate = true;
-		cDebug::extra_debug("setting credentials: user=$psUserName pass=**********");
+		//cDebug::extra_debug("setting credentials: user=$psUserName pass=**********");
 		$this->username = $psUserName;
 		$this->password = $psPassword;
 	}

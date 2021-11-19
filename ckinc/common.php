@@ -129,6 +129,7 @@ class cCommon{
 		<?php
 		cDebug::flush();
 	}
+	
 	//**************************************************************************
 	public static function messagebox($psMessage){
 		?>
@@ -138,6 +139,15 @@ class cCommon{
 			</div>
 		<?php
 		cDebug::flush();
+	}
+	
+	//**************************************************************************
+	public static function add_count_to_array(&$paArray, $psKey){
+		cDebug::write("addcounttoarray - $psKey");
+		if (array_key_exists($psKey,$paArray))
+			$paArray[$psKey] ++;
+		else
+			$paArray[$psKey] = 1;
 	}
 	
 }
