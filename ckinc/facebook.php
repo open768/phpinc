@@ -129,7 +129,7 @@ class cFacebook_ServerSide{
 	public static function getAppID(){
 		$sID = null;
 		cDebug::enter();
-		if (cHeader::is_localhost()){
+		if (cDebug::is_localhost()){
 			cDebug::write("using development credentials for localhost");
 			$sID = ["I"=>cSecret::$FB_DEV_APP, "S"=>cSecret::$FB_DEV_SECRET];
 		}else

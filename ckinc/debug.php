@@ -105,6 +105,18 @@ class cDebug{
 		self::write("<b><font size='+2'color='brick'>Warning:</font></b> $psText");
 	}
 	
+	//*******************************************************************
+	public static function is_localhost(){
+		$aList = array(
+			'127.0.0.1',
+			'::1'
+		);
+
+		$sServer = $_SERVER['REMOTE_ADDR'];
+		$bLocal = in_array($sServer, $aList);
+		cDebug::write("Server: '$sServer', local: $bLocal");
+		return $bLocal;
+	}
 	
 	//##############################################################################
 	public static function check_GET_or_POST(){

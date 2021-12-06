@@ -22,6 +22,8 @@ class cCommon{
 	const EXCEL_DATE_FORMAT = "Y-m-d H:i:s";
 	const RGRAPH_DATE_FORMAT = "Y-m-d\TH:i:s";
 	const UTC_DATE_FORMAT = "Y-m-d\TH:i:s\Z";
+	const PHP_UK_DATE_FORMAT = "d-m-Y H:i";
+	const PHP_SHORT_UK_DATE_FORMAT = "d-m-Y";
 	const MINS_IN_HOUR = 60;
 	const HOUR_IN_DAY = 24;
 	const MINS_IN_DAY = self::HOUR_IN_DAY * self::MINS_IN_HOUR;
@@ -96,6 +98,11 @@ class cCommon{
 			return $_SESSION[$psKey];
 		else
 			return "";
+	}
+	
+	//**************************************************************************
+	public static function is_numeric_name($psName){
+		return (preg_match('/\/\d+/', $psName, $matches) || preg_match('/\-\d+/', $psName, $matches));
 	}
 	
 	//**************************************************************************
