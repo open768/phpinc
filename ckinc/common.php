@@ -33,6 +33,12 @@ class cCommon{
 	const PROGRESS_CHAR = "&#8667;";
 	
 	//**************************************************************************
+	public static function filename(){
+		global $_SERVER;
+		return basename($_SERVER["PHP_SELF"]);
+	}
+	
+	//**************************************************************************
 	public static function write_json($poThing){
 		if (cDebug::is_debugging()){
 			cDebug::write("json output:");
@@ -149,12 +155,12 @@ class cCommon{
 	}
 	
 	//**************************************************************************
-	public static function add_count_to_array(&$paArray, $psKey){
+	public static function add_count_to_array(&$paArray, $psKey, $piAmount=1){
 		cDebug::write("addcounttoarray - $psKey");
 		if (array_key_exists($psKey,$paArray))
-			$paArray[$psKey] ++;
+			$paArray[$psKey] += $piAmount;
 		else
-			$paArray[$psKey] = 1;
+			$paArray[$psKey] = $piAmount;
 	}
 	
 }
