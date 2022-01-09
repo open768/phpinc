@@ -17,8 +17,10 @@ class cDebug{
 	private static $DEBUGGING=false;
 	private static $EXTRA_DEBUGGING=false;
 	public static $IGNORE_CACHE = false;
+	private static $aThings = [];
 	const DEBUG_STR = "debug";
 	const DEBUG2_STR = "debug2";
+	const EXTRA_DEBUGGING_SYMBOL = "&#10070";
 	
 	private static $ENTER_DEPTH = 0;
 	
@@ -54,19 +56,29 @@ class cDebug{
 	}
 	
 	//##############################################################################
-	public static function extra_debug($poThing){
-		if (self::$EXTRA_DEBUGGING){
-			$sDate = date('d-m-Y H:i:s');
-			?><p><font color='DarkRed'><code><?=str_repeat("&nbsp;", self::$ENTER_DEPTH *4)?><?=$sDate?>: ** <?=$poThing?></code></font><p><?php
-			self::flush();
+	public static function extra_debug_warning($psThing ){
+		self::extra_debug("<font color='red'>$psThing</font>");
+	}
+	
+	public static function extra_debug($psThing, $pbOnce=false){
+		if (!self::$EXTRA_DEBUGGING) return;
+		if ($pbOnce){
+			if (array_key_exists($psThing, self::$aThings)) 
+				return;
+			else
+				self::$aThings[$psThing]=1;
 		}
+		
+		$sDate = date('d-m-Y H:i:s');
+		?><p><font color='#915c83'><code><?=str_repeat("&nbsp;", self::$ENTER_DEPTH *4)?><?=$sDate?>: <?=self::EXTRA_DEBUGGING_SYMBOL?> <?=$psThing?></code></font><p><?php
+		self::flush();
 	}
 	
 	
 	public static function write($poThing){
 		if (self::is_debugging()){
 			$sDate = date('d-m-Y H:i:s');
-			?><p><font color=red><code><?=str_repeat("&nbsp;", self::$ENTER_DEPTH *4)?><?=$sDate?>: <?=$poThing?></code></font><p><?php
+			?><p><font color='#3b3b6d'><code><?=str_repeat("&nbsp;", self::$ENTER_DEPTH *4)?><?=$sDate?>: <?=$poThing?></code></font><p><?php
 			self::flush();
 		}
 	}
@@ -130,7 +142,7 @@ class cDebug{
 		
 		if (isset($_GET[self::DEBUG2_STR]) || isset($_POST[self::DEBUG2_STR])){
 			self::on(true);
-			self::write("Extra debugging is on");
+			self::write("Extra debugging is on - shown by ".self::EXTRA_DEBUGGING_SYMBOL);
 			self::write("URI is ".$_SERVER["REQUEST_SCHEME"]."://".$_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"]);			
 		}elseif (self::$DEBUGGING){
 			self::write("for extra debugging use debug2");
@@ -146,7 +158,7 @@ class cDebug{
 	}
 	
 	//##############################################################################
-	public static function enter( $psOverrideName = null){
+	public static function enter( $psOverrideName = null, $pbOnce=false){
 		if (self::$EXTRA_DEBUGGING){
 			$sCaller = $psOverrideName;
 			if ($psOverrideName == null){
@@ -159,13 +171,13 @@ class cDebug{
 				$sCaller = "$sClass.$sFunc";
 			}
 			
-			self::extra_debug("<font color='grey' face='courier' size=2>Enter&gt; $sCaller</font>");
+			self::extra_debug("<font color='#3b3c36' face='courier' size=2>Enter&gt; $sCaller</font>", $pbOnce);
 			self::$ENTER_DEPTH++;
 		}
 	}
 
 	//**************************************************************************
-	public static function leave($psOverrideName = null){
+	public static function leave($psOverrideName = null, $pbOnce=false){
 		if (self::$EXTRA_DEBUGGING){
 				
 			$sCaller = $psOverrideName;
@@ -183,7 +195,7 @@ class cDebug{
 				self::$ENTER_DEPTH = 0;
 				//self::warning("too many leave calls");
 			}
-			self::extra_debug("<font color='grey' face='courier' size=2>Leave &gt; $sCaller</font>");
+			self::extra_debug("<font color='#3b3c36' face='courier' size=2>Leave &gt; $sCaller</font>", $pbOnce);
 		}
 	}
 	

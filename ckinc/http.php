@@ -127,7 +127,7 @@ class cHttp{
 
 		//********************************************************************
 		if ($this->authenticate){
-			$sCredentials = base64_encode($this->username.":".$this->password);
+			$sCredentials = base64_encode("$this->username:$this->password");
 			$sHeader = "Authorization: Basic $sCredentials";
 			if ($this->extra_header) $sHeader.="\r\n".$this->extra_header;
 		}elseif ($this->extra_header) 

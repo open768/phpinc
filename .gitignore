@@ -19,4 +19,5 @@ phpshell/
 phpminify/
 php-openssl-crypt/
 space/
+hybridauth/
 secret.php
