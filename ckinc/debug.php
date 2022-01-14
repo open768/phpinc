@@ -149,8 +149,6 @@ class cDebug{
 		}
 		
 		if (isset($_GET["nocache"]) || isset($_POST["nocache"])){
-			if (!self::$DEBUGGING) self::error("cant use nocache without debug");
-				
 			self::$IGNORE_CACHE = true;
 			self::write("ignore cache is on");
 		}else

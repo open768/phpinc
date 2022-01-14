@@ -25,8 +25,6 @@ require_once("$phpinc/ckinc/sqlite.php");
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%% Database 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-// for sqllite3 quickstart see https://riptutorial.com/php/example/27461/sqlite3-quickstart-tutorial
-// THIS IS A WORK IN PROGRESS objstoredb is not being used
 class cOBjStoreDB{
 	private static $warned_oldstyle = false;
 	public $SHOW_SQL = false;
@@ -34,7 +32,6 @@ class cOBjStoreDB{
 	private static $oSQLite = null; //static as same database obj used between instances
 	public $rootFolder = null;
 	public $realm = null;
-	public $check_expiry = false;
 	public $expire_time = null;
 	public $table = null;
 	
@@ -202,6 +199,7 @@ class cOBjStoreDB{
 	public function set_table($psTable){
 		//cDebug::enter();
 
+		cDebug::extra_debug("setting table to $psTable");
 		if ($this->table !== $psTable){
 			$this->table = $psTable;
 			$this->pr_create_table();
@@ -239,7 +237,7 @@ class cOBjStoreDB{
 	}
 	
 	//********************************************************************************
-	public function get($psKey, $pbCheckExpiration = false){
+	public function get($psKey, $pbCheckExpiry = false){
 		//cDebug::enter();
 		$this->pr_check_realm();
 		
@@ -270,7 +268,7 @@ class cOBjStoreDB{
 			$sEncoded = $aResult[1];
 			$vResult = cGzip::decode($sEncoded);
 			
-			if ($pbCheckExpiration){
+			if ($pbCheckExpiry){
 				$sItemDate= $aResult[2]; //this is a string
 				$dItemDate = strtotime($sItemDate); 
 				$iExpires = $dItemDate + $this->expire_time;

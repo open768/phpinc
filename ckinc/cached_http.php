@@ -33,7 +33,6 @@ class cCachedHttp{
 		if (!self::$oObjStore){
 			$oObjStore = new cObjStoreDB();
 			$oObjStore->realm = "CACHTTP";
-			$oObjStore->check_expiry = true;
 			$oObjStore->expire_time = 3600;
 			$oObjStore->set_table("HTMLCAC");
 			
