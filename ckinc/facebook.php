@@ -2,7 +2,7 @@
 require_once("$phpinc/ckinc/debug.php");
 require_once("$phpinc/ckinc/secret.php");
 require_once("$phpinc/ckinc/common.php");
-require_once("$phpinc/facebook/autoload.php");
+require_once("$phpinc/extra/facebook/autoload.php");
 require_once("$phpinc/ckinc/objstoredb.php");
 use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
