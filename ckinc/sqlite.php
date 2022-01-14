@@ -30,9 +30,9 @@ class cSQLPrepareAction extends cSQLAction{
 		$this->sSQL = $psSQL;
 	}
 	public function execute(SQLite3 $oDB){
-		cDebug::enter();
+		//cDebug::enter();
 		$oResultset = $oDB->prepare($this->sSQL);
-		cDebug::leave();
+		//cDebug::leave();
 		return $oResultset;
 	}
 }
