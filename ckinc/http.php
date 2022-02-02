@@ -30,6 +30,7 @@ class cHttp{
 	public $response_headers = [];
 	public $request_payload = null;
 	public $ALLOW_SELF_SIGNED_CERT = true;
+	public $method=null;
 	
 	//*****************************************************************************
 	public function set_credentials($psUserName, $psPassword){
@@ -140,6 +141,8 @@ class cHttp{
 			$aHttpContext["content"] = $this->request_payload;
 			$aHttpContext["method"]  = "POST";
 		}
+		if ($this->method !== null)
+			$aHttpContext["method"]  = $this->method;
 		
 		//********************************************************************
 		$aHttpContext["header"] =  $sHeader;

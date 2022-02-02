@@ -148,3 +148,9 @@ class c2DArray{
 		return $this->caColInfo->get($psCol);
 	}
 }
+
+class cArrayUtil {
+	public static function array_is_empty( $paInput){
+		return ( $paInput == null  || count($paInput) ==0);
+	} 
+}
