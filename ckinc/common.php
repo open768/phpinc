@@ -153,23 +153,5 @@ class cCommon{
 		<?php
 		cDebug::flush();
 	}
-	
-	//**************************************************************************
-	public static function add_count_to_array(&$paArray, $psKey, $piAmount=1){
-		cDebug::write("addcounttoarray - $psKey");
-		if (array_key_exists($psKey,$paArray))
-			$paArray[$psKey] += $piAmount;
-		else
-			$paArray[$psKey] = $piAmount;
-	}
-	
 }
-
-//no cacheing allowed
-//header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
-//header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-date_default_timezone_set('Europe/London');
-ob_end_flush(); //no buffering allowed, content is written to screen as soon as available
-
-
-
+?>

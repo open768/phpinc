@@ -152,5 +152,13 @@ class c2DArray{
 class cArrayUtil {
 	public static function array_is_empty( $paInput){
 		return ( $paInput == null  || count($paInput) ==0);
-	} 
-}
+	}
+	
+	//**************************************************************************
+	public static function add_count_to_array(&$paArray, $psKey, $piAmount=1){
+		cDebug::write("addcounttoarray - $psKey");
+		if (array_key_exists($psKey,$paArray))
+			$paArray[$psKey] += $piAmount;
+		else
+			$paArray[$psKey] = $piAmount;
+	}}
