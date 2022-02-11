@@ -151,7 +151,8 @@ class c2DArray{
 
 class cArrayUtil {
 	public static function array_is_empty( $paInput){
-		return ( $paInput == null  || count($paInput) ==0);
+		if ($paInput == null) return true;
+		return  (count($paInput)==0);
 	}
 	
 	//**************************************************************************
