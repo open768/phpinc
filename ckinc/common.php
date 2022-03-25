@@ -112,6 +112,13 @@ class cCommon{
 	}
 	
 	//**************************************************************************
+	public static function is_string_set($psValue){
+		$bResult = (($psValue!=null) && ($psValue!==""));
+		//if (!$bResult) cDebug::write("string: $psValue result: not set");
+		return $bResult;
+	}
+	
+	//**************************************************************************
 	public static function reformat_date($psDate, $psOldFormat, $psNewFormat){
 		$oDate = DateTime::createFromFormat($psOldFormat, $psDate);
 		return $oDate->format($psNewFormat);
