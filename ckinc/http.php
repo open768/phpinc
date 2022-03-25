@@ -21,9 +21,10 @@ class cHttp{
 	public $progress_len = 0;
 	public $progress_count = 0;
 	public $show_progress = false;
+	public $debug = false;
 	public $HTTPS_CERT_FILENAME = null;
 	public $USE_CURL = true;
-	public $extra_header = null;
+	public $extra_headers = null;
 	private $authenticate = false;
 	private $username = null;
 	private $password = null;
@@ -35,20 +36,17 @@ class cHttp{
 	//*****************************************************************************
 	public function set_credentials($psUserName, $psPassword){
 		$this->authenticate = true;
-		//cDebug::extra_debug("setting credentials: user=$psUserName pass=**********");
 		$this->username = $psUserName;
 		$this->password = $psPassword;
 	}
 
 	//*****************************************************************************
 	public function getJson($psURL){
-		//cDebug::enter();
-		$response = $this->fetch_url($psURL);
-		$oResponse = json_decode($response);
-		
-		//cDebug::leave();
-		
-		return $oResponse;
+		$sResponse = $this->fetch_url($psURL);
+		//if ($this->debug) cDebug::write("response was : $sResponse");
+		$oData = json_decode($sResponse);
+		//if ($this->debug) cDebug::vardump($oData);
+		return $oData;
 	}
 	
 	//*****************************************************************************
@@ -61,23 +59,24 @@ class cHttp{
 	
 	//*****************************************************************************
 	public  function fetch_url($psUrl){
-		//cDebug::enter();
-		cDebug::extra_debug($psUrl);
+		if ($this->debug) cDebug::enter();
+		if ($this->debug) cDebug::extra_debug($psUrl);
 		
 		if ($this->USE_CURL)
 			$sHTML = $this->pr__fetch_curl_url($psUrl);
 		else
 			$sHTML = $this->pr__fetch_basic_url($psUrl);
 		
-		//cDebug::leave();
+		if ($this->debug)cDebug::leave();
 		return $sHTML;
 	}
 	
+	//*****************************************************************************
 	public function fetch_to_file($psUrl, $psPath, $pbOverwrite=false, $piTimeOut=60, $pbGzip=false){
 		//cDebug::enter();
-		if ($this->USE_CURL)
+		if ($this->USE_CURL){
 			return $this->pr__fetch_curl_to_file($psUrl, $psPath, $pbOverwrite, $piTimeOut, $pbGzip);
-		else
+		}else
 			cDebug::error("non Curl fetch file not implemented");
 		//cDebug::leave();
 	}
@@ -114,43 +113,64 @@ class cHttp{
 	//############################################################################
 	//#
 	//############################################################################
+	private function pr__make_header_string($aHeaders){
+		if ($this->debug) cDebug::enter();
+		
+		$sOut = null;
+		if (!is_array($aHeaders))
+			cDebug::error("extra headers must be an array");
+		else{
+			$bFirst = true;
+			foreach ($aHeaders as $sKey=>$sValue){
+				if (!$bFirst) $sOut .= "\r\n";
+				$sOut .= "$sKey: $sValue";
+				$bFirst = false;
+			}
+		}
+		if ($this->debug) cDebug::leave();
+		return $sOut;
+	}
+	
+	//********************************************************************
 	private function pr__fetch_basic_url($psUrl , $pbAllowNull = true){
 		global $http_response_header;
 		
-		//cDebug::enter();
+		if ($this->debug) cDebug::enter();
 		$sHTML = null;
 
 		$oContext = null;
 		$this->response_headers = [];
 		$aContext = [	"ssl"=> ["verify_peer"=>false,"verify_peer_name"=>false]];
-		$sHeader = "";
+		$aHeaders = [];
 		$aHttpContext = [];
 
-		//********************************************************************
+		//-----------------------------------------------------------------------
 		if ($this->authenticate){
 			$sCredentials = base64_encode("$this->username:$this->password");
-			$sHeader = "Authorization: Basic $sCredentials";
-			if ($this->extra_header) $sHeader.="\r\n".$this->extra_header;
-		}elseif ($this->extra_header) 
-			$sHeader = $this->extra_header;
+			$aHeaders["Authorization"] =  "Basic $sCredentials";
+		}
+		if ($this->extra_headers)
+			$aHeaders = array_merge($aHeaders, $this->extra_headers);
 		
 		//********************************************************************
 		if ($this->request_payload !== null){
-			$sHeader .= "\r\nContent-Type: application/json";
-			$sHeader .= "\r\nContent-Length: ".strlen($this->request_payload);
+			if (!array_key_exists( "Content-Type", $aHeaders))
+				$aHeaders["Content-Type"] = "application/json";
+			$aHeaders["Content-Length"] = strlen($this->request_payload);
 			$aHttpContext["content"] = $this->request_payload;
 			$aHttpContext["method"]  = "POST";
 		}
 		if ($this->method !== null)
 			$aHttpContext["method"]  = $this->method;
-		
+		$aHeaders["User-Agent"] = "ChickenKatsu.co.uk/1.0";
+
 		//********************************************************************
-		$aHttpContext["header"] =  $sHeader;
+		$aHttpContext["header"] =  $this->pr__make_header_string($aHeaders);
+		$aHttpContext["ignore_errors"] =  true;			//catches response even with error 500
 		$aContext["http"] = $aHttpContext;
-		//cDebug::vardump($aContext);
-		//cDebug::enter("stream_context_create");
 		$oContext = stream_context_create($aContext);
-		//cDebug::leave("stream_context_create");
+		if ($this->debug) cDebug::vardump($aContext);
+
 
 		//********************************************************************
 		try{
@@ -162,6 +182,7 @@ class cHttp{
 		//********************************************************************
 		if(!strpos($http_response_header[0], "200")){
 			cDebug::vardump($http_response_header);
+			cDebug::write($sHTML);
 			cDebug::error($http_response_header[0]);
 		}else{
 			foreach ($http_response_header as $line) 
@@ -176,7 +197,7 @@ class cHttp{
 		if ($sHTML == null && !$pbAllowNull)
 			cDebug::error("null response received : ");
 		
-		//cDebug::leave();
+		if ($this->debug) cDebug::leave();
 		return $sHTML;
 	}
 	
