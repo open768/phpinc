@@ -124,17 +124,30 @@ class cCommon{
 		return $oDate->format($psNewFormat);
 	}
 	
+	//**************************************************************************
 	public static function strip_non_printing($psIn){
 		return preg_replace('/[\x00-\x1F\x80-\x9F]/u', '', $psIn);
 	}
 	
+	//**************************************************************************
 	public static function my_IP_address(){
 		return GetHostByName(null);
 	}
 	
+	//**************************************************************************
 	public static function fixed_width_div($piWidth, $psContent){
 		$sBroken = self::put_in_wbrs($psContent);
 		?><div style='width:<?=$piWidth?>px;max-width:<?=$piWidth?>px;'><?=$sBroken?></div><?php
+	}
+	
+	//**************************************************************************
+	public static function save_to_session($psKey, $psValue){
+		global $_SESSION;
+		cDebug::extra_debug("saving: $psKey =&gt; $psValue");
+		$_SESSION[$psKey] = $psValue;
+		$check = $_SESSION[$psKey];
+		if ($check !== $psValue)
+			cDebug::error("unable to save to session : $psKey =&gt; $psValue");
 	}
 	
 	//**************************************************************************
