@@ -18,7 +18,7 @@ class cHeader{
 			$aRef = parse_url($sUrl);
 			
 			$sPath = basename($aRef["path"]);
-			$sThis = pathinfo(basename($_SERVER['PHP_SELF']))["filename"];
+			$sThis = pathinfo(cCommon::filename())["filename"]; //filename without extension
 			
 			if ($sPath === "$sThis.html"){
 				$sRedir = "$sThis.php?". $aRef["query"];
