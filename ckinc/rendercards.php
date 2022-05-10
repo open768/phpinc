@@ -28,7 +28,7 @@ class cRenderCards{
 		?><div class='<?=$sClass?>' id="CARDID_<?=self::$iCardID?>"><?php
 		if ($psTitle !== ""){
 			self::title_start();
-			echo "<font class='card_title'>$psTitle</font>";
+			echo "<h3 class='card_title'>$psTitle</h3>";
 			self::title_end();
 		}
 		return self::$iCardID;

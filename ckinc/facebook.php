@@ -1,6 +1,5 @@
 <?php
 require_once("$phpinc/ckinc/debug.php");
-require_once("$phpinc/ckinc/secret.php");
 require_once("$phpinc/ckinc/common.php");
 require_once("$phpinc/extra/facebook/autoload.php");
 require_once("$phpinc/ckinc/objstoredb.php");
@@ -12,6 +11,17 @@ use Facebook\GraphUser;
 //###########################################################################
 //#
 //###########################################################################
+class cFacebookID{
+	public $id = null;
+	public $secret = null;
+	
+	function __construct ($psID, $psSecret){
+		if (!cCommon::is_string_set($psID)) cDebug::error("no ID set");
+		$this->id = $psID;
+		$this->secret = $psSecret;
+	}
+}
+
 class cFacebook_ServerSide{
 	const FB_USER_FOLDER = "[facebook]";
 	const FB_ALL_USERS= "[all users]";
@@ -131,11 +141,12 @@ class cFacebook_ServerSide{
 		cDebug::enter();
 		if (cDebug::is_localhost()){
 			cDebug::write("using development credentials for localhost");
-			$sID = ["I"=>cSecret::$FB_DEV_APP, "S"=>cSecret::$FB_DEV_SECRET];
+			$oID = new cFacebookID( cSecret::$FB_DEV_APP, cSecret::$FB_DEV_SECRET);
 		}else
-			$sID =   ["I"=>cSecret::$FB_APP, "S"=>cSecret::$FB_SECRET];
+			$oID = new cFacebookID( cSecret::$FB_APP, cSecret::$FB_SECRET);
+		
 		cDebug::leave();
-		return $sID;
+		return $oID;
 	}
 	
 	//*******************************************************************
