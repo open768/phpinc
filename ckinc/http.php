@@ -62,9 +62,9 @@ class cHttp{
 		if ($this->debug) cDebug::enter();
 		if ($this->debug) cDebug::extra_debug($psUrl);
 		
-		if ($this->USE_CURL)
+		if ($this->USE_CURL){
 			$sHTML = $this->pr__fetch_curl_url($psUrl);
-		else
+		}else
 			$sHTML = $this->pr__fetch_basic_url($psUrl);
 		
 		if ($this->debug)cDebug::leave();
@@ -75,6 +75,7 @@ class cHttp{
 	public function fetch_to_file($psUrl, $psPath, $pbOverwrite=false, $piTimeOut=60, $pbGzip=false){
 		//cDebug::enter();
 		if ($this->USE_CURL){
+			cDebug::error("curl is not supported");
 			return $this->pr__fetch_curl_to_file($psUrl, $psPath, $pbOverwrite, $piTimeOut, $pbGzip);
 		}else
 			cDebug::error("non Curl fetch file not implemented");
