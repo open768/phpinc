@@ -43,6 +43,10 @@ class cHeader{
 			header("Location: $psUrl");
 	}
 	
+	//*******************************************************************
+	public static function is_set($psKey){
+		return (isset($_GET[$psKey]) || isset($_POST[$psKey]));
+	}
 	
 	//*******************************************************************
 	public static function get($psKey){
