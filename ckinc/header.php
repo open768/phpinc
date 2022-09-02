@@ -92,6 +92,10 @@ class cHeader{
 		
 		return $sServer.$_SERVER["SCRIPT_NAME"];
 	}
+	//*******************************************************************
+	public static function get_page_dir(){
+		return cHeader::get_server().dirname($_SERVER["SCRIPT_NAME"]);
+	}
 	
 
 	//*******************************************************************
