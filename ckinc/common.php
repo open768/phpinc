@@ -130,6 +130,14 @@ class cCommon{
 	}
 	
 	//**************************************************************************
+	public static function get_first_alphabet_char($psInput){
+		if (preg_match('/[a-z]/i', $psInput, $match))
+    		return  $match[0];
+		else	
+			return null;
+	}
+	
+	//**************************************************************************
 	public static function my_IP_address(){
 		return GetHostByName(null);
 	}
