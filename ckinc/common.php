@@ -181,5 +181,9 @@ class cCommon{
 		<?php
 		cDebug::flush();
 	}
+	
+	public static function div_with_cols($piCols, $psExtra=""){
+		echo "<div style='column-count:$piCols;overflow-wrap:break-word' $psExtra>";
+	}
 }
 ?>

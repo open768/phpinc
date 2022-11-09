@@ -66,7 +66,7 @@ class cRenderCards{
 	}
 	//**************************************************************************
 	public static function card_end(){
-		?></div><p><!--mdl-card--><?php
+		?></div><!--mdl-card--><?php
 		cDebug::flush();
 	}
 	
