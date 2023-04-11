@@ -27,15 +27,13 @@ class cRenderCards{
 		if ($psExtraClass !== "") $sClass.=" $psExtraClass";
 		?><div class='<?=$sClass?>' id="CARDID_<?=self::$iCardID?>"><?php
 		if ($psTitle !== ""){
-			self::title_start();
-			echo "<h3 class='card_title'>$psTitle</h3>";
-			self::title_end();
+			self::card_title("<h3 class='card_title'>$psTitle</h3>");
 		}
 		return self::$iCardID;
 	}
 	//**************************************************************************
-	public static function title_start(){
-		?><div class='mdl-card__title'><?php
+	public static function card_title($psTitle){
+		?><div class='mdl-card__title'><?=$psTitle?></div><?php
 	}
 		//**************************************************************************
 	public static function action_start(){
@@ -52,11 +50,6 @@ class cRenderCards{
 	//**************************************************************************
 	public static function action_end(){
 		?></div><!-- mdl actions --><?php
-		cDebug::flush();
-	}
-	//**************************************************************************
-	public static function title_end(){
-		?></div><!-- mdl title --><?php
 		cDebug::flush();
 	}
 	//**************************************************************************
