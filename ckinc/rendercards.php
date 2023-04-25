@@ -14,6 +14,9 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 //#######################################################################
 //#######################################################################
+/** 
+ * Class cRenderCards
+*/
 class cRenderCards{
 	private static $iCardID = 0;
 	private static $iChipID = 0;
