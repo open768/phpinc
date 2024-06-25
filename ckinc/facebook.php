@@ -141,9 +141,9 @@ class cFacebook_ServerSide{
 		cDebug::enter();
 		if (cDebug::is_localhost()){
 			cDebug::write("using development credentials for localhost");
-			$oID = new cFacebookID( cSecret::$FB_DEV_APP, cSecret::$FB_DEV_SECRET);
+			$oID = new cFacebookID( cAppSecret::FB_DEV_APP, cAppSecret::FB_DEV_SECRET);
 		}else
-			$oID = new cFacebookID( cSecret::$FB_APP, cSecret::$FB_SECRET);
+			$oID = new cFacebookID( cAppSecret::FB_APP, cAppSecret::FB_SECRET);
 		
 		cDebug::leave();
 		return $oID;

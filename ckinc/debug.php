@@ -21,12 +21,14 @@ class cDebug{
 	const DEBUG_STR = "debug";
 	const DEBUG2_STR = "debug2";
 	const EXTRA_DEBUGGING_SYMBOL = "&#10070";
-	
+	private static $one_time_debug = false;
 	private static $ENTER_DEPTH = 0;
 	
 	//##############################################################################
 	public static function is_debugging(){
-		return (self::$DEBUGGING || self::is_extra_debugging());
+		$bOnce = self::$one_time_debug;
+		self::$one_time_debug = false;
+		return (self::$DEBUGGING || self::is_extra_debugging() || $bOnce);
 	}
 	
 	public static function is_extra_debugging(){
@@ -61,7 +63,7 @@ class cDebug{
 	}
 	
 	public static function extra_debug($psThing, $pbOnce=false){
-		if (!self::$EXTRA_DEBUGGING) return;
+		if (!self::is_extra_debugging()) return;
 		if ($pbOnce){
 			if (array_key_exists($psThing, self::$aThings)) 
 				return;
@@ -90,13 +92,30 @@ class cDebug{
 	
 	//**************************************************************************
 	public static function vardump( $poThing, $pbForce=false){
-		if (self::$EXTRA_DEBUGGING || (self::$DEBUGGING && $pbForce)){
+		if ( self::is_extra_debugging() || $pbForce){
 			echo "<table border=1 width=100%><tr><td><PRE>";
 			var_dump($poThing);
 			echo "</PRE></td></tr></table>";
 			self::flush();
 		}else
 			self::write(__FUNCTION__." only available in debug2");
+	}
+
+	//**************************************************************************
+	public static function vardump_class( $psClassName){
+		self::enter();
+
+		//--------check if class actually exists
+		if (!class_exists($psClassName))
+			self::error("class $psClassName doesnt exist");
+
+		//--------look inside the class
+		if (self::is_extra_debugging()){
+			$oReflect = new ReflectionClass($psClassName);
+			self::write($oReflect);
+		}else
+			self::write(__FUNCTION__." only available in debug2");
+		self::leave();
 	}
 
 	//**************************************************************************
@@ -109,6 +128,7 @@ class cDebug{
 		}
 		catch (Exception $e)
 		{}
+		self::$one_time_debug = true;
 		self::write("<b><font size='+2'>in <font color='brick'>$sClass:$sFunc (line $sLine)</font> error: <font color='brick'>$psText</font></font></b><pre>");
 		throw new Exception($psText);
 	}
@@ -157,7 +177,7 @@ class cDebug{
 	
 	//##############################################################################
 	public static function enter( $psOverrideName = null, $pbOnce=false){
-		if (self::$EXTRA_DEBUGGING){
+		if (self::is_extra_debugging() || $pbOnce){
 			$sCaller = $psOverrideName;
 			if ($psOverrideName == null){
 				$aCaller = self::pr_get_caller(1);
@@ -176,7 +196,7 @@ class cDebug{
 
 	//**************************************************************************
 	public static function leave($psOverrideName = null, $pbOnce=false){
-		if (self::$EXTRA_DEBUGGING){
+		if (self::is_extra_debugging() || $pbOnce){
 				
 			$sCaller = $psOverrideName;
 			if ($psOverrideName == null){
@@ -203,7 +223,7 @@ class cDebug{
 	}
 	//**************************************************************************
 	private static function pr_stacktrace(){
-		if (self::$EXTRA_DEBUGGING || (self::$DEBUGGING && $pbForce)){
+		if (self::is_extra_debugging()){
 			echo "<pre>";
 			debug_print_backtrace();
 			echo "</pre>";

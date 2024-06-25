@@ -44,6 +44,8 @@ class cOBjStoreDB{
 	const OBJSTORE_REALM = "_objstore_";
 	const OBJSTORE_CREATE_KEY = "created on";
 
+	const SQL_CHECK_TABLE = 'SELECT name FROM sqlite_master WHERE name=":t"';
+	const SQL_CREATE_TABLE = 'CREATE TABLE ":t" ( ":r" TEXT not null, ":h" TEXT not null, ":c" TEXT, ":d" DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ":r", ":h"))';
 	
 	//#####################################################################
 	//# constructor
@@ -74,15 +76,14 @@ class cOBjStoreDB{
 		
 		//check if table exists
 		cDebug::extra_debug("checking table exists");				
-		$sSQL = 'SELECT name FROM sqlite_master WHERE name=":t"';
-		$sSQL = str_replace(":t",$this->table, $sSQL);
+		$sSQL = str_replace(":t",$this->table, self::SQL_CHECK_TABLE);
 		if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 		$oResultSet = $oSQL->query($sSQL);
 		if ($oResultSet == null) cDebug::error("null response: $sSQL");
 			
 		$aResults = $oResultSet->fetchArray();
 		if ( $aResults ){
-			cDebug::extra_debug("table does exist");				
+			cDebug::extra_debug("table exists");				
 			//cDebug::vardump($aResults); //DEBUG
 			//cDebug::leave();
 			return;
@@ -90,8 +91,7 @@ class cOBjStoreDB{
 		
 		//table doesnt exist
 		cDebug::extra_debug("table does not exist");				
-		$sSQL = 'CREATE TABLE ":t" ( ":r" TEXT not null, ":h" TEXT not null, ":c" TEXT, ":d" DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ":r", ":h"))';
-		$sSQL = str_replace(":t",$this->table, $sSQL);
+		$sSQL = str_replace(":t",$this->table, self::SQL_CREATE_TABLE);
 		$sSQL = str_replace(":r",self::COL_REALM, $sSQL);
 		$sSQL = str_replace(":h",self::COL_HASH, $sSQL);
 		$sSQL = str_replace(":c",self::COL_CONTENT, $sSQL);
@@ -183,11 +183,11 @@ class cOBjStoreDB{
 	}
 	
 	//********************************************************************************
-	public function kill_oldstyle($psfolder, $psFile){
+	public function kill_oldstyle($psFolder, $psFile){
 		cDebug::enter();
 		self::pr_warn_deprecated();
 		$sFullpath = $psFolder . "/" . $psFile;
-		cObjStore::kill($psfolder, $psFile);
+		$this->kill($psFolder, $psFile);
 		$this->kill($sFullpath);
 		cDebug::leave();		
 	}

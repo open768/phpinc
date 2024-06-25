@@ -21,7 +21,7 @@ class cNewRelicEUMAccount{
 //################################################################################
 class cNewRelic{
 	public static function browser_agent(){
-		$oCred = (cDebug::is_localhost()?cSecret::$NR_PROD : cSecret::$NR_DEV);
+		$oCred = (cDebug::is_localhost()?cAppSecret::$NR_PROD : cAppSecret::$NR_DEV);
 	?>
 <script>
 ;window.NREUM||(NREUM={});NREUM.init={distributed_tracing:{enabled:true},privacy:{cookies_enabled:true},ajax:{deny_list:["bam.eu01.nr-data.net"]}};

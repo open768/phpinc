@@ -89,7 +89,7 @@ class  cSqlLite {
 
 		//cDebug::extra_debug("SQLLIte version:");
 		//cDebug::vardump(SQLite3::version());
-		$this->db_filename = $psDB;
+		$this->dbname = $psDB;
 		$this->rootFolder = "$root/[db]";
 		$this->pr_check_for_db($psDB);
 		
@@ -178,17 +178,17 @@ class  cSqlLite {
 	//#####################################################################
 	public function get_db_path($psDBname){
 		global $root;
-		return   $root."/".self::$DB_FOLDER."/".psDBname;
+		return   $root."/".self::DB_folder."/".$psDBname;
 	}
 	
 	//********************************************************************************
 	public function create_db($psDBname){
-		$dbpath = $self->get_db_path($psDBname);
+		$dbpath = $this->get_db_path($psDBname);
 	}
 	
 	//********************************************************************************
 	public function open_db( $psDBname){
-		$dbpath = $self->get_db_path($psDBname);
+		$dbpath = $this->get_db_path($psDBname);
 	}
 	
 	//********************************************************************************
