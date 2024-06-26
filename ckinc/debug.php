@@ -23,6 +23,8 @@ class cDebug{
 	const EXTRA_DEBUGGING_SYMBOL = "&#10070";
 	private static $one_time_debug = false;
 	private static $ENTER_DEPTH = 0;
+	const EXTRA_DEBUG_FONT_COLOUR = "#915c83";
+	const DEBUG_FONT_COLOUR = "#3b3b6d";
 	
 	//##############################################################################
 	public static function is_debugging(){
@@ -71,16 +73,24 @@ class cDebug{
 				self::$aThings[$psThing]=1;
 		}
 		
-		$sDate = date('d-m-Y H:i:s');
-		?><p><font color='#915c83'><code><?=str_repeat("&nbsp;", self::$ENTER_DEPTH *4)?><?=$sDate?>: <?=self::EXTRA_DEBUGGING_SYMBOL?> <?=$psThing?></code></font><p><?php
+		$sIndented = self::pr_indent(self::EXTRA_DEBUGGING_SYMBOL." ".$psThing);
+		if (php_sapi_name() == "cli")
+			print $sIndented;
+		else{
+			?><p><font color='<?=self::EXTRA_DEBUG_FONT_COLOUR?>'><code><?=$sIndented?></code></font><p><?php
+		}
 		self::flush();
 	}
 	
 	
 	public static function write($poThing){
 		if (self::is_debugging()){
-			$sDate = date('d-m-Y H:i:s');
-			?><p><font color='#3b3b6d'><code><?=str_repeat("&nbsp;", self::$ENTER_DEPTH *4)?><?=$sDate?>: <?=$poThing?></code></font><p><?php
+			$sIndented = self::pr_indent($poThing);
+			if (php_sapi_name() == "cli")
+				print $sIndented;
+			else{
+				?><p><font color='<?=self::DEBUG_FONT_COLOUR?>'><code><?=$sIndented?></code></font><p><?php
+			}
 			self::flush();
 		}
 	}
@@ -229,5 +239,10 @@ class cDebug{
 			echo "</pre>";
 		}else
 			self::write(__FUNCTION__." only available in debug2");
+	}
+
+	private static function pr_indent($psWhat){
+		$sDate = date('d-m-Y H:i:s');
+		return str_repeat("&nbsp;", self::$ENTER_DEPTH *4).$sDate.": "; 
 	}
 }
