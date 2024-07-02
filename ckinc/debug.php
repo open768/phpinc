@@ -74,20 +74,20 @@ class cDebug{
 		}
 		
 		$sIndented = self::pr_indent(self::EXTRA_DEBUGGING_SYMBOL." ".$psThing);
-		if (php_sapi_name() == "cli")
-			print $sIndented;
+		if (self::is_cli())
+			print $sIndented."\n";
 		else{
 			?><p><font color='<?=self::EXTRA_DEBUG_FONT_COLOUR?>'><code><?=$sIndented?></code></font><p><?php
 		}
 		self::flush();
 	}
-	
-	
+		
+	//**************************************************************************
 	public static function write($poThing){
 		if (self::is_debugging()){
 			$sIndented = self::pr_indent($poThing);
-			if (php_sapi_name() == "cli")
-				print $sIndented;
+			if (self::is_cli())
+				print $sIndented."\n";
 			else{
 				?><p><font color='<?=self::DEBUG_FONT_COLOUR?>'><code><?=$sIndented?></code></font><p><?php
 			}
@@ -95,6 +95,7 @@ class cDebug{
 		}
 	}
 		
+	//##############################################################################
 	public static function flush(){
 		@ob_flush();
 		@flush();
@@ -147,7 +148,7 @@ class cDebug{
 		self::write("<b><font size='+2'color='brick'>Warning:</font></b> $psText");
 	}
 	
-	//*******************************************************************
+	//##############################################################################
 	public static function is_localhost(){
 		$aList = array(
 			'127.0.0.1',
@@ -158,6 +159,11 @@ class cDebug{
 		$bLocal = in_array($sServer, $aList);
 		cDebug::write("Server: '$sServer', local: $bLocal");
 		return $bLocal;
+	}
+
+	//**************************************************************************
+	public static function is_cli(){
+		return (php_sapi_name() == "cli");
 	}
 	
 	//##############################################################################
@@ -243,6 +249,6 @@ class cDebug{
 
 	private static function pr_indent($psWhat){
 		$sDate = date('d-m-Y H:i:s');
-		return str_repeat("&nbsp;", self::$ENTER_DEPTH *4).$sDate.": "; 
+		return str_repeat("&nbsp;", self::$ENTER_DEPTH *4)."{$sDate}: {$psWhat}"; 
 	}
 }

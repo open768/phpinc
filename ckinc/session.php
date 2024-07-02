@@ -56,7 +56,9 @@ class cSession{
 	
 	//*******************************************************************
 	public static function is_session_started(){
-		return (session_status() === PHP_SESSION_ACTIVE);
+		$bOut = session_status() === PHP_SESSION_ACTIVE;
+		$bOut = $bOut  || headers_sent();
+		return $bOut;
 	}
 }
 ?>
