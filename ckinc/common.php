@@ -182,8 +182,32 @@ class cCommon{
 		cDebug::flush();
 	}
 	
+	//**************************************************************************
 	public static function div_with_cols($piCols, $psExtra=""){
 		echo "<div style='column-count:$piCols;overflow-wrap:break-word' $psExtra>";
 	}
+
+}
+
+class cPageOutput{
+	//**************************************************************************
+    public static function write_JS_class_constant_IDs( $psClassName){
+        $oReflection = new ReflectionClass($psClassName);
+        $aConsts = $oReflection->getConstants();
+        if (count($aConsts) == 0) return;
+
+        ?>
+        <script>
+            class <?=$psClassName?>{
+                <?php
+                    foreach ($aConsts as $sKey=>$sValue){
+                        ?>
+                            static <?=$sKey?> = "#<?=$sValue?>"
+                        <?php
+                }?>
+            } 
+        </script>
+        <?php
+    }
 }
 ?>
