@@ -6,10 +6,10 @@
 //%  so reduce this SQLlite3
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-require_once("$phpinc/ckinc/gz.php");
-require_once("$phpinc/ckinc/common.php");
-require_once("$phpinc/ckinc/hash.php");
-require_once("$phpinc/ckinc/objstoredb.php");
+require_once("$phpInc/ckinc/gz.php");
+require_once("$phpInc/ckinc/common.php");
+require_once("$phpInc/ckinc/hash.php");
+require_once("$phpInc/ckinc/objstoredb.php");
 
 cObjStore::$rootFolder= "$root/[objdata]";
 

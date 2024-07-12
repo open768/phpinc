@@ -1,7 +1,7 @@
 <?php
 
 /**************************************************************************
-Copyright (C) Chicken Katsu 2013 
+Copyright (C) Chicken Katsu 2013 - 2024
 
 This code is protected by copyright under the terms of the 
 Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
@@ -12,8 +12,8 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
 **************************************************************************/
 
-require_once("$phpinc/ckinc/debug.php");
-require_once("$phpinc/ckinc/header.php");
+require_once("$phpInc/ckinc/debug.php");
+require_once("$phpInc/ckinc/header.php");
 
 class cCommon{
 	public static $SHOW_PROGRESS=TRUE;

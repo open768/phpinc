@@ -1,8 +1,8 @@
 <?php
-require_once("$phpinc/ckinc/debug.php");
-require_once("$phpinc/ckinc/common.php");
-require_once("$phpinc/extra/facebook/autoload.php");
-require_once("$phpinc/ckinc/objstoredb.php");
+require_once("$phpInc/ckinc/debug.php");
+require_once("$phpInc/ckinc/common.php");
+require_once("$phpInc/extra/facebook/autoload.php");
+require_once("$phpInc/ckinc/objstoredb.php");
 use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
 use Facebook\GraphUser;	

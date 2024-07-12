@@ -1,7 +1,7 @@
 <?php
 
 /**************************************************************************
-	Copyright (C) Chicken Katsu 2013 
+	Copyright (C) Chicken Katsu 2013 - 2024
 
 This code is protected by copyright under the terms of the 
 Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
@@ -13,7 +13,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 **************************************************************************/
 
 //see 
-require_once("$phpinc/ckinc/hash.php");
+require_once("$phpInc/ckinc/hash.php");
 
 //#################################################################
 //# Auditing for users of the application

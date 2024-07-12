@@ -1,8 +1,8 @@
 <?php
-require_once("$phpinc/ckinc/debug.php");
+require_once("$phpInc/ckinc/debug.php");
 
 //----------- start the session --------------------
-require_once "$phpinc/ckinc/session.php";
+require_once "$phpInc/ckinc/session.php";
 //cSession::set_folder();  //dont set the session as this folder will never be cleaned up
 if (!cSession::is_session_started()) {
 	cDebug::extra_debug("session status is not active - starting session:");
@@ -36,7 +36,7 @@ class cHeader{
 			exit;
 		}
 		if (headers_sent()){
-			?><script language="javascript">
+			?><script>
 				document.location = "<?=$psUrl?>";
 			</script><?php
 		}else	

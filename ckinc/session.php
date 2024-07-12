@@ -1,5 +1,5 @@
 <?php
-require_once("$phpinc/ckinc/debug.php");
+require_once("$phpInc/ckinc/debug.php");
 
 class cSession{
 	public static $THROW_ON_SESSION_ERROR = false;

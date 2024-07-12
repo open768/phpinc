@@ -1,7 +1,6 @@
 <?php
 /**************************************************************************
-Copyright (C) Chicken Katsu 2021
-
+Copyright (C) Chicken Katsu 2013 - 2024
 This code is protected by copyright under the terms of the 
 Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
 http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
@@ -17,10 +16,10 @@ or leave a message on github
 //%
 **************************************************************************/
 
-require_once("$phpinc/ckinc/common.php");
-require_once("$phpinc/ckinc/gz.php");
-require_once("$phpinc/ckinc/hash.php");
-require_once("$phpinc/ckinc/sqlite.php");
+require_once("$phpInc/ckinc/common.php");
+require_once("$phpInc/ckinc/gz.php");
+require_once("$phpInc/ckinc/hash.php");
+require_once("$phpInc/ckinc/sqlite.php");
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%% Database 
