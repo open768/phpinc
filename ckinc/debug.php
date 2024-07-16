@@ -139,7 +139,6 @@ class cDebug{
 		}
 		catch (Exception $e)
 		{}
-		self::$one_time_debug = true;
         error_log("$sClass:$sFunc (line $sLine) error: $psText");
 
         if (!$pbIsSilent)
