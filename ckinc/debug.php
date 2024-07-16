@@ -130,7 +130,7 @@ class cDebug{
 	}
 
 	//**************************************************************************
-	public static function error($psText){
+	public static function error($psText, $pbIsSilent=false){
 		try{
 			$aCaller = self::pr_get_caller(1);
 			$sFunc = @$aCaller['function'];
@@ -140,7 +140,10 @@ class cDebug{
 		catch (Exception $e)
 		{}
 		self::$one_time_debug = true;
-		self::write("<b><font size='+2'>in <font color='brick'>$sClass:$sFunc (line $sLine)</font> error: <font color='brick'>$psText</font></font></b><pre>");
+        self::write("$sClass:$sFunc (line $sLine) error: $psText");
+
+        if (!$pbIsSilent)
+		    self::write("<b><font size='+2'>in <font color='brick'>$sClass:$sFunc (line $sLine)</font> error: <font color='brick'>$psText</font></font></b><pre>");
 		throw new Exception($psText);
 	}
 	//**************************************************************************
