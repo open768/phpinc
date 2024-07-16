@@ -140,7 +140,7 @@ class cDebug{
 		catch (Exception $e)
 		{}
 		self::$one_time_debug = true;
-        self::write("$sClass:$sFunc (line $sLine) error: $psText");
+        error_log("$sClass:$sFunc (line $sLine) error: $psText");
 
         if (!$pbIsSilent)
 		    self::write("<b><font size='+2'>in <font color='brick'>$sClass:$sFunc (line $sLine)</font> error: <font color='brick'>$psText</font></font></b><pre>");
