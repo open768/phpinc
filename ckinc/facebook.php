@@ -29,13 +29,13 @@ class cFacebook_ServerSide{
 	const FB_SESS_USERID = "fbuserid";
     const OBJSTORE_REALM = "FB";
     const OBJSTORE_TABLE = "FB";
-	static $oObjStore = null;
+	static $objstoreDB = null;
 
 	
-	static function pr_init_objstore(){
+	static function init_obj_store_db(){
 		cDebug::enter();
-		if (self::$oObjStore == null)
-			self::$oObjStore = new cObjStoreDB(self::OBJSTORE_REALM, self::OBJSTORE_TABLE);
+		if (self::$objstoreDB == null)
+			self::$objstoreDB = new cObjStoreDB(self::OBJSTORE_REALM, self::OBJSTORE_TABLE);
 		cDebug::leave();
 	}
 	//*******************************************************************
@@ -101,7 +101,7 @@ class cFacebook_ServerSide{
 			if (!$sUser){
 				cDebug::write("username not in session, checking if known");
 			
-				$oGraphObject = self::$oObjStore->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
+				$oGraphObject = self::$objstoreDB->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
 				if ($oGraphObject){
 					cDebug::write("found stored user");
 					//$aNames = $oGraphObject->getPropertyNames();
@@ -118,17 +118,17 @@ class cFacebook_ServerSide{
 	private static function pr_storeUserDetails($psUserID, $poData){
 		cDebug::enter();
 		//store the details
-		self::$oObjStore->put_oldstyle(self::FB_USER_FOLDER,$psUserID, $poData);
+		self::$objstoreDB->put_oldstyle(self::FB_USER_FOLDER,$psUserID, $poData);
 		
 		//add to list of FB users 
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		//%this is not scalable imagine if there were thousands of users - it would kill the PHP server 
 		//%TBD to find a better way of working with arrays.
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		$aFBUsers = self::$oObjStore->get_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS);
+		$aFBUsers = self::$objstoreDB->get_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS);
 		if (!$aFBUsers) $aFBUsers = [];
 		$aFBUsers[$psUserID] = 1;
-		self::$oObjStore->put_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS, $aFBUsers);
+		self::$objstoreDB->put_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS, $aFBUsers);
 
 		cDebug::leave();
 	}
@@ -179,6 +179,6 @@ class cFacebook_ServerSide{
 		return $sUser;
 	}
 }
-cFacebook_ServerSide::pr_init_objstore();
+cFacebook_ServerSide::init_obj_store_db();
 
 ?>

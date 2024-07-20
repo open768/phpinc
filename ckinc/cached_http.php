@@ -18,7 +18,7 @@ require_once("$phpInc/ckinc/objstoredb.php");
 
 class cCachedHttp{
 	const INFINITE = -1;
-	private static $oObjStore = null;
+	private static $objstoreDB = null;
 	public $CACHE_EXPIRY = 3600;  //(seconds)
 	public $USE_CURL = true;
 	public $ALLOW_SELF_SIGNED_CERT = true;
@@ -32,12 +32,12 @@ class cCachedHttp{
     const DEFAULT_CACHE_EXPIRY = 3600;
 
 	//********************************************************************
-	public static function pr_init_objstore(){
-		if (!self::$oObjStore){
-			$oObjStore = new cObjStoreDB(self::OBJDB_REALM, self::OBJDB_TABLE);
-			$oObjStore->expire_time = SELF::DEFAULT_CACHE_EXPIRY;
+	public static function init_obj_store_db(){
+		if (!self::$objstoreDB){
+			$oDB = new cObjStoreDB(self::OBJDB_REALM, self::OBJDB_TABLE);
+			$oDB->expire_time = SELF::DEFAULT_CACHE_EXPIRY;
 			
-			self::$oObjStore = $oObjStore;
+			self::$objstoreDB = $oDB;
 		}
 	}
 	//*****************************************************************************
@@ -111,7 +111,7 @@ class cCachedHttp{
 		cDebug::write("getting url:$psURL");
 		if (cHash::exists($psURL, true)) cHash::delete($psURL); //remove the old chash cached item
 		
-		$oData = self::$oObjStore->get($psURL,true);
+		$oData = self::$objstoreDB->get($psURL,true);
 		if ($oData == null){
 			cDebug::extra_debug("obj not cached $psURL");
 			if ($pbJson)
@@ -120,7 +120,7 @@ class cCachedHttp{
 				$oData = $oHttp->fetch_url($psURL);
 				
 			if ($oData) 
-				self::$oObjStore->put($psURL, $oData, true);
+				self::$objstoreDB->put($psURL, $oData, true);
 		}
 		
 		cDebug::leave();
@@ -128,6 +128,6 @@ class cCachedHttp{
 	}
 }
 
-cCachedHttp::pr_init_objstore();
+cCachedHttp::init_obj_store_db();
 
 ?>

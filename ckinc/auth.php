@@ -19,12 +19,12 @@ class cAuth{
     const OBJDB_REALM = "AUTH";
     const OBJDB_TABLE = "CKAUTH";
 
-	static $oObjStore = null;
+	static $objstoreDB = null;
 
-	static function pr_init_objstore(){
+	static function init_obj_store_db(){
 		cDebug::enter();
-		if (self::$oObjStore == null){
-			self::$oObjStore = new cObjStoreDB(self::OBJDB_REALM, self::OBJDB_TABLE);
+		if (self::$objstoreDB == null){
+			self::$objstoreDB = new cObjStoreDB(self::OBJDB_REALM, self::OBJDB_TABLE);
 		}
 		cDebug::leave();
 	}
@@ -50,13 +50,13 @@ class cAuth{
 		
 	//**********************************************************
 	public static function add_to_role($psUserID, $psRole){
-		$oObjStore = self::$oObjStore;
-		$aRoleDetails = $oObjStore->get_oldstyle(self::ROLES_FOLDER, $psRole);
+		$oDB = self::$objstoreDB;
+		$aRoleDetails = $oDB->get_oldstyle(self::ROLES_FOLDER, $psRole);
 		if (!$aRoleDetails) $aRoleDetails = [];
 		if (! isset( $aRoleDetails[ $psUserID])){
 			cDebug::write("Adding $psUserID to role $psRole");
 			$aRoleDetails[$psUserID] = true;
-			$oObjStore->put_oldstyle(self::ROLES_FOLDER, $psRole,$aRoleDetails );
+			$oDB->put_oldstyle(self::ROLES_FOLDER, $psRole,$aRoleDetails );
 		}
 	}
 	
@@ -64,7 +64,7 @@ class cAuth{
 	public static function is_role( $psRole){
 		global $root;
 		cDebug::enter();
-		$oObjStore = self::$oObjStore;
+		$oDB = self::$objstoreDB;
 		
 		//check whether this role is in the list of roles that the user has.
 		$sUserID = self::get_user_id();
@@ -74,7 +74,7 @@ class cAuth{
 			return false;
 		}
 
-		$aRoleDetails = $oObjStore->get_oldstyle(self::ROLES_FOLDER, $psRole);
+		$aRoleDetails = $oDB->get_oldstyle(self::ROLES_FOLDER, $psRole);
 		if (!$aRoleDetails){
 			cDebug::write("role '$psRole' is not known");
 			cDebug::leave();
@@ -99,6 +99,6 @@ class cAuth{
 	}
 	
 }
-cAuth::pr_init_objstore();
+cAuth::init_obj_store_db();
 
 ?>
