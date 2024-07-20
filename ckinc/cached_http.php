@@ -27,14 +27,15 @@ class cCachedHttp{
 	public 	$fileHashing = true;
 	public 	$show_progress = false;
 	public  $HTTPS_CERT_FILENAME = null;
+    const OBJDB_REALM = "CACHTTP";
+    const OBJDB_TABLE = "HTMLCAC";
+    const DEFAULT_CACHE_EXPIRY = 3600;
 
 	//********************************************************************
 	public static function pr_init_objstore(){
 		if (!self::$oObjStore){
-			$oObjStore = new cObjStoreDB();
-			$oObjStore->realm = "CACHTTP";
-			$oObjStore->expire_time = 3600;
-			$oObjStore->set_table("HTMLCAC");
+			$oObjStore = new cObjStoreDB(self::OBJDB_REALM, self::OBJDB_TABLE);
+			$oObjStore->expire_time = SELF::DEFAULT_CACHE_EXPIRY;
 			
 			self::$oObjStore = $oObjStore;
 		}
@@ -61,7 +62,9 @@ class cCachedHttp{
 		cDebug::write("converting string to XML: ");
 		$oXML = simplexml_load_string($sXML);
 		cDebug::write("finished conversion");
+
 		cDebug::leave();
+
 		return $oXML;
 	}
 	
@@ -69,7 +72,7 @@ class cCachedHttp{
 	public function getCachedUrltoFile($psURL){	//for large files too big for sql
 		cDebug::enter();
 		$sHash = cHash::hash($psURL);
-		cHash::$CACHE_EXPIRY = $this->$CACHE_EXPIRY;		//dangerous fudge
+		cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;		//dangerous fudge TODO
 		$sPath = cHash::getPath($sHash);
 		
 		if (! cHash::exists($sHash)){

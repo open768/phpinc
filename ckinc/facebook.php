@@ -27,17 +27,15 @@ class cFacebook_ServerSide{
 	const FB_ALL_USERS= "[all users]";
 	const FB_SESS_USER = "fbuser";
 	const FB_SESS_USERID = "fbuserid";
+    const OBJSTORE_REALM = "FB";
+    const OBJSTORE_TABLE = "FB";
 	static $oObjStore = null;
+
 	
 	static function pr_init_objstore(){
 		cDebug::enter();
-		if (self::$oObjStore == null){
-			$oStore = new cObjStoreDB();
-			$oStore->realm = "FB";
-			//$oStore->SHOW_SQL = true; //DEBUG
-			$oStore->set_table("FB");	//possibly auth is a reserved name
-			self::$oObjStore = $oStore;
-		}
+		if (self::$oObjStore == null)
+			self::$oObjStore = new cObjStoreDB(self::OBJSTORE_REALM, self::OBJSTORE_TABLE);
 		cDebug::leave();
 	}
 	//*******************************************************************

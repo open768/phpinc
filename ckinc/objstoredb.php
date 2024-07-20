@@ -25,15 +25,10 @@ require_once("$phpInc/ckinc/sqlite.php");
 //%% Database 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class cOBjStoreDB{
-	private static $warned_oldstyle = false;
-	public $SHOW_SQL = false;
-	
+	//statics and constants
+    private static $warned_oldstyle = false;
 	private static $oSQLite = null; //static as same database obj used between instances
-	public $rootFolder = null;
-	public $realm = null;
-	public $expire_time = null;
-	public $table = null;
-	
+
 	const DB_FILENAME = "objstore.db";
 	const TABLE_NAME = "objstore";
 	const COL_REALM = "RE";
@@ -45,22 +40,32 @@ class cOBjStoreDB{
 
 	const SQL_CHECK_TABLE = 'SELECT name FROM sqlite_master WHERE name=":t"';
 	const SQL_CREATE_TABLE = 'CREATE TABLE ":t" ( ":r" TEXT not null, ":h" TEXT not null, ":c" TEXT, ":d" DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ":r", ":h"))';
+
+	//class properties
+	public $SHOW_SQL = false;
+	public $rootFolder = null;
+	public $realm = null;
+	public $expire_time = null;
+    public $check_expiry = false;
+	public $table = null;
+	
 	
 	//#####################################################################
 	//# constructor
+    // by default all entries go into _objstore_
 	//#####################################################################
-    function __construct() {
-		global $root;
-		//cDebug::enter();
+    function __construct( $psRealm , $psTable = null) {
+        $this->realm = $psRealm;
+        if ($psTable == null)
+            cDebug::warning("table not provided for objstoredb realm $psRealm");
 		$this->table = self::TABLE_NAME;
 		if (self::$oSQLite == null){
 			cDebug::extra_debug("creating cSqlLite instance");
 			$oDB = new cSqlLite(self::DB_FILENAME);
 			self::$oSQLite = $oDB;
-			$this->pr_create_table();
+			$this->pr_create_table($psTable);
 		}else
 			cDebug::extra_debug(" cSqlLite instance exists");
-		//cDebug::leave();
     }
 	
 	
@@ -83,7 +88,6 @@ class cOBjStoreDB{
 		$aResults = $oResultSet->fetchArray();
 		if ( $aResults ){
 			cDebug::extra_debug("table exists");				
-			//cDebug::vardump($aResults); //DEBUG
 			//cDebug::leave();
 			return;
 		}
@@ -100,11 +104,10 @@ class cOBjStoreDB{
 		$oStmt = $oSQL->query($sSQL);
 		cDebug::extra_debug("table created");				
 		
-		//add a timestamp to say when this database was created
+		//add an Audit timestamp to say when this database was created
 		cDebug::extra_debug("writing creation timestamp");				
 		$sNow = date('d-m-Y H:i:s');
-		$oObj = new cOBjStoreDB();
-		$oObj->realm = self::OBJSTORE_REALM;
+		$oObj = new cOBjStoreDB(self::OBJSTORE_REALM);
 		$oObj->put( self::OBJSTORE_CREATE_KEY, $sNow);
 		//cDebug::leave();
 	}

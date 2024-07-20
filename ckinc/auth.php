@@ -16,16 +16,15 @@ require_once("$phpInc/ckinc/objstoredb.php");
 
 class cAuth{
 	const ROLES_FOLDER = "[roles]";
+    const OBJDB_REALM = "AUTH";
+    const OBJDB_TABLE = "CKAUTH";
+
 	static $oObjStore = null;
 
 	static function pr_init_objstore(){
 		cDebug::enter();
 		if (self::$oObjStore == null){
-			$oStore = new cObjStoreDB();
-			$oStore->realm = "AUTH";
-			//$oStore->SHOW_SQL = true; //DEBUG
-			$oStore->set_table("CKAUTH");	//possibly auth is a reserved name
-			self::$oObjStore = $oStore;
+			self::$oObjStore = new cObjStoreDB(self::OBJDB_REALM, self::OBJDB_TABLE);
 		}
 		cDebug::leave();
 	}
