@@ -57,7 +57,7 @@ class cOBjStoreDB{
     function __construct( $psRealm , $psTable = null) {
         $this->realm = $psRealm;
         if ($psTable == null)
-            cDebug::warning("table not provided for objstoredb realm $psRealm");
+            cPageOutput::warning("table not provided for objstoredb realm $psRealm");
 		$this->table = self::TABLE_NAME;
 		if (self::$oSQLite == null){
 			cDebug::extra_debug("creating cSqlLite instance");
@@ -120,7 +120,7 @@ class cOBjStoreDB{
 	//********************************************************************************
 	private function pr_warn_deprecated(){
 		if (!self::$warned_oldstyle){
-			cDebug::warning("oldstyle functions are to be deprecated");
+			cDebug::write("oldstyle functions are to be deprecated");
 			self::$warned_oldstyle = true;
 		}
 	}

@@ -82,7 +82,7 @@ class cHash{
 	//************************************************************************
 	public static function getPath($psHash){
 		if (!self::$shown_deprecated_warning){
-			cDebug::warning("file based hash will be deprecated");
+			cPageOutput::warning("file based hash will be deprecated");
 			self::$shown_deprecated_warning = true;
 		}
 		$sFolder = self::get_folder($psHash);

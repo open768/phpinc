@@ -102,7 +102,7 @@ class  cSqlLite {
 		global $root;
 		//cDebug::enter();
 		if ($this->database == null ){
-			cDebug::warning("database not opened");
+			cPageOutput::warning("database not opened");
 			
 			//check if folder exists for database
 			$sFolder = $root."/".self::DB_folder;

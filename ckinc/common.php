@@ -53,16 +53,6 @@ class cCommon{
 		return get_object_vars($poThing); 
 	}
 	
-	//**************************************************************************
-	public static function put_in_wbrs($psInput, $piInterval=20){
-		if (substr_count($psInput, " ") > 0)
-			return $psInput;
-		else{
-			$aSplit = str_split($psInput, $piInterval);
-			$sJoined = implode("<wbr>",$aSplit);
-			return $sJoined;
-		}
-	}
 	
 	//**************************************************************************
 	//code for following function based on http://php.net/manual/en/function.rmdir.php
@@ -140,13 +130,7 @@ class cCommon{
 	//**************************************************************************
 	public static function my_IP_address(){
 		return GetHostByName(null);
-	}
-	
-	//**************************************************************************
-	public static function fixed_width_div($piWidth, $psContent){
-		$sBroken = self::put_in_wbrs($psContent);
-		?><div style='width:<?=$piWidth?>px;max-width:<?=$piWidth?>px;'><?=$sBroken?></div><?php
-	}
+	}	
 	
 	//**************************************************************************
 	public static function save_to_session($psKey, $psValue){
@@ -157,39 +141,32 @@ class cCommon{
 		if ($check !== $psValue)
 			cDebug::error("unable to save to session : $psKey =&gt; $psValue");
 	}
-	
-	//**************************************************************************
-	public static function errorbox($psMessage){
-		?>
-			<p>
-			<div class='w3-panel w3-red w3-leftbar'>
-				<h2>Oops there was an error</h2>
-				<p>
-				<?=$psMessage?>
-			</div>
-		<?php
-		cDebug::flush();
-	}
-	
-	//**************************************************************************
-	public static function messagebox($psMessage){
-		?>
-			<p>
-			<div class='w3-panel w3-blue w3-round-large w3-padding-16 w3-leftbar'>
-				<?=$psMessage?>
-			</div>
-		<?php
-		cDebug::flush();
-	}
-	
-	//**************************************************************************
-	public static function div_with_cols($piCols, $psExtra=""){
-		echo "<div style='column-count:$piCols;overflow-wrap:break-word' $psExtra>";
-	}
-
 }
 
+//###################################################################################
+//#
+//###################################################################################
 class cPageOutput{
+	//**************************************************************************
+	public static function warning($psText){
+		cDebug::write("<b><font size='+2'color='brick'>Warning:</font></b> $psText");
+	}
+
+	//**************************************************************************
+	public static function put_in_wbrs($psInput, $piInterval=20){
+		if (substr_count($psInput, " ") > 0)
+			return $psInput;
+		else{
+			$aSplit = str_split($psInput, $piInterval);
+			$sJoined = implode("<wbr>",$aSplit);
+			return $sJoined;
+		}
+	}
+	//**************************************************************************
+	public static function fixed_width_div($piWidth, $psContent){
+		$sBroken = self::put_in_wbrs($psContent);
+		?><div style='width:<?=$piWidth?>px;max-width:<?=$piWidth?>px;'><?=$sBroken?></div><?php
+	}
 	//**************************************************************************
     public static function write_JS_class_constant_IDs( $psClassName){
         $oReflection = new ReflectionClass($psClassName);
@@ -209,5 +186,34 @@ class cPageOutput{
         </script>
         <?php
     }
+
+	//**************************************************************************
+	public static function errorbox($psMessage){
+		?>
+			<p>
+			<div class='w3-panel w3-red w3-leftbar'>
+				<h2>Oops there was an error</h2>
+				<p>
+				<?=$psMessage?>
+			</div>
+		<?php
+		cDebug::flush();
+	}
+	
+	//**************************************************************************
+	public static function div_with_cols($piCols, $psExtra=""){
+		echo "<div style='column-count:$piCols;overflow-wrap:break-word' $psExtra>";
+	}
+
+    //**************************************************************************
+	public static function messagebox($psMessage){
+		?>
+			<p>
+			<div class='w3-panel w3-blue w3-round-large w3-padding-16 w3-leftbar'>
+				<?=$psMessage?>
+			</div>
+		<?php
+		cDebug::flush();
+	}
 }
 ?>

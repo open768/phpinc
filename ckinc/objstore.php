@@ -33,7 +33,7 @@ class cObjStore{
 	//********************************************************************
 	private static function pr_show_obsolete_msg(){
 		if (!self::$obsolete_message_sent){
-			cDebug::warning("cObjStore is deprecated, use cObjStoreDb instead");
+			cPageOutput::warning("cObjStore is deprecated, use cObjStoreDb instead");
 			self::$obsolete_message_sent = true;
 		}
 	}

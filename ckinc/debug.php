@@ -145,10 +145,6 @@ class cDebug{
 		    self::write("<b><font size='+2'>in <font color='brick'>$sClass:$sFunc (line $sLine)</font> error: <font color='brick'>$psText</font></font></b><pre>");
 		throw new Exception($psText);
 	}
-	//**************************************************************************
-	public static function warning($psText){
-		self::write("<b><font size='+2'color='brick'>Warning:</font></b> $psText");
-	}
 	
 	//##############################################################################
 	public static function is_localhost(){
@@ -229,7 +225,7 @@ class cDebug{
 			self::$ENTER_DEPTH--;
 			if (self::$ENTER_DEPTH < 0) {
 				self::$ENTER_DEPTH = 0;
-				//self::warning("too many leave calls");
+				//self::write("too many leave calls");
 			}
 			self::extra_debug("<font color='#3b3c36' face='courier' size=2>Leave &gt; $sCaller</font>", $pbOnce);
 		}
