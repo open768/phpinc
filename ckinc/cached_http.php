@@ -34,7 +34,7 @@ class cCachedHttp{
 	//********************************************************************
 	public static function init_obj_store_db(){
 		if (!self::$objstoreDB){
-			$oDB = new cObjStoreDB(self::OBJDB_REALM, self::OBJDB_TABLE);
+            $oDB = new cObjStoreDB(self::OBJDB_REALM, self::OBJDB_TABLE);
 			$oDB->expire_time = SELF::DEFAULT_CACHE_EXPIRY;
 			
 			self::$objstoreDB = $oDB;
@@ -111,7 +111,10 @@ class cCachedHttp{
 		cDebug::write("getting url:$psURL");
 		if (cHash::exists($psURL, true)) cHash::delete($psURL); //remove the old chash cached item
 		
-		$oData = self::$objstoreDB->get($psURL,true);
+        
+        /** @var cObjStoreDB **/
+        $oDB = self::$objstoreDB;
+		$oData = $oDB->get($psURL,true);
 		if ($oData == null){
 			cDebug::extra_debug("obj not cached $psURL");
 			if ($pbJson)
@@ -120,7 +123,7 @@ class cCachedHttp{
 				$oData = $oHttp->fetch_url($psURL);
 				
 			if ($oData) 
-				self::$objstoreDB->put($psURL, $oData, true);
+                $oDB->put($psURL, $oData, true);
 		}
 		
 		cDebug::leave();

@@ -120,7 +120,7 @@ class cObjStore{
 		
 		$sFolder = self::pr_get_folder_path( $psFolder);
 		if (!is_dir($sFolder)){
-			cDebug::write("making folder: for hash $psHash");
+			cDebug::write("making folder: for hash $psFolder");
 			mkdir($sFolder, 0700, true);
 		}
 		
