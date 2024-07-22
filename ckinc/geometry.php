@@ -21,6 +21,7 @@ class cPoint{
 }
 
 class cRect{
+    /** @var cPoint*/
 	public $P1, $P2;
 	public function __construct($pX1, $pY1, $pX2, $pY2) {
 		$this->P1 = new cPoint((float)$pX1, (float)$pY1);
@@ -43,6 +44,21 @@ class cRect{
 		
 		return true;
 	}
+
+    /**
+     * expands the bounding box of the rectangle
+     * 
+     * @param float $pfX
+     * @param float $pfy
+     * 
+     * @return void
+     */
+    public function expand( $pfX, $pfY){
+        $this->P1->x = min($this->P1->x, $pfX);
+        $this->P1->y = min($this->P1->y, $pfY);
+        $this->P2->x = max($this->P1->x, $pfX);
+        $this->P2->y = max($this->P1->y, $pfY);
+    }
 }
 
 ?>

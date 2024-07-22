@@ -101,7 +101,9 @@ class cFacebook_ServerSide{
 			if (!$sUser){
 				cDebug::write("username not in session, checking if known");
 			
-				$oGraphObject = self::$objstoreDB->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
+                /** @var cObjStoreDB **/
+                $oDB = self::$objstoreDB;
+				$oGraphObject = $oDB->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
 				if ($oGraphObject){
 					cDebug::write("found stored user");
 					//$aNames = $oGraphObject->getPropertyNames();
@@ -117,18 +119,22 @@ class cFacebook_ServerSide{
 	//*******************************************************************
 	private static function pr_storeUserDetails($psUserID, $poData){
 		cDebug::enter();
-		//store the details
-		self::$objstoreDB->put_oldstyle(self::FB_USER_FOLDER,$psUserID, $poData);
+
+        /** @var cObjStoreDB **/
+		$oDB = self::$objstoreDB;
+
+        //store the details
+		$oDB->put_oldstyle(self::FB_USER_FOLDER,$psUserID, $poData);
 		
 		//add to list of FB users 
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		//%this is not scalable imagine if there were thousands of users - it would kill the PHP server 
 		//%TBD to find a better way of working with arrays.
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		$aFBUsers = self::$objstoreDB->get_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS);
+		$aFBUsers = $oDB->get_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS);
 		if (!$aFBUsers) $aFBUsers = [];
 		$aFBUsers[$psUserID] = 1;
-		self::$objstoreDB->put_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS, $aFBUsers);
+		$oDB->put_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS, $aFBUsers);
 
 		cDebug::leave();
 	}
