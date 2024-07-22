@@ -11,6 +11,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
 **************************************************************************/
 require_once("$phpInc/ckinc/curl.php");
+
 class cHttpTuple{
 	public $key;
 	public $value;
@@ -252,6 +253,7 @@ class cHttp{
 	//############################################################################
 	private function pr__curl_init($psUrl){
 		//cDebug::enter();
+        global $root;
 
 		$oCurl = new cCurl($psUrl);	
 		$oCurl->setopt( CURLOPT_URL, $psUrl);
@@ -303,7 +305,7 @@ class cHttp{
 	//*****************************************************************************
 	private function pr__fetch_curl_image($psUrl){
 		$oCurl = $this->pr__curl_init($psUrl);	
-		$oCurl->setopt( CURLOPT_BINARYTRANSFER, 1); 
+		//$oCurl->setopt( CURLOPT_BINARYTRANSFER, 1); // this is deprecated and can be removed #54
 		$response = $oCurl->exec();
 		
 		$oImage = imagecreatefromstring($response);
