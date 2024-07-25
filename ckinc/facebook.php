@@ -1,12 +1,15 @@
 <?php
 require_once("$phpInc/ckinc/debug.php");
 require_once("$phpInc/ckinc/common.php");
-require_once("$phpInc/extra/facebook/autoload.php");
 require_once("$phpInc/ckinc/objstoredb.php");
+
+// @todo the following is deprecated FB now only supports their graph API
+// https://github.com/facebookarchive/php-graph-sdk
+//load facebook classes
+require_once("$phpInc/extra/facebook/autoload.php");
 use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
 use Facebook\GraphUser;	
-	
 
 //###########################################################################
 //#
@@ -22,6 +25,9 @@ class cFacebookID{
 	}
 }
 
+//###########################################################################
+//#
+//###########################################################################
 class cFacebook_ServerSide{
 	const FB_USER_FOLDER = "[facebook]";
 	const FB_ALL_USERS= "[all users]";
