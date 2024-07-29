@@ -1,5 +1,5 @@
 <?php
-require_once("$phpInc/ckinc/debug.php");
+require_once  "$phpInc/ckinc/debug.php";
 
 //----------- start the session --------------------
 require_once "$phpInc/ckinc/session.php";

@@ -17,11 +17,11 @@ or leave a message on github
 //%
  **************************************************************************/
 
- require_once("$phpInc/ckinc/objstore.php");
- require_once("$phpInc/ckinc/common.php");
-require_once("$phpInc/ckinc/gz.php");
-require_once("$phpInc/ckinc/hash.php");
-require_once("$phpInc/ckinc/sqlite.php");
+require_once  "$phpInc/ckinc/objstore.php";
+require_once  "$phpInc/ckinc/common.php";
+require_once  "$phpInc/ckinc/gz.php";
+require_once  "$phpInc/ckinc/hash.php";
+require_once  "$phpInc/ckinc/sqlite.php";
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%% Database 
@@ -223,7 +223,8 @@ class cOBjStoreDB
      * @todo make this work on the objstore
      * @return void
      */
-    public function kill_folder_oldstyle($psFolder){
+    public function kill_folder_oldstyle($psFolder)
+    {
         //delete any physical files
         cObjStore::kill_folder($psFolder);
 
