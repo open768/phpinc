@@ -175,10 +175,10 @@ class cFacebook_ServerSide
     public static function getUserIDDetails($psUserID, $psToken)
     {
         cDebug::enter();
-        $aFBApp = self::getAppID();
+        $oAppID = self::getAppID();
 
         cDebug::extra_debug("-- validating session");
-        FacebookSession::setDefaultApplication($aFBApp["I"], $aFBApp["S"]);
+        FacebookSession::setDefaultApplication($oAppID->id, $oAppID->secret);
 
         $oSession = new FacebookSession($psToken);
         try {
