@@ -184,33 +184,32 @@ class cPageOutput
     public static function fixed_width_div($piWidth, $psContent)
     {
         $sBroken = self::put_in_wbrs($psContent);
-?><div style='width:<?= $piWidth ?>px;max-width:<?= $piWidth ?>px;'><?= $sBroken ?></div><?php
-                                                                                        }
-                                                                                        //**************************************************************************
-                                                                                        public static function write_JS_class_constant_IDs($psClassName)
-                                                                                        {
-                                                                                            $oReflection = new ReflectionClass($psClassName);
-                                                                                            $aConsts = $oReflection->getConstants();
-                                                                                            if (count($aConsts) == 0) return;
+        echo "<div style='width:{$piWidth}px;max-width:{$piWidth}px;'>{$sBroken}</div>";
+    }
 
-                                                                                            ?>
-        <script>
-            class <?= $psClassName ?> {
-                <?php
-                                                                                            foreach ($aConsts as $sKey => $sValue) {
-                ?>
-                    static <?= $sKey ?> = "#<?= $sValue ?>"
-                <?php
-                                                                                            } ?>
-            }
-        </script>
-    <?php
-                                                                                        }
+    //**************************************************************************
+    public static function write_JS_class_constant_IDs($psClassName)
+    {
+        $oReflection = new ReflectionClass($psClassName);
+        $aConsts = $oReflection->getConstants();
+        if (count($aConsts) == 0) return;
+        $aStatics = $oReflection->getStaticProperties();
 
-                                                                                        //**************************************************************************
-                                                                                        public static function errorbox($psMessage)
-                                                                                        {
-    ?>
+        echo "<script>\n"; {
+            echo "class {$psClassName} {\n";
+            foreach ($aConsts as $sKey => $sValue)
+                echo "\tstatic {$sKey} = '{$sValue}'\n";
+            foreach ($aStatics as $sKey => $sValue)
+                echo "\tstatic {$sKey} = '{$sValue}'\n";
+            echo "}";
+        }
+        echo "</script>\n";
+    }
+
+    //**************************************************************************
+    public static function errorbox($psMessage)
+    {
+?>
         <p>
         <div class='w3-panel w3-red w3-leftbar'>
             <h2>Oops there was an error</h2>
@@ -218,25 +217,25 @@ class cPageOutput
                 <?= $psMessage ?>
         </div>
     <?php
-                                                                                            cDebug::flush();
-                                                                                        }
+        cDebug::flush();
+    }
 
-                                                                                        //**************************************************************************
-                                                                                        public static function div_with_cols($piCols, $psExtra = "")
-                                                                                        {
-                                                                                            echo "<div style='column-count:$piCols;overflow-wrap:break-word' $psExtra>";
-                                                                                        }
+    //**************************************************************************
+    public static function div_with_cols($piCols, $psExtra = "")
+    {
+        echo "<div style='column-count:$piCols;overflow-wrap:break-word' $psExtra>";
+    }
 
-                                                                                        //**************************************************************************
-                                                                                        public static function messagebox($psMessage)
-                                                                                        {
+    //**************************************************************************
+    public static function messagebox($psMessage)
+    {
     ?>
         <p>
         <div class='w3-panel w3-blue w3-round-large w3-padding-16 w3-leftbar'>
             <?= $psMessage ?>
         </div>
 <?php
-                                                                                            cDebug::flush();
-                                                                                        }
-                                                                                    }
+        cDebug::flush();
+    }
+}
 ?>
