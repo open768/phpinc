@@ -37,11 +37,9 @@ class cOBjStoreDB {
     const COL_HASH = "HA";
     const COL_CONTENT = "CO";
     const COL_DATE = "DA";
+    const COL_USER = "US";
     const OBJSTORE_REALM = "_objstore_";
     const OBJSTORE_CREATE_KEY = "created on";
-
-    const SQL_CHECK_TABLE = 'SELECT name FROM sqlite_master WHERE name=":t"';
-    const SQL_CREATE_TABLE = 'CREATE TABLE ":t" ( ":r" TEXT not null, ":h" TEXT not null, ":c" TEXT, ":d" DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ":r", ":h"))';
 
     //class properties
     public $SHOW_SQL = false;
@@ -50,6 +48,16 @@ class cOBjStoreDB {
     public $expire_time = null;
     public $check_expiry = false;
     public $table = null;
+
+    /*
+        magic strings in this code
+        :t - table
+        :r - column
+        :h - hash
+        :c - content
+        :d - timestamp
+        :u - userid
+    */
 
 
     //#####################################################################
@@ -86,7 +94,9 @@ class cOBjStoreDB {
 
 
         //check if table exists
-        $sSQL = str_replace(":t", $this->table, self::SQL_CHECK_TABLE);
+        $sSQL = 'SELECT name FROM sqlite_master WHERE name=":t"';
+
+        $sSQL = str_replace(":t", $this->table, $sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
         $oResultSet = $oSQL->query($sSQL);
         if ($oResultSet == null) cDebug::error("null response: $sSQL");
@@ -100,15 +110,26 @@ class cOBjStoreDB {
 
         //table doesnt exist
         cDebug::extra_debug("table '{$this->table}' does not exist");
-        $sSQL = str_replace(":t", $this->table, self::SQL_CREATE_TABLE);
+        $sSQL = "CREATE TABLE ':t' ( ':r' TEXT not null, ':h' TEXT not null, ':c' TEXT, ':u' TEXT,':d' DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ':r', ':h'))";
+        $sSQL = str_replace(":t", $this->table, $sSQL);
         $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
         $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
         $sSQL = str_replace(":c", self::COL_CONTENT, $sSQL);
         $sSQL = str_replace(":d", self::COL_DATE, $sSQL);
+        $sSQL = str_replace(":u", self::COL_USER, $sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 
         $oStmt = $oSQL->query($sSQL);
         cDebug::extra_debug("table created");
+
+        //create an index on the table
+        $sSQL = "CREATE INDEX idx_users on :t ( :r, :u )";
+        $sSQL = str_replace(":t", $this->table, $sSQL);
+        $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
+        $sSQL = str_replace(":u", self::COL_USER, $sSQL);
+        if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
+        $oStmt = $oSQL->query($sSQL);
+        cDebug::extra_debug("index created");
 
         //add an Audit timestamp to say when this database was created
         cDebug::extra_debug("writing creation timestamp");
@@ -285,6 +306,7 @@ class cOBjStoreDB {
         $sSQL = str_replace(":d", self::COL_DATE, $sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 
+        //bind the values
         $oStmt = $oSQL->prepare($sSQL);
         $oStmt->bindValue(1, $this->realm);
         $oStmt->bindValue(2, $sHash);
