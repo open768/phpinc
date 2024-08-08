@@ -26,8 +26,7 @@ require_once  "$phpInc/ckinc/sqlite.php";
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%% Database 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-class cOBjStoreDB
-{
+class cOBjStoreDB {
     //statics and constants
     private static $warned_oldstyle = false;
     private static $oSQLite = null; //static as same database obj used between instances
@@ -57,19 +56,23 @@ class cOBjStoreDB
     //# constructor
     // by default all entries go into _objstore_
     //#####################################################################
-    function __construct($psRealm, $psTable = null)
-    {
+    function __construct($psRealm, $psTable = null) {
         $this->realm = $psRealm;
-        if ($psTable == null)
-            cPageOutput::warning("table not provided for objstoredb realm $psRealm");
-        $this->table = self::TABLE_NAME;
+        $this->table = $psTable;
+
+        //check whether SQLLite has been 
         if (self::$oSQLite == null) {
             cDebug::extra_debug("creating cSqlLite instance");
             $oDB = new cSqlLite(self::DB_FILENAME);
             self::$oSQLite = $oDB;
-            $this->pr_create_table($psTable);
         } else
             cDebug::extra_debug(" cSqlLite instance exists");
+
+        if ($this->table == null) {
+            cPageOutput::warning("table not provided for objstoredb realm $psRealm");
+            $this->table = self::TABLE_NAME;
+        }
+        $this->pr_create_table();
     }
 
 
@@ -77,14 +80,12 @@ class cOBjStoreDB
     //# PRIVATES
     //#####################################################################
 
-    private function pr_create_table()
-    {
+    private function pr_create_table() {
         //cDebug::enter();
         $oSQL = self::$oSQLite;
 
 
         //check if table exists
-        cDebug::extra_debug("checking table exists");
         $sSQL = str_replace(":t", $this->table, self::SQL_CHECK_TABLE);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
         $oResultSet = $oSQL->query($sSQL);
@@ -92,13 +93,13 @@ class cOBjStoreDB
 
         $aResults = $oResultSet->fetchArray();
         if ($aResults) {
-            cDebug::extra_debug("table exists");
+            cDebug::extra_debug("table '{$this->table}' exists");
             //cDebug::leave();
             return;
         }
 
         //table doesnt exist
-        cDebug::extra_debug("table does not exist");
+        cDebug::extra_debug("table '{$this->table}' does not exist");
         $sSQL = str_replace(":t", $this->table, self::SQL_CREATE_TABLE);
         $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
         $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
@@ -118,8 +119,7 @@ class cOBjStoreDB
     }
 
     //********************************************************************************
-    private function pr_check_realm()
-    {
+    private function pr_check_realm() {
         if ($this->realm == null) cDebug::error("realm is null");
     }
 
@@ -130,8 +130,7 @@ class cOBjStoreDB
      * @todo
      * @return void
      */
-    private function pr_warn_deprecated()
-    {
+    private function pr_warn_deprecated() {
         if (!self::$warned_oldstyle) {
             cDebug::write("oldstyle functions are to be deprecated");
             self::$warned_oldstyle = true;
@@ -142,8 +141,7 @@ class cOBjStoreDB
     //# PUBLICS - OLD STYLE - to be deprecated after everything is migrated
     //#####################################################################
     //********************************************************************************
-    public function put_oldstyle($psFolder, $psFile, $poData)
-    {
+    public function put_oldstyle($psFolder, $psFile, $poData) {
         //cDebug::enter();
         self::pr_warn_deprecated();
 
@@ -168,8 +166,7 @@ class cOBjStoreDB
      * @param [type] $poData
      * @return void
      */ //********************************************************************************
-    public function add_to_array_oldstyle($psFolder, $psFile, $poData)
-    {
+    public function add_to_array_oldstyle($psFolder, $psFile, $poData) {
         //cDebug::enter();
 
         self::pr_warn_deprecated();
@@ -183,8 +180,7 @@ class cOBjStoreDB
     }
 
     //********************************************************************************
-    public function get_oldstyle($psFolder, $psFile)
-    {
+    public function get_oldstyle($psFolder, $psFile) {
         //cDebug::enter();
 
         self::pr_warn_deprecated();
@@ -205,8 +201,7 @@ class cOBjStoreDB
     }
 
     //********************************************************************************
-    public function kill_oldstyle($psFolder, $psFile)
-    {
+    public function kill_oldstyle($psFolder, $psFile) {
         cDebug::enter();
         self::pr_warn_deprecated();
         $sFullpath = $psFolder . "/" . $psFile;
@@ -221,8 +216,7 @@ class cOBjStoreDB
      * @todo make this work on the objstore
      * @return void
      */
-    public function kill_folder_oldstyle($psFolder)
-    {
+    public function kill_folder_oldstyle($psFolder) {
         //delete any physical files
         cObjStore::kill_folder($psFolder);
 
@@ -234,8 +228,7 @@ class cOBjStoreDB
     //# PUBLICS
     //#####################################################################
 
-    public function set_table($psTable)
-    {
+    public function set_table($psTable) {
         //cDebug::enter();
 
         cDebug::extra_debug("setting table to $psTable");
@@ -248,8 +241,7 @@ class cOBjStoreDB
     }
 
     //********************************************************************************
-    public function put($psKey, $pvAnything, $pbOverride = true)
-    {
+    public function put($psKey, $pvAnything, $pbOverride = true) {
         //cDebug::enter();
         $this->pr_check_realm();
         $oSQL = self::$oSQLite;
@@ -277,8 +269,7 @@ class cOBjStoreDB
     }
 
     //********************************************************************************
-    public function get($psKey, $pbCheckExpiry = false)
-    {
+    public function get($psKey, $pbCheckExpiry = false) {
         //cDebug::enter();
         $this->pr_check_realm();
 
@@ -329,8 +320,7 @@ class cOBjStoreDB
 
 
     //********************************************************************************
-    public function kill($psKey)
-    {
+    public function kill($psKey) {
         cDebug::enter();
         $this->pr_check_realm();
         $oSQL = self::$oSQLite;
