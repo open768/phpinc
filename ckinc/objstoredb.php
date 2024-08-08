@@ -197,10 +197,8 @@ class cOBjStoreDB
             $oData = cObjStore::get_file($psFolder, $psFile);
             $this->put($sFullpath, $oData);
             cObjStore::kill_file($psFolder, $psFile);
-        } else {
-            cDebug::extra_debug("not found in cObjstore: $sFullpath");
+        } else
             $oData = $this->get($sFullpath);
-        }
 
         //cDebug::leave();		
         return $oData;

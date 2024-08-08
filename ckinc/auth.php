@@ -20,6 +20,9 @@ class cAuth
     const ROLES_FOLDER = "[roles]";
     const OBJDB_REALM = "AUTH";
     const OBJDB_TABLE = "CKAUTH";
+    const ADMIN_ROLE = "ckadmin"; //fixed for everything
+    const YES = "yes";
+    const ID_FILENAME = "ckadmin.json";
 
     static $objstoreDB = null;
 
@@ -57,6 +60,8 @@ class cAuth
     public static function add_to_role($psUserID, $psRole)
     {
         /** @var cObjStoreDB **/
+        cDebug::enter();
+
         $oDB = self::$objstoreDB;
         $aRoleDetails = $oDB->get_oldstyle(self::ROLES_FOLDER, $psRole);
         if (!$aRoleDetails) $aRoleDetails = [];
@@ -64,7 +69,9 @@ class cAuth
             cDebug::write("Adding $psUserID to role $psRole");
             $aRoleDetails[$psUserID] = true;
             $oDB->put_oldstyle(self::ROLES_FOLDER, $psRole, $aRoleDetails);
-        }
+        } else
+            cDebug::write("user $psUserID allready has role $psRole ");
+        cDebug::leave();
     }
 
     //**********************************************************
@@ -103,9 +110,75 @@ class cAuth
         $sUser = self::get_user();
         if (!$sUser) cDebug::error("user not logged in");
 
-        cDebug::write("user is $sUser");
         cDebug::leave();
         return $sUser;
+    }
+
+    //**********************************************************
+    public static function current_user_is_admin()
+    {
+        cDebug::enter();
+        $sUser = self::get_user();
+
+        if (!$sUser)
+            return "not logged in";
+
+        $sIsAdmin = "no";
+        $bisAdmin = cAuth::is_role(self::ADMIN_ROLE);
+        if ($bisAdmin)
+            $sIsAdmin = self::YES;
+
+        cDebug::extra_debug("result is $sIsAdmin");
+        cDebug::leave();
+        return $sIsAdmin;
+    }
+
+    //**********************************************************
+    public static function check_for_admin_id_file()
+    {
+        global $appConfig;
+
+
+        cDebug::enter();
+
+        //--------check that file is there -------------------------
+        $filename = $appConfig . "/" . self::ID_FILENAME;
+        cDebug::write("checking for ID file '$filename'");
+        if (!file_exists($filename)) {
+            cDebug::write("file doesnt exist - no users to ad to admin role");
+            return;
+        }
+        cDebug::extra_debug("ID file found");
+
+        //--------read in raw json -------------------------
+        $sRaw = file_get_contents($filename);
+        $oJson = json_decode($sRaw);
+        if ($oJson == null) {
+            cDebug::vardump($sRaw);
+            cDebug::error("unable to read Json content in $filename");
+        }
+        cDebug::write("file contains json");
+
+        //--------check that the structure is valid --------------------
+        if (!$oJson->admin_ids) {
+            cDebug::vardump($sRaw);
+            cDebug::error("no property admin_ids found in json");
+        }
+        $aIds = $oJson->admin_ids;
+        if (!is_array($aIds)) cDebug::error("admin_ids doesnt contain an array");
+        cDebug::write("file contains json");
+
+        //---------process the IDs -----------------------------
+        cDebug::vardump($aIds, true);
+        foreach ($aIds as $sID) {
+            cDebug::extra_debug("adding user $sID");
+            self::add_to_role($sID, self::ADMIN_ROLE);
+        }
+        cDebug::extra_debug("deleting json file");
+        unlink($filename);
+
+
+        cDebug::leave();
     }
 }
 cAuth::init_obj_store_db();
