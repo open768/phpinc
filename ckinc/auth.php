@@ -15,29 +15,25 @@ require_once "$phpInc/ckinc/facebook.php";
 require_once "$phpInc/ckinc/header.php";
 require_once  "$phpInc/ckinc/objstoredb.php";
 
-class cAuth
-{
+class cAuth {
     const ROLES_FOLDER = "[roles]";
     const OBJDB_REALM = "AUTH";
-    const OBJDB_TABLE = "CKAUTH";
     const ADMIN_ROLE = "ckadmin"; //fixed for everything
     const YES = "yes";
     const ID_FILENAME = "ckadmin.json";
 
     static $objstoreDB = null;
 
-    static function init_obj_store_db()
-    {
+    static function init_obj_store_db() {
         cDebug::enter();
         if (self::$objstoreDB == null) {
-            self::$objstoreDB = new cObjStoreDB(self::OBJDB_REALM, self::OBJDB_TABLE);
+            self::$objstoreDB = new cObjStoreDB(self::OBJDB_REALM, "CKAUTH");
         }
         cDebug::leave();
     }
 
     //**********************************************************
-    public static function get_user()
-    {
+    public static function get_user() {
         cDebug::enter();
 
         $sUser = cFacebook_ServerSide::getSessionUser();
@@ -47,8 +43,7 @@ class cAuth
     }
 
     //**********************************************************
-    public static function get_user_id()
-    {
+    public static function get_user_id() {
         cDebug::enter();
         $sUserID = cFacebook_ServerSide::getSessionUserID();
         cDebug::write("user ID is $sUserID");
@@ -57,8 +52,7 @@ class cAuth
     }
 
     //**********************************************************
-    public static function add_to_role($psUserID, $psRole)
-    {
+    public static function add_to_role($psUserID, $psRole) {
         /** @var cObjStoreDB **/
         cDebug::enter();
 
@@ -75,8 +69,7 @@ class cAuth
     }
 
     //**********************************************************
-    public static function is_role($psRole)
-    {
+    public static function is_role($psRole) {
         global $root;
         cDebug::enter();
         /** @var cObjStoreDB **/
@@ -104,8 +97,7 @@ class cAuth
     }
 
     //**********************************************************
-    public static function must_get_user()
-    {
+    public static function must_get_user() {
         cDebug::enter();
         $sUser = self::get_user();
         if (!$sUser) cDebug::error("user not logged in");
@@ -115,8 +107,7 @@ class cAuth
     }
 
     //**********************************************************
-    public static function current_user_is_admin()
-    {
+    public static function current_user_is_admin() {
         cDebug::enter();
         $sUser = self::get_user();
 
@@ -134,8 +125,7 @@ class cAuth
     }
 
     //**********************************************************
-    public static function check_for_admin_id_file()
-    {
+    public static function check_for_admin_id_file() {
         global $appConfig;
 
 

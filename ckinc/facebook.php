@@ -15,13 +15,11 @@ use Facebook\GraphUser;
 //###########################################################################
 //#
 //###########################################################################
-class cFacebookID
-{
+class cFacebookID {
     public $id = null;
     public $secret = null;
 
-    function __construct($psID, $psSecret)
-    {
+    function __construct($psID, $psSecret) {
         if (!cCommon::is_string_set($psID)) cDebug::error("no ID set");
         $this->id = $psID;
         $this->secret = $psSecret;
@@ -31,27 +29,23 @@ class cFacebookID
 //###########################################################################
 //#
 //###########################################################################
-class cFacebook_ServerSide
-{
+class cFacebook_ServerSide {
     const FB_USER_FOLDER = "[facebook]";
     const FB_ALL_USERS = "[all users]";
     const FB_SESS_USER = "fbuser";
     const FB_SESS_USERID = "fbuserid";
     const OBJSTORE_REALM = "FB";
-    const OBJSTORE_TABLE = "FB";
     static $objstoreDB = null;
 
 
-    static function init_obj_store_db()
-    {
+    static function init_obj_store_db() {
         cDebug::enter();
         if (self::$objstoreDB == null)
-            self::$objstoreDB = new cObjStoreDB(self::OBJSTORE_REALM, self::OBJSTORE_TABLE);
+            self::$objstoreDB = new cObjStoreDB(self::OBJSTORE_REALM, "FB");
         cDebug::leave();
     }
     //*******************************************************************
-    public static function is_facebook()
-    {
+    public static function is_facebook() {
         //force on query string
         if (isset($_GET["fb"])) return true;
 
@@ -61,8 +55,7 @@ class cFacebook_ServerSide
 
 
     //*******************************************************************
-    private static function pr_setSessionUser($poGraphObject)
-    {
+    private static function pr_setSessionUser($poGraphObject) {
         cDebug::enter();
         $sUser = $poGraphObject->getProperty("name");
         $sID = $poGraphObject->getProperty("id");
@@ -73,8 +66,7 @@ class cFacebook_ServerSide
     }
 
     //*******************************************************************
-    public static function getSessionUser()
-    {
+    public static function getSessionUser() {
         cDebug::enter();
         $sUser = null;
         //get the user from the session
@@ -92,8 +84,7 @@ class cFacebook_ServerSide
     }
 
     //*******************************************************************
-    public static function getSessionUserID()
-    {
+    public static function getSessionUserID() {
         //get the user from the session
         if (isset($_SESSION[self::FB_SESS_USERID]))
             return $_SESSION[self::FB_SESS_USERID];
@@ -104,8 +95,7 @@ class cFacebook_ServerSide
     }
 
     //*******************************************************************
-    public static function getStoredUser($psUserID)
-    {
+    public static function getStoredUser($psUserID) {
         cDebug::enter();
 
         if (cDebug::$IGNORE_CACHE)
@@ -133,8 +123,7 @@ class cFacebook_ServerSide
     }
 
     //*******************************************************************
-    private static function pr_storeUserDetails($psUserID, $poData)
-    {
+    private static function pr_storeUserDetails($psUserID, $poData) {
         cDebug::enter();
 
         /** @var cObjStoreDB **/
@@ -157,8 +146,7 @@ class cFacebook_ServerSide
     }
 
     //*******************************************************************
-    public static function getAppID()
-    {
+    public static function getAppID() {
         $sID = null;
         cDebug::enter();
         if (cDebug::is_localhost()) {
@@ -172,8 +160,7 @@ class cFacebook_ServerSide
     }
 
     //*******************************************************************
-    public static function getUserIDDetails($psUserID, $psToken)
-    {
+    public static function getUserIDDetails($psUserID, $psToken) {
         cDebug::enter();
         $oAppID = self::getAppID();
 

@@ -17,8 +17,7 @@ require_once  "$phpInc/ckinc/debug.php";
 require_once  "$phpInc/ckinc/hash.php";
 require_once  "$phpInc/ckinc/objstoredb.php";
 
-class cCachedHttp
-{
+class cCachedHttp {
     const INFINITE = -1;
     private static $objstoreDB = null;
     public $CACHE_EXPIRY = 3600;  //(seconds)
@@ -30,28 +29,24 @@ class cCachedHttp
     public     $show_progress = false;
     public  $HTTPS_CERT_FILENAME = null;
     const OBJDB_REALM = "CACHTTP";
-    const OBJDB_TABLE = "HTMLCAC";
     const DEFAULT_CACHE_EXPIRY = 3600;
 
     //********************************************************************
-    public static function init_obj_store_db()
-    {
+    public static function init_obj_store_db() {
         if (!self::$objstoreDB) {
-            $oDB = new cObjStoreDB(self::OBJDB_REALM, self::OBJDB_TABLE);
+            $oDB = new cObjStoreDB(self::OBJDB_REALM, "HTMLCAC");
             $oDB->expire_time = SELF::DEFAULT_CACHE_EXPIRY;
 
             self::$objstoreDB = $oDB;
         }
     }
     //*****************************************************************************
-    public function deleteCachedURL($psURL)
-    {
+    public function deleteCachedURL($psURL) {
         cHash::delete($psURL);
     }
 
     //*****************************************************************************
-    public function getCachedUrl($psURL)
-    {
+    public function getCachedUrl($psURL) {
         cDebug::enter();
         $oResult = $this->pr_do_get($psURL, false);
         cDebug::leave();
@@ -59,8 +54,7 @@ class cCachedHttp
     }
 
     //*****************************************************************************
-    public function getXML($psURL)
-    {
+    public function getXML($psURL) {
         cDebug::enter();
 
         cDebug::write("Getting XML from: $psURL");
@@ -75,8 +69,7 @@ class cCachedHttp
     }
 
     //*****************************************************************************
-    public function getCachedUrltoFile($psURL)
-    {    //for large files too big for sql
+    public function getCachedUrltoFile($psURL) {    //for large files too big for sql
         cDebug::enter();
         $sHash = cHash::hash($psURL);
         cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;        //dangerous fudge TODO
@@ -94,8 +87,7 @@ class cCachedHttp
     }
 
     //*****************************************************************************
-    public function getCachedJson($psURL)
-    {
+    public function getCachedJson($psURL) {
         cDebug::enter();
         $oResult = $this->pr_do_get($psURL, true);
         cDebug::leave();
@@ -105,8 +97,7 @@ class cCachedHttp
     //*****************************************************************************
     //*
     //*****************************************************************************
-    private function pr_do_get($psURL, $pbJson)
-    {
+    private function pr_do_get($psURL, $pbJson) {
         cDebug::enter();
 
         $oHttp = new cHttp();
