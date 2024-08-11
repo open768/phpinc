@@ -123,7 +123,7 @@ class cOBjStoreDB {
         cDebug::extra_debug("table created");
 
         //create an index on the table
-        $sSQL = "CREATE INDEX idx_users on :t ( :r, :u )";
+        $sSQL = "CREATE INDEX idx_users on ':t' ( :r, :u )";
         $sSQL = str_replace(":t", $this->table, $sSQL);
         $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
         $sSQL = str_replace(":u", self::COL_USER, $sSQL);
@@ -208,14 +208,16 @@ class cOBjStoreDB {
         $this->pr_check_realm();
         $oData = null;
         $sFullpath = $psFolder . "/" . $psFile;
-        cDebug::extra_debug("path is $sFullpath");
+        //cDebug::extra_debug("path is $sFullpath");
         if (cObjStore::file_exists($psFolder, $psFile)) {
             cDebug::extra_debug("migrating from cObjstore: $sFullpath");
             $oData = cObjStore::get_file($psFolder, $psFile);
             $this->put($sFullpath, $oData);
             cObjStore::kill_file($psFolder, $psFile);
-        } else
+        } else {
+            cDebug::extra_debug("no need to migrate");
             $oData = $this->get($sFullpath);
+        }
 
         //cDebug::leave();		
         return $oData;
@@ -271,8 +273,8 @@ class cOBjStoreDB {
         $sHash = cHash::hash($psKey);
         //cDebug::extra_debug("hash: $sHash");
 
-        $sSQL = "REPLACE INTO :t (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
-        if (!$pbOverride) $sSQL = "INSERT INTO :t (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
+        $sSQL = "REPLACE INTO ':t' (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
+        if (!$pbOverride) $sSQL = "INSERT INTO ':t' (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
         $sSQL = str_replace(":t", $this->table, $sSQL);
         $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
         $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
@@ -292,18 +294,21 @@ class cOBjStoreDB {
     //********************************************************************************
     public function get($psKey, $pbCheckExpiry = false) {
         //cDebug::enter();
+        cDebug::extra_debug("Checking Realm");
         $this->pr_check_realm();
 
         //read from the database and decompress
+        cDebug::extra_debug("reading from table");
         $sHash = cHash::hash($psKey);
         $oSQL = self::$oSQLite;
 
-        $sSQL = "SELECT :r,:c,:d FROM :t where :r=? AND :h=?";
+        $sSQL = "SELECT :r,:c,:d FROM ':t' where :r=? AND :h=?";
         $sSQL = str_replace(":t", $this->table, $sSQL);
         $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
         $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
         $sSQL = str_replace(":c", self::COL_CONTENT, $sSQL);
         $sSQL = str_replace(":d", self::COL_DATE, $sSQL);
+        cDebug::extra_debug("SQL: $sSQL");
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 
         //bind the values
@@ -351,7 +356,7 @@ class cOBjStoreDB {
         $sHash = cHash::hash($psKey);
         cDebug::extra_debug("hash: $sHash");
 
-        $sSQL = "DELETE from :t where :r=? AND :h=?";
+        $sSQL = "DELETE from ':t' where :r=? AND :h=?";
         $sSQL = str_replace(":t", $this->table, $sSQL);
         $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
         $sSQL = str_replace(":h", self::COL_HASH, $sSQL);

@@ -53,7 +53,6 @@ class cAuth {
 
     //**********************************************************
     public static function add_to_role($psUserID, $psRole) {
-        /** @var cObjStoreDB **/
         cDebug::enter();
 
         $oDB = self::$objstoreDB;

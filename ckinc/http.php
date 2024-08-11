@@ -13,14 +13,12 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
  **************************************************************************/
 require_once  "$phpInc/ckinc/curl.php";
 
-class cHttpTuple
-{
+class cHttpTuple {
     public $key;
     public $value;
 }
 
-class cHttp
-{
+class cHttp {
     public $LARGE_URL_DIR = "[cache]/[Largeurls]";
     public $progress_len = 0;
     public $progress_count = 0;
@@ -38,16 +36,14 @@ class cHttp
     public $method = null;
 
     //*****************************************************************************
-    public function set_credentials($psUserName, $psPassword)
-    {
+    public function set_credentials($psUserName, $psPassword) {
         $this->authenticate = true;
         $this->username = $psUserName;
         $this->password = $psPassword;
     }
 
     //*****************************************************************************
-    public function getJson($psURL)
-    {
+    public function getJson($psURL) {
         $sResponse = $this->fetch_url($psURL);
         //if ($this->debug) cDebug::write("response was : $sResponse");
         $oData = json_decode($sResponse);
@@ -56,8 +52,7 @@ class cHttp
     }
 
     //*****************************************************************************
-    public  function fetch_image($psUrl)
-    {
+    public  function fetch_image($psUrl) {
         if ($this->USE_CURL)
             return $this->pr__fetch_curl_image($psUrl);
         else
@@ -65,8 +60,7 @@ class cHttp
     }
 
     //*****************************************************************************
-    public  function fetch_url($psUrl)
-    {
+    public  function fetch_url($psUrl) {
         if ($this->debug) cDebug::enter();
         if ($this->debug) cDebug::extra_debug($psUrl);
 
@@ -80,8 +74,7 @@ class cHttp
     }
 
     //*****************************************************************************
-    public function fetch_to_file($psUrl, $psPath, $pbOverwrite = false, $piTimeOut = 60, $pbGzip = false)
-    {
+    public function fetch_to_file($psUrl, $psPath, $pbOverwrite = false, $piTimeOut = 60, $pbGzip = false) {
         //cDebug::enter();
         if ($this->USE_CURL) {
             cDebug::error("curl is not supported");
@@ -92,8 +85,7 @@ class cHttp
     }
 
     //*****************************************************************************
-    public function large_url_path($psFilename)
-    {
+    public function large_url_path($psFilename) {
         global $root;
 
         $sDir = "$root/" . $this->LARGE_URL_DIR;
@@ -101,8 +93,7 @@ class cHttp
     }
 
     //*****************************************************************************
-    public function fetch_large_url($psUrl, $psFilename, $pbOverwrite = false)
-    {
+    public function fetch_large_url($psUrl, $psFilename, $pbOverwrite = false) {
         global $root;
         //cDebug::enter();
 
@@ -123,8 +114,7 @@ class cHttp
     //############################################################################
     //#
     //############################################################################
-    private function pr__make_header_string($aHeaders)
-    {
+    private function pr__make_header_string($aHeaders) {
         if ($this->debug) cDebug::enter();
 
         $sOut = null;
@@ -143,8 +133,7 @@ class cHttp
     }
 
     //********************************************************************
-    private function pr__fetch_basic_url($psUrl, $pbAllowNull = true)
-    {
+    private function pr__fetch_basic_url($psUrl, $pbAllowNull = true) {
         global $http_response_header;
 
         if ($this->debug) cDebug::enter();
@@ -216,16 +205,14 @@ class cHttp
     //############################################################################
     //#  URL Building functions
     //############################################################################
-    public static function build_qs_from_array($psBase, $paAssoc)
-    {
+    public static function build_qs_from_array($psBase, $paAssoc) {
         $sQS = $psBase;
         foreach ($paAssoc as $sKey => $sValue)
             $sQS = self::build_qs($sQS, $sKey, $sValue);
         return $sQS;
     }
 
-    public static function build_qs($psBase, $psQueryParam, $psQueryValue = null)
-    {
+    public static function build_qs($psBase, $psQueryParam, $psQueryValue = null) {
         if ($psQueryParam == "") return $psBase;
 
         $sUrl = $psBase;
@@ -238,8 +225,7 @@ class cHttp
         return $sUrl;
     }
 
-    public static function build_url($psBase, $psQueryParam, $psQueryValue = null)
-    {
+    public static function build_url($psBase, $psQueryParam, $psQueryValue = null) {
         if (($psBase == null) || ($psBase == "")) cDebug::error("base url cant be empty");
         $sUrl = $psBase;
         if (strpos($sUrl, "?") == false)     $sUrl .= "?";
@@ -249,8 +235,7 @@ class cHttp
     }
 
     //*******************************************************************
-    public static function page_matches($psUrl)
-    {
+    public static function page_matches($psUrl) {
         $sPageUrl = cHeader::get_page_url();
 
         $aCurrent = (object) parse_url($sPageUrl);
@@ -265,8 +250,7 @@ class cHttp
     //#  CURL functions
     //#
     //############################################################################
-    private function pr__curl_init($psUrl)
-    {
+    private function pr__curl_init($psUrl) {
         //cDebug::enter();
         global $root;
 
@@ -320,8 +304,7 @@ class cHttp
 
 
     //*****************************************************************************
-    private function pr__fetch_curl_image($psUrl)
-    {
+    private function pr__fetch_curl_image($psUrl) {
         $oCurl = $this->pr__curl_init($psUrl);
         //$oCurl->setopt( CURLOPT_BINARYTRANSFER, 1); // this is deprecated and can be removed #54
         $response = $oCurl->exec();
@@ -332,8 +315,7 @@ class cHttp
     }
 
     //*****************************************************************************
-    private function pr__fetch_curl_url($psUrl)
-    {
+    private function pr__fetch_curl_url($psUrl) {
         global $root;
 
         //cDebug::enter();
@@ -345,8 +327,7 @@ class cHttp
     }
 
     //*****************************************************************************
-    private function pr__fetch_curl_to_file($psUrl, $psPath, $pbOverwrite = false, $piTimeOut = 60, $pbGzip = false)
-    {
+    private function pr__fetch_curl_to_file($psUrl, $psPath, $pbOverwrite = false, $piTimeOut = 60, $pbGzip = false) {
         //check whether the file exists
         if (!$pbOverwrite && file_exists($psPath)) {
             cDebug::write("file exists $psPath");
@@ -386,8 +367,7 @@ class cHttp
     //#  Other  functions
     //#
     //############################################################################
-    public function __progress_callback($resource, $dl_size, $dl, $ul_size)
-    {
+    public function __progress_callback($resource, $dl_size, $dl, $ul_size) {
 
         $this->progress_count++;
         if ($this->progress_count < 20) return;
@@ -399,7 +379,6 @@ class cHttp
             echo "<br>";
         }
         echo "*";
-        ob_flush();
-        flush();
+        cDebug::flush();
     }
 }

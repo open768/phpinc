@@ -86,16 +86,12 @@ class cObjStore {
 
     //********************************************************************
     public static function file_exists($psFolder, $psFile) {
-        cDebug::enter();
-
         self::pr_show_obsolete_msg();
         $sFolder = self::pr_get_folder_path($psFolder);
         $sFile = "$sFolder/$psFile";
 
         $bResult = file_exists($sFile);
-        if (!$bResult) cDebug::extra_debug("file doesnt exist : $sFile");
 
-        cDebug::leave();
         return $bResult;
     }
 
