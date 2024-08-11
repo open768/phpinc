@@ -294,11 +294,11 @@ class cOBjStoreDB {
     //********************************************************************************
     public function get($psKey, $pbCheckExpiry = false) {
         //cDebug::enter();
-        cDebug::extra_debug("Checking Realm");
+        //cDebug::extra_debug("Checking Realm");
         $this->pr_check_realm();
 
         //read from the database and decompress
-        cDebug::extra_debug("reading from table");
+        //cDebug::extra_debug("reading from table");
         $sHash = cHash::hash($psKey);
         $oSQL = self::$oSQLite;
 
@@ -308,7 +308,6 @@ class cOBjStoreDB {
         $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
         $sSQL = str_replace(":c", self::COL_CONTENT, $sSQL);
         $sSQL = str_replace(":d", self::COL_DATE, $sSQL);
-        cDebug::extra_debug("SQL: $sSQL");
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 
         //bind the values
@@ -360,7 +359,7 @@ class cOBjStoreDB {
         $sSQL = str_replace(":t", $this->table, $sSQL);
         $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
         $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
-        cDebug::extra_debug("SQL: $sSQL");
+        if ($this->SHOW_SQL) cDebug::extra_debug("SQL: $sSQL");
 
         $oStmt = $oSQL->prepare($sSQL);
         $oStmt->bindValue(1, $this->realm);
