@@ -148,7 +148,7 @@ class cCommon {
 //###################################################################################
 class cPageOutput {
     public static function prevent_buffering() {
-        ob_end_clean();
+        @ob_end_clean();
         ini_set("max_execution_time", 60);
         ini_set("max_input_time", 60);
         set_time_limit(600);
