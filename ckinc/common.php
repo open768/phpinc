@@ -181,8 +181,9 @@ class cPageOutput {
     public static function write_JS_class_constant_IDs($psClassName) {
         $oReflection = new ReflectionClass($psClassName);
         $aConsts = $oReflection->getConstants();
-        if (count($aConsts) == 0) return;
         $aStatics = $oReflection->getStaticProperties();
+        $iCount = count($aConsts) + count($aStatics);
+        if ($iCount == 0) return;
 
         echo "<script>\n"; {
             echo "class {$psClassName} {\n";
