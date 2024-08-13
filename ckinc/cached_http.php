@@ -111,7 +111,7 @@ class cCachedHttp {
         if (cHash::exists($psURL, true)) cHash::delete($psURL); //remove the old chash cached item
 
 
-        /** @var cObjStoreDB **/
+        /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
         $oData = $oDB->get($psURL, true);
         if ($oData == null) {

@@ -167,7 +167,7 @@ class cCommonFiles {
         $oIter = new RecursiveIteratorIterator($oOnlyDirIter, RecursiveIteratorIterator::CHILD_FIRST);
 
         // Loop over directories and remove empty ones
-        /** @var  SplFileInfo */
+        /** @var SplFileInfo $oDir */
         $oDir = null;
 
         foreach ($oIter as $oDir) {

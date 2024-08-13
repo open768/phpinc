@@ -107,7 +107,7 @@ class cFacebook_ServerSide {
             if (!$sUser) {
                 cDebug::write("username not in session, checking if known");
 
-                /** @var cObjStoreDB **/
+                /** @var cObjStoreDB $oDB **/
                 $oDB = self::$objstoreDB;
                 $oGraphObject = $oDB->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
                 if ($oGraphObject) {
@@ -126,7 +126,7 @@ class cFacebook_ServerSide {
     private static function pr_storeUserDetails($psUserID, $poData) {
         cDebug::enter();
 
-        /** @var cObjStoreDB **/
+        /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
 
         //store the details

@@ -71,7 +71,7 @@ class cAuth {
     public static function is_role($psRole) {
         global $root;
         cDebug::enter();
-        /** @var cObjStoreDB **/
+        /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
 
         //check whether this role is in the list of roles that the user has.
