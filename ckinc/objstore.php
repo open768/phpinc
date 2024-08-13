@@ -78,7 +78,7 @@ class cObjStore {
         $folder = self::pr_get_folder_path($psFolder);
         $file = "$folder/$psFile";
         if (file_exists($file)) {
-            unlink($file);
+            @unlink($file);
             cDebug::write("deleted file $file");
         }
         //cDebug::leave();
