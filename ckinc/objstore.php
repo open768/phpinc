@@ -62,7 +62,7 @@ class cObjStore {
         self::pr_show_obsolete_msg();
         $sPath = self::pr_get_folder_path($psFolder);
         cDebug::write("killing folder $sPath");
-        cCommon::delTree($sPath);
+        cCommonFiles::delTree($sPath);
 
         cDebug::leave();
     }

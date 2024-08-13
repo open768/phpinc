@@ -10,17 +10,15 @@ if (!cSession::is_session_started()) {
 }
 
 
-class cHeader
-{
+class cHeader {
     //*******************************************************************
-    public static function redirect_if_referred()
-    {
+    public static function redirect_if_referred() {
         if (isset($_SERVER['HTTP_REFERER'])) {
             $sUrl = $_SERVER['HTTP_REFERER'];
             $aRef = parse_url($sUrl);
 
             $sPath = basename($aRef["path"]);
-            $sThis = pathinfo(cCommon::filename())["filename"]; //filename without extension
+            $sThis = pathinfo(cCommonFiles::server_filename())["filename"]; //filename without extension
 
             if ($sPath === "$sThis.html") {
                 $sRedir = "$sThis.php?" . $aRef["query"];
@@ -32,8 +30,7 @@ class cHeader
     }
 
     //*******************************************************************
-    public static function redirect($psUrl)
-    {
+    public static function redirect($psUrl) {
         if (cDebug::is_debugging()) {
             cDebug::write("Redirect stopped: $psUrl");
             exit;
@@ -47,14 +44,12 @@ class cHeader
                 }
 
                 //*******************************************************************
-                public static function is_set($psKey)
-                {
+                public static function is_set($psKey) {
                     return (isset($_GET[$psKey]) || isset($_POST[$psKey]));
                 }
 
                 //*******************************************************************
-                public static function get($psKey)
-                {
+                public static function get($psKey) {
                     $sValue = null;
                     if (isset($_GET[$psKey]))
                         $sValue = $_GET[$psKey];
@@ -78,8 +73,7 @@ class cHeader
                 }
 
                 //*******************************************************************
-                public static function get_server()
-                {
+                public static function get_server() {
                     $server_name = $_SERVER['SERVER_NAME'];
 
                     if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
@@ -97,22 +91,19 @@ class cHeader
                 }
 
                 //*******************************************************************
-                public static function get_page_url()
-                {
+                public static function get_page_url() {
                     $sServer = self::get_server();
 
                     return $sServer . $_SERVER["SCRIPT_NAME"];
                 }
                 //*******************************************************************
-                public static function get_page_dir()
-                {
+                public static function get_page_dir() {
                     return cHeader::get_server() . dirname($_SERVER["SCRIPT_NAME"]);
                 }
 
 
                 //*******************************************************************
-                public static function set_download_filename($psFilename)
-                {
+                public static function set_download_filename($psFilename) {
                     if (cDebug::is_debugging()) {
                         cDebug::write("download file would have been set to $psFilename");
                         return;
@@ -126,8 +117,7 @@ class cHeader
                 }
 
                 //*******************************************************************
-                public static function get_referer()
-                {
+                public static function get_referer() {
                     return $_SERVER["HTTP_REFERER"];
                 }
             }

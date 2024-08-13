@@ -33,12 +33,6 @@ class cCommon {
     const PROGRESS_CHAR = "&#8667;";
 
     //**************************************************************************
-    public static function filename() {
-        global $_SERVER;
-        return basename($_SERVER["PHP_SELF"]);
-    }
-
-    //**************************************************************************
     public static function write_json($poThing) {
         if (cDebug::is_debugging()) {
             cDebug::write("json output:");
@@ -53,23 +47,6 @@ class cCommon {
         return get_object_vars($poThing);
     }
 
-
-    //**************************************************************************
-    //code for following function based on http://php.net/manual/en/function.rmdir.php
-    public static function delTree($psDir) {
-        $aFiles = array_diff(scandir($psDir), array('.', '..'));
-        foreach ($aFiles as $sfile) {
-            try {
-                if (is_dir("$psDir/$sfile") && !is_link($psDir))
-                    self::delTree("$psDir/$sfile");
-                else
-                    unlink("$psDir/$sfile");
-            } catch (Exception $e) {
-            }
-        }
-        cDebug::write("removing $psDir");
-        rmdir($psDir);
-    }
 
     //**************************************************************************
     public static function flushprint($psWhat = self::PROGRESS_CHAR) {
@@ -140,6 +117,34 @@ class cCommon {
         $check = $_SESSION[$psKey];
         if ($check !== $psValue)
             cDebug::error("unable to save to session : $psKey =&gt; $psValue");
+    }
+}
+
+//###################################################################################
+//#
+//###################################################################################
+class cCommonFiles {
+    //**************************************************************************
+    public static function server_filename() {
+        global $_SERVER;
+        return basename($_SERVER["PHP_SELF"]);
+    }
+
+    //**************************************************************************
+    //code for following function based on http://php.net/manual/en/function.rmdir.php
+    public static function delTree($psDir) {
+        $aFiles = array_diff(scandir($psDir), array('.', '..'));
+        foreach ($aFiles as $sfile) {
+            try {
+                if (is_dir("$psDir/$sfile") && !is_link($psDir))
+                    self::delTree("$psDir/$sfile");
+                else
+                    unlink("$psDir/$sfile");
+            } catch (Exception $e) {
+            }
+        }
+        cDebug::write("removing $psDir");
+        rmdir($psDir);
     }
 }
 
