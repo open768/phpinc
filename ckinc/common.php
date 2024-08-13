@@ -146,6 +146,17 @@ class cCommonFiles {
         cDebug::write("removing $psDir");
         rmdir($psDir);
     }
+
+    //**************************************************************************
+    public static function get_directory_iterator(string $psDir, callable $pFnFilter) {
+        $oDirIter = new RecursiveDirectoryIterator($psDir, FilesystemIterator::SKIP_DOTS); //tree walks the directory
+        $oFilterIter = new RecursiveCallbackFilterIterator(
+            $oDirIter,
+            $pFnFilter
+        );
+        $oIter = new RecursiveIteratorIterator($oFilterIter);  //note: cant vardump $oIter
+        return $oIter;
+    }
 }
 
 //###################################################################################
