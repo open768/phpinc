@@ -66,6 +66,7 @@ class cDebug {
         self::extra_debug("<font color='red'>$psThing</font>");
     }
 
+    //**************************************************************************
     public static function extra_debug($psThing, $pbOnce = false) {
         if (!self::is_extra_debugging()) return;
         if ($pbOnce) {
@@ -81,8 +82,9 @@ class cDebug {
         else {
             echo "<p>";
             echo "<font color='{", self::EXTRA_DEBUG_FONT_COLOUR, "}'><code>{$sIndented}</code></font>";
-            echo "<p>";
+            echo "<p>\n";
         }
+        self::flush();
     }
 
 
@@ -95,7 +97,7 @@ class cDebug {
             else {
                 echo "<p>";
                 echo "<font color='", self::DEBUG_FONT_COLOUR, "'><code>{$sIndented}</code></font>";
-                echo "<p>";
+                echo "<p>\n";
             }
             self::flush();
         }

@@ -186,15 +186,16 @@ class cCommonFiles {
 //###################################################################################
 //#
 //###################################################################################
+function prevent_buffering() {
+    @ob_end_flush();
+    ini_set("max_execution_time", 60);
+    ini_set("max_input_time", 60);
+    set_time_limit(600);
+    ini_set("output_buffering", "Off");
+    ini_set("implicit_flush", true);
+}
+
 class cPageOutput {
-    public static function prevent_buffering() {
-        @ob_end_clean();
-        ini_set("max_execution_time", 60);
-        ini_set("max_input_time", 60);
-        set_time_limit(600);
-        ini_set("output_buffering", "Off");
-        ini_set("implicit_flush", 1);
-    }
 
     //**************************************************************************
     public static function warning($psText) {

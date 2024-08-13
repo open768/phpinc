@@ -215,7 +215,7 @@ class cOBjStoreDB {
             $this->put($sFullpath, $oData);
             cObjStore::kill_file($psFolder, $psFile);
         } else {
-            cDebug::extra_debug("no need to migrate");
+            //cDebug::extra_debug("no need to migrate");
             $oData = $this->get($sFullpath);
         }
 

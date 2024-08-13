@@ -69,7 +69,7 @@ class cObjStore {
 
     //********************************************************************
     public static function kill_file($psFolder, $psFile) {
-        cDebug::enter();
+        //cDebug::enter();
 
         self::pr_show_obsolete_msg();
         $num_args = func_num_args();
@@ -81,7 +81,7 @@ class cObjStore {
             unlink($file);
             cDebug::write("deleted file $file");
         }
-        cDebug::leave();
+        //cDebug::leave();
     }
 
     //********************************************************************
@@ -98,7 +98,7 @@ class cObjStore {
     //********************************************************************
     public static function get_file($psFolder, $psFile) {
         $aData = null;
-        cDebug::enter();
+        //cDebug::enter();
 
         self::pr_show_obsolete_msg();
         $num_args = func_num_args();
@@ -114,7 +114,7 @@ class cObjStore {
             $aData = cHash::get($sFile);
         }
 
-        cDebug::leave();
+        //cDebug::leave();
         return $aData;
     }
 
