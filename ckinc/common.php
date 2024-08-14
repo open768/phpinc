@@ -149,7 +149,10 @@ class cCommonFiles {
 
     //**************************************************************************
     public static function get_directory_iterator(string $psDir, callable $pFnFilter) {
-        $oDirIter = new RecursiveDirectoryIterator($psDir, FilesystemIterator::SKIP_DOTS); //tree walks the directory
+        cDebug::extra_debug("iterator directory is $psDir");
+
+        $sFolder = realpath($psDir);
+        $oDirIter = new RecursiveDirectoryIterator($sFolder, FilesystemIterator::SKIP_DOTS); //tree walks the directory
         $oFilterIter = new RecursiveCallbackFilterIterator(
             $oDirIter,
             $pFnFilter
@@ -192,7 +195,7 @@ function prevent_buffering() {
     ini_set("max_input_time", 60);
     set_time_limit(600);
     ini_set("output_buffering", "Off");
-    ini_set("implicit_flush", true);
+    ini_set("implicit_flush", "On");
 }
 
 class cPageOutput {
