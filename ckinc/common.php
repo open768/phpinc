@@ -152,6 +152,7 @@ class cCommonFiles {
         cDebug::extra_debug("iterator directory is $psDir");
 
         $sFolder = realpath($psDir);
+        if (!$sFolder) cDebug::error("no such folder $psDir");
         $oDirIter = new RecursiveDirectoryIterator($sFolder, FilesystemIterator::SKIP_DOTS); //tree walks the directory
         $oFilterIter = new RecursiveCallbackFilterIterator(
             $oDirIter,

@@ -10,7 +10,6 @@ require_once  "$phpInc/extra/facebook/autoload.php";
 
 use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
-use Facebook\GraphUser;
 
 //###########################################################################
 //#
@@ -107,13 +106,10 @@ class cFacebook_ServerSide {
             if (!$sUser) {
                 cDebug::write("username not in session, checking if known");
 
-                /** @var cObjStoreDB $oDB **/
-                $oDB = self::$objstoreDB;
-                $oGraphObject = $oDB->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
-                if ($oGraphObject) {
+                $oUser = self::get_userDetails($sUser);
+                if ($oUser) {
                     cDebug::write("found stored user");
-                    //$aNames = $oGraphObject->getPropertyNames();
-                    $sUser = self::pr_setSessionUser($oGraphObject);
+                    $sUser = self::pr_setSessionUser($oUser);
                 }
             }
         }
@@ -131,18 +127,38 @@ class cFacebook_ServerSide {
 
         //store the details
         $oDB->put_oldstyle(self::FB_USER_FOLDER, $psUserID, $poData);
-
-        //add to list of FB users 
-        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        //%this is not scalable imagine if there were thousands of users - it would kill the PHP server 
-        //%TBD to find a better way of working with arrays.
-        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        $aFBUsers = $oDB->get_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS);
-        if (!$aFBUsers) $aFBUsers = [];
-        $aFBUsers[$psUserID] = 1;
-        $oDB->put_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS, $aFBUsers);
+        self::add_to_index($psUserID);
 
         cDebug::leave();
+    }
+
+    //*******************************************************************
+    static function add_to_index($psUserID) {
+        cDebug::enter();
+        /** @var cObjStoreDB $oDB **/
+        $oDB = self::$objstoreDB;
+        $oDB->add_to_array_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS, $psUserID);
+        cDebug::leave();
+    }
+
+    //*******************************************************************
+    static function get_userDetails($psUserID) {
+        cDebug::enter();
+        /** @var cObjStoreDB $oDB **/
+        $oDB = self::$objstoreDB;
+        $oDB->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
+        cDebug::leave();
+        return $oDB;
+    }
+
+    //*******************************************************************
+    static function get_index() {
+        cDebug::enter();
+        /** @var cObjStoreDB $oDB **/
+        $oDB = self::$objstoreDB;
+        $aData = $oDB->get_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS);
+        cDebug::leave();
+        return $aData;
     }
 
     //*******************************************************************
@@ -179,13 +195,12 @@ class cFacebook_ServerSide {
         cDebug::extra_debug("-- requesting from Graph");
         $oFBRequest = new FacebookRequest($oSession, 'GET', '/me');
         $oFBResponse = $oFBRequest->execute();
-        $oGraphObject = $oFBResponse->getGraphObject();
-        //cDebug::vardump($oGraphObject);
+        $oUser = $oFBResponse->getGraphObject();
 
         //remember this user
         cDebug::extra_debug("-- remembering user");
-        $sUser = self::pr_setSessionUser($oGraphObject);
-        self::pr_storeUserDetails($psUserID, $oGraphObject);
+        $sUser = self::pr_setSessionUser($oUser);
+        self::pr_storeUserDetails($psUserID, $oUser);
 
         cDebug::leave();
         return $sUser;

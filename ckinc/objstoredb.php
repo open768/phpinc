@@ -219,7 +219,7 @@ class cOBjStoreDB {
             $oData = $this->get($sFullpath);
         }
 
-        //cDebug::leave();		
+        //cDebug::leave();
         return $oData;
     }
 

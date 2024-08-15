@@ -21,7 +21,7 @@ class cObjStore {
     //#####################################################################
     //# PRIVATES
     //#####################################################################
-    private static function pr_get_folder_path($psFolder) {
+    static function get_folder_path($psFolder = null) {
         if (self::$OBJDATA_REALM == null)
             cDebug::error("OBJDATA_REALM not set in objstore");
         $sOut = self::$rootFolder . "/" . self::$OBJDATA_REALM;
@@ -60,7 +60,7 @@ class cObjStore {
         cDebug::enter();
 
         self::pr_show_obsolete_msg();
-        $sPath = self::pr_get_folder_path($psFolder);
+        $sPath = self::get_folder_path($psFolder);
         cDebug::write("killing folder $sPath");
         cCommonFiles::delTree($sPath);
 
@@ -75,7 +75,7 @@ class cObjStore {
         $num_args = func_num_args();
         if ($num_args != 2) cDebug::error("kill_file: incorrect number of arguments - expected 2 got $num_args ");
 
-        $folder = self::pr_get_folder_path($psFolder);
+        $folder = self::get_folder_path($psFolder);
         $file = "$folder/$psFile";
         if (file_exists($file)) {
             @unlink($file);
@@ -87,7 +87,7 @@ class cObjStore {
     //********************************************************************
     public static function file_exists($psFolder, $psFile) {
         self::pr_show_obsolete_msg();
-        $sFolder = self::pr_get_folder_path($psFolder);
+        $sFolder = self::get_folder_path($psFolder);
         $sFile = "$sFolder/$psFile";
 
         $bResult = file_exists($sFile);
@@ -104,7 +104,7 @@ class cObjStore {
         $num_args = func_num_args();
         if ($num_args != 2) cDebug::error("get_file: incorrect number of arguments - expected 2 got $num_args ");
 
-        $sFolder = self::pr_get_folder_path($psFolder);
+        $sFolder = self::get_folder_path($psFolder);
         $sFile = "$sFolder/$psFile";
 
         if (file_exists($sFile)) {
@@ -129,7 +129,7 @@ class cObjStore {
         //check that there is something to write
         if ($poData == null) cDebug::error("put_file: no data to write");
 
-        $sFolder = self::pr_get_folder_path($psFolder);
+        $sFolder = self::get_folder_path($psFolder);
         if (!is_dir($sFolder)) {
             cDebug::write("making folder: for hash $psFolder");
             mkdir($sFolder, 0700, true);
