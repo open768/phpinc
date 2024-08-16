@@ -38,7 +38,7 @@ class cDebug {
     }
 
     public static function on($pbExtraDebugging = false) {
-
+        ini_set("display_errors", "on"); //needed otherwise 500 error in prod
         self::$DEBUGGING = true;
         self::$EXTRA_DEBUGGING = $pbExtraDebugging;
         cDebug::extra_debug("extra debugging is on");   //will only print if it is on

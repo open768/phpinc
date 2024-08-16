@@ -56,6 +56,8 @@ class cFacebook_ServerSide {
     //*******************************************************************
     private static function pr_setSessionUser($poGraphObject) {
         cDebug::enter();
+        $sClass = get_class($poGraphObject);
+        if ($sClass !== "Facebook\GraphObject") cDebug::error("class Facebook\GraphObject expected, found $sClass");
         $sUser = $poGraphObject->getProperty("name");
         $sID = $poGraphObject->getProperty("id");
         $_SESSION[self::FB_SESS_USER] = $sUser;
@@ -109,6 +111,7 @@ class cFacebook_ServerSide {
                 $oUser = self::get_userDetails($sUser);
                 if ($oUser) {
                     cDebug::write("found stored user");
+                    cDebug::vardump($oUser, true);
                     $sUser = self::pr_setSessionUser($oUser);
                 }
             }
@@ -146,9 +149,10 @@ class cFacebook_ServerSide {
         cDebug::enter();
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
-        $oDB->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
+        $oUser = $oDB->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
+
         cDebug::leave();
-        return $oDB;
+        return $oUser;
     }
 
     //*******************************************************************
