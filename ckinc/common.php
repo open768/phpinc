@@ -195,12 +195,13 @@ class cCommonFiles {
 //#
 //###################################################################################
 function prevent_buffering() {
-    @ob_end_flush();
-    ini_set("max_execution_time", 60);
-    ini_set("max_input_time", 60);
+    @ini_set("max_execution_time", 60);
+    @ini_set("max_input_time", 60);
+    @ini_set("output_buffering", "Off");
+    @ini_set("implicit_flush", "On");
     set_time_limit(600);
-    ini_set("output_buffering", "Off");
-    ini_set("implicit_flush", "On");
+    @ob_end_flush();
+    @ob_implicit_flush(true);
 }
 
 class cPageOutput {
