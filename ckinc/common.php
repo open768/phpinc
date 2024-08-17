@@ -80,9 +80,13 @@ class cCommon {
 
     //**************************************************************************
     public static function is_string_set($psValue) {
-        $bResult = (($psValue != null) && ($psValue !== ""));
+        $bResult = (($psValue !== null) && ($psValue !== ""));
         //if (!$bResult) cDebug::write("string: $psValue result: not set");
         return $bResult;
+    }
+    //**************************************************************************
+    public static function is_string_empty($psValue) {
+        return (($psValue == null) || ($psValue == ""));
     }
 
     //**************************************************************************
