@@ -106,9 +106,11 @@ class cObjStore {
 
         $sFolder = self::get_folder_path($psFolder);
         $sFile = "$sFolder/$psFile";
+        $sReal = realpath($sFile);
 
-        if (file_exists($sFile)) {
-            $aData = cGzip::readObj($sFile);
+        if ($sReal) {
+            cDebug::write("file exists: $sReal");
+            $aData = cGzip::readObj($sReal);
         } elseif (cHash::exists($sFile)) {
             cDebug::write("found in hash");
             $aData = cHash::get($sFile);

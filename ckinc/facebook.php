@@ -108,7 +108,7 @@ class cFacebook_ServerSide {
             if (!$sUser) {
                 cDebug::write("username not in session, checking if known");
 
-                $oUser = self::get_userDetails($sUser);
+                $oUser = self::get_userDetails($psUserID);
                 if ($oUser) {
                     cDebug::write("found stored user");
                     cDebug::vardump($oUser, true);
@@ -147,8 +147,13 @@ class cFacebook_ServerSide {
     //*******************************************************************
     static function get_userDetails($psUserID) {
         cDebug::enter();
+        if (cCommon::is_string_empty($psUserID)) cDebug::error("no user ID");
+
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
+        $sFolder = self::FB_USER_FOLDER;
+        cDebug::extra_debug("folder:$sFolder file:$psUserID");
+
         $oUser = $oDB->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
 
         cDebug::leave();

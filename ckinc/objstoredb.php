@@ -210,7 +210,7 @@ class cOBjStoreDB {
         $sFullpath = $psFolder . "/" . $psFile;
         //cDebug::extra_debug("path is $sFullpath");
         if (cObjStore::file_exists($psFolder, $psFile)) {
-            cDebug::extra_debug("migrating from cObjstore: $sFullpath");
+            cDebug::extra_debug("migrating from cObjstore: $sFullpath, folder:$psFolder, file:$psFile");
             $oData = cObjStore::get_file($psFolder, $psFile);
             $this->put($sFullpath, $oData);
             cObjStore::kill_file($psFolder, $psFile);
