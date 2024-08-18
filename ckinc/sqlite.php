@@ -78,6 +78,7 @@ class  cSqlLite {
     private $rootFolder = null;
     public $dbname = null;
     public $path = null;
+    /** @var SQLite3 $database */
     public $database = null;        //always the same database
 
     //#####################################################################
@@ -217,13 +218,30 @@ class  cSqlLite {
         return $oResultSet;
     }
 
+    //********************************************************************************
     public function table_exists($psName) {
         $sSQL = 'SELECT name FROM sqlite_master WHERE name=?';
         $oStmt = $this->prepare($sSQL);
         $oStmt->bindValue(1, $psName);
         $oResultSet = $this->exec_stmt($oStmt);
         $aResults = $oResultSet->fetchArray();
-        $bExists = count($aResults) > 0;
+        if (is_array($aResults))
+            $bExists = count($aResults) > 0;
+        else
+            $bExists = false;
+
         return $bExists;
+    }
+
+    //********************************************************************************
+    public function begin_transaction() {
+        $oDB = $this->database;
+        $oDB->exec("BEGIN;");
+    }
+
+    //********************************************************************************
+    public function commit() {
+        $oDB = $this->database;
+        $oDB->exec("COMMIT;");
     }
 }
