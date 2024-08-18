@@ -70,7 +70,7 @@ class cOBjStoreDB {
 
         //check whether SQLLite has been 
         if (self::$oSQLite == null) {
-            cDebug::extra_debug("creating cSqlLite instance");
+            cDebug::extra_debug("opening cSqlLite database");
             $oDB = new cSqlLite(self::DB_FILENAME);
             self::$oSQLite = $oDB;
         } else
@@ -94,15 +94,8 @@ class cOBjStoreDB {
 
 
         //check if table exists
-        $sSQL = 'SELECT name FROM sqlite_master WHERE name=":t"';
-
-        $sSQL = str_replace(":t", $this->table, $sSQL);
-        if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
-        $oResultSet = $oSQL->query($sSQL);
-        if ($oResultSet == null) cDebug::error("null response: $sSQL");
-
-        $aResults = $oResultSet->fetchArray();
-        if ($aResults) {
+        $bTableExists = $oSQL->table_exists($this->table);
+        if ($bTableExists) {
             cDebug::extra_debug("table '{$this->table}' exists");
             //cDebug::leave();
             return;
