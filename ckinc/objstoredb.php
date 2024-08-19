@@ -265,8 +265,8 @@ class cOBjStoreDB {
         $sHash = cHash::hash($psKey);
         //cDebug::extra_debug("hash: $sHash");
 
-        $sSQL = "REPLACE INTO ':t' (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
-        if (!$pbOverride) $sSQL = "INSERT INTO ':t' (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
+        $sSQL = "REPLACE INTO `:t` (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
+        if (!$pbOverride) $sSQL = "INSERT INTO `:t` (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
         $sSQL = str_replace(":t", $this->table, $sSQL);
         $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
         $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
@@ -294,7 +294,7 @@ class cOBjStoreDB {
         $sHash = cHash::hash($psKey);
         $oSQL = self::$oSQLite;
 
-        $sSQL = "SELECT :r,:c,:d FROM ':t' where :r=? AND :h=?";
+        $sSQL = "SELECT :r,:c,:d FROM `:t` where :r=? AND :h=?";
         $sSQL = str_replace(":t", $this->table, $sSQL);
         $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
         $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
@@ -347,7 +347,7 @@ class cOBjStoreDB {
         $sHash = cHash::hash($psKey);
         cDebug::extra_debug("hash: $sHash");
 
-        $sSQL = "DELETE from ':t' where :r=? AND :h=?";
+        $sSQL = "DELETE from `:t` where :r=? AND :h=?";
         $sSQL = str_replace(":t", $this->table, $sSQL);
         $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
         $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
