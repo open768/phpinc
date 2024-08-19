@@ -107,15 +107,13 @@ class cCachedHttp {
         $oHttp->HTTPS_CERT_FILENAME = $this->HTTPS_CERT_FILENAME;
 
         $oResponse = null;
-        cDebug::write("getting url:$psURL");
-        if (cHash::exists($psURL, true)) cHash::delete($psURL); //remove the old chash cached item
-
+        cDebug::write("requested url:$psURL");
 
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
         $oData = $oDB->get($psURL, true);
         if ($oData == null) {
-            cDebug::extra_debug("obj not cached $psURL");
+            cDebug::write("fetching live url:$psURL");
             if ($pbJson)
                 $oData = $oHttp->getJson($psURL);
             else
@@ -123,7 +121,8 @@ class cCachedHttp {
 
             if ($oData)
                 $oDB->put($psURL, $oData, true);
-        }
+        } else
+            cDebug::extra_debug(" cached ");
 
         cDebug::leave();
         return $oData;
