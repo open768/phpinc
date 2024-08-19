@@ -25,11 +25,9 @@ class cAuth {
     static $objstoreDB = null;
 
     static function init_obj_store_db() {
-        cDebug::enter();
         if (self::$objstoreDB == null) {
             self::$objstoreDB = new cObjStoreDB(self::OBJDB_REALM, "CKAUTH");
         }
-        cDebug::leave();
     }
 
     //**********************************************************

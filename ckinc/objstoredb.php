@@ -73,8 +73,7 @@ class cOBjStoreDB {
             cDebug::extra_debug("opening cSqlLite database");
             $oDB = new cSqlLite(self::DB_FILENAME);
             self::$oSQLite = $oDB;
-        } else
-            cDebug::extra_debug(" cSqlLite instance exists");
+        }
 
         if ($this->table == null) {
             cPageOutput::warning("table not provided for objstoredb realm $psRealm");

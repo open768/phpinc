@@ -38,10 +38,8 @@ class cFacebook_ServerSide {
 
 
     static function init_obj_store_db() {
-        cDebug::enter();
         if (self::$objstoreDB == null)
             self::$objstoreDB = new cObjStoreDB(self::OBJSTORE_REALM, "FB");
-        cDebug::leave();
     }
     //*******************************************************************
     public static function is_facebook() {

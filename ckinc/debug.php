@@ -23,8 +23,8 @@ class cDebug {
     const EXTRA_DEBUGGING_SYMBOL = "&#10070";
     private static $one_time_debug = false;
     private static $ENTER_DEPTH = 0;
-    const EXTRA_DEBUG_FONT_COLOUR = "#915c83";
-    const DEBUG_FONT_COLOUR = "#3b3b6d";
+    const EXTRA_DEBUG_FONT_COLOUR = "#483D8B";
+    const DEBUG_FONT_COLOUR = "#006400";
 
     //##############################################################################
     public static function is_debugging() {
