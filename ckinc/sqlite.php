@@ -24,15 +24,22 @@ abstract class cSQLAction {
 }
 
 class cSQLPrepareAction extends cSQLAction {
-    private $sSQL;
+    private string $sSQL;
+
     public function __construct(string $psSQL) {
         parent::__construct("prepare");
         $this->sSQL = $psSQL;
     }
+
+    /**
+     * runs the prepare action
+     * 
+     * @param SQLite3 $oDB 
+     * @return SQLite3Stmt|false 
+     */
     public function execute(SQLite3 $oDB) {
-        //cDebug::enter();
+        /** @var SQLite3Stmt $oResultset */
         $oResultset = $oDB->prepare($this->sSQL);
-        //cDebug::leave();
         return $oResultset;
     }
 }
@@ -43,23 +50,21 @@ class cSQLQueryAction extends cSQLAction {
         $this->sSQL = $psSQL;
     }
     public function execute(SQLite3 $oDB) {
-        //cDebug::enter();
         $oResultset = $oDB->query($this->sSQL);
-        //cDebug::leave();
         return $oResultset;
     }
 }
 class cSQLExecStmtAction extends cSQLAction {
+    /** @var */
     private $oStmt;
     public function __construct($poStmt) {
         parent::__construct("ExecStmt");
         $this->oStmt = $poStmt;
     }
     public function execute(SQLite3 $oDB) {
-        //cDebug::enter();
-        if ($this->oStmt == null) cDebug::error("null statement");
-        $oResultset = $this->oStmt->Execute();
-        //cDebug::leave();
+        $oStmt = $this->oStmt;
+        if ($oStmt === null) cDebug::error("null statement");
+        $oResultset = $oStmt->Execute();
         return $oResultset;
     }
 }
@@ -131,6 +136,12 @@ class  cSqlLite {
 
     //********************************************************************************
     //removed repeated code to handle SQL busy or locked
+    /**
+     * general purpose SQL execution - handles retries and errors
+     * 
+     * @param cSQLAction $poAction 
+     * @return mixed 
+     */
     private function pr_do_action(cSQLAction $poAction) {
         $bRetryAction = true;
         $iRetryCount = 0;
@@ -193,9 +204,16 @@ class  cSqlLite {
     }
 
     //********************************************************************************
+    /**
+     * prepares a SQL statement
+     * 
+     * @param mixed $psSQL 
+     * @return SQLite3Stmt  
+     */
     public function prepare($psSQL) {
         //cDebug::enter();
         $oAction = new cSQLPrepareAction($psSQL);
+        /** @var SQLite3Stmt $oResultSet */
         $oResultSet = $this->pr_do_action($oAction);
         //cDebug::leave();	
         return $oResultSet;
