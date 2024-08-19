@@ -275,4 +275,11 @@ class  cSqlLite {
         $oDB = $this->database;
         $oDB->exec("COMMIT;");
     }
+
+    public function fetch_all(SQLite3Result $poResultset) {
+        $aRows = [];
+        while ($oRow = $poResultset->fetchArray())
+            $aRows[] = $oRow;
+        return $aRows;
+    }
 }
