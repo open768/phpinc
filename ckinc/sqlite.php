@@ -23,6 +23,7 @@ abstract class cSQLAction {
     public abstract function execute(SQLite3 $oDB);
 }
 
+//********************************************************************************
 class cSQLPrepareAction extends cSQLAction {
     private string $sSQL;
 
@@ -43,6 +44,8 @@ class cSQLPrepareAction extends cSQLAction {
         return $oResultset;
     }
 }
+
+//********************************************************************************
 class cSQLQueryAction extends cSQLAction {
     private $sSQL;
     public function __construct(string $psSQL) {
@@ -54,16 +57,20 @@ class cSQLQueryAction extends cSQLAction {
         return $oResultset;
     }
 }
+
+//********************************************************************************
 class cSQLExecStmtAction extends cSQLAction {
-    /** @var */
+    /** @var SQLite3Stmt $oStmt*/
     private $oStmt;
-    public function __construct($poStmt) {
+
+    public function __construct(SQLite3Stmt $poStmt) {
         parent::__construct("ExecStmt");
         $this->oStmt = $poStmt;
     }
     public function execute(SQLite3 $oDB) {
         $oStmt = $this->oStmt;
         if ($oStmt === null) cDebug::error("null statement");
+
         $oResultset = $oStmt->Execute();
         return $oResultset;
     }
@@ -135,7 +142,6 @@ class  cSqlLite {
     }
 
     //********************************************************************************
-    //removed repeated code to handle SQL busy or locked
     /**
      * general purpose SQL execution - handles retries and errors
      * 
@@ -173,10 +179,10 @@ class  cSqlLite {
                         $bRetryAction = true;
                         usleep(self::RETRY_DELAY);
                     } else
-                        throw new Exception("Database locked - $poAction->sActionType given up after " . self::NRETRIES . "tries");
+                        cDebug::error("Database locked - $poAction->sActionType given up after " . self::NRETRIES . "tries");
                     break;
                 default:
-                    throw new Exception("SQL Error : code=$iErr, msg=$sErr");
+                    cDebug::error("SQL Error : code=$iErr, msg=$sErr");
             }
         }
 
@@ -228,7 +234,14 @@ class  cSqlLite {
     }
 
     //********************************************************************************
-    public function exec_stmt($poStmt) {
+    /**
+     * executes a statement
+     * 
+     * @param mixed $poStmt 
+     * @return SQLite3Result 
+     * @throws Exception 
+     */
+    public function exec_stmt(SQLite3Stmt $poStmt) {
         //cDebug::enter();
         $oAction = new cSQLExecStmtAction($poStmt);
         $oResultSet = $this->pr_do_action($oAction);
