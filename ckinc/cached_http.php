@@ -87,9 +87,9 @@ class cCachedHttp {
     }
 
     //*****************************************************************************
-    public function getCachedJson($psURL) {
+    public function getCachedJson($psURL, $pbCheckExpiry = true) {
         cDebug::enter();
-        $oResult = $this->pr_do_get($psURL, true);
+        $oResult = $this->pr_do_get($psURL, true, $pbCheckExpiry);
         cDebug::leave();
         return $oResult;
     }
@@ -97,7 +97,7 @@ class cCachedHttp {
     //*****************************************************************************
     //*
     //*****************************************************************************
-    private function pr_do_get($psURL, $pbJson) {
+    private function pr_do_get($psURL, $pbJson, $pbCheckExpiry = true) {
         cDebug::enter();
 
         $oHttp = new cHttp();
@@ -111,7 +111,7 @@ class cCachedHttp {
 
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
-        $oData = $oDB->get($psURL, true);
+        $oData = $oDB->get($psURL, $pbCheckExpiry);
         if ($oData == null) {
             cDebug::write("fetching live url:$psURL");
             if ($pbJson)
@@ -121,8 +121,12 @@ class cCachedHttp {
 
             if ($oData)
                 $oDB->put($psURL, $oData, true);
-        } else
+        } else {
             cDebug::extra_debug(" cached ");
+            if ($pbJson)
+                if (gettype($oData) === "string")
+                    $oData = json_decode($oData);
+        }
 
         cDebug::leave();
         return $oData;
