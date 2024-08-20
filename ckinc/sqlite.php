@@ -275,6 +275,11 @@ class  cSqlLite {
         $oDB = $this->database;
         $oDB->exec("COMMIT;");
     }
+    //********************************************************************************
+    public function vacuum() {
+        $oDB = $this->database;
+        $oDB->exec("VACUUM;");
+    }
 
     public function fetch_all(SQLite3Result $poResultset) {
         $aRows = [];
