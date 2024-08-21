@@ -87,6 +87,16 @@ class cOBjStoreDB {
     //# PRIVATES
     //#####################################################################
 
+    private function replace_sql($psSQL) {
+        $sSQL = str_replace(":t", $this->table, $psSQL);
+        $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
+        $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
+        $sSQL = str_replace(":c", self::COL_CONTENT, $sSQL);
+        $sSQL = str_replace(":d", self::COL_DATE, $sSQL);
+        $sSQL = str_replace(":u", self::COL_USER, $sSQL);
+        return $sSQL;
+    }
+
     private function pr_create_table() {
         //cDebug::enter();
         $oSQL = self::$oSQLite;
@@ -103,12 +113,7 @@ class cOBjStoreDB {
         //table doesnt exist
         cDebug::extra_debug("table '{$this->table}' does not exist");
         $sSQL = "CREATE TABLE ':t' ( ':r' TEXT not null, ':h' TEXT not null, ':c' TEXT, ':u' TEXT,':d' DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ':r', ':h'))";
-        $sSQL = str_replace(":t", $this->table, $sSQL);
-        $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
-        $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
-        $sSQL = str_replace(":c", self::COL_CONTENT, $sSQL);
-        $sSQL = str_replace(":d", self::COL_DATE, $sSQL);
-        $sSQL = str_replace(":u", self::COL_USER, $sSQL);
+        $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 
         $oStmt = $oSQL->query($sSQL);
@@ -116,9 +121,7 @@ class cOBjStoreDB {
 
         //create an index on the table
         $sSQL = "CREATE INDEX idx_users on ':t' ( :r, :u )";
-        $sSQL = str_replace(":t", $this->table, $sSQL);
-        $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
-        $sSQL = str_replace(":u", self::COL_USER, $sSQL);
+        $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
         $oStmt = $oSQL->query($sSQL);
         cDebug::extra_debug("index created");
@@ -267,11 +270,7 @@ class cOBjStoreDB {
 
         $sSQL = "REPLACE INTO `:t` (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
         if (!$pbOverride) $sSQL = "INSERT INTO `:t` (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
-        $sSQL = str_replace(":t", $this->table, $sSQL);
-        $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
-        $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
-        $sSQL = str_replace(":c", self::COL_CONTENT, $sSQL);
-        $sSQL = str_replace(":d", self::COL_DATE, $sSQL);
+        $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
         $oStmt = $oSQL->prepare($sSQL);
         $oStmt->bindValue(1, $this->realm);
@@ -295,11 +294,7 @@ class cOBjStoreDB {
         $oSQL = self::$oSQLite;
 
         $sSQL = "SELECT :r,:c,:d FROM `:t` where :r=? AND :h=?";
-        $sSQL = str_replace(":t", $this->table, $sSQL);
-        $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
-        $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
-        $sSQL = str_replace(":c", self::COL_CONTENT, $sSQL);
-        $sSQL = str_replace(":d", self::COL_DATE, $sSQL);
+        $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 
         //bind the values
@@ -348,9 +343,7 @@ class cOBjStoreDB {
         cDebug::extra_debug("hash: $sHash");
 
         $sSQL = "DELETE from `:t` where :r=? AND :h=?";
-        $sSQL = str_replace(":t", $this->table, $sSQL);
-        $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
-        $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
+        $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug("SQL: $sSQL");
 
         $oStmt = $oSQL->prepare($sSQL);
