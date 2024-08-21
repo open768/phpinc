@@ -49,15 +49,6 @@ class cOBjStoreDB {
     public $check_expiry = false;
     public $table = null;
 
-    /*
-        magic strings in this code
-        :t - table
-        :r - column
-        :h - hash
-        :c - content
-        :d - timestamp
-        :u - userid
-    */
 
 
     //#####################################################################
@@ -88,12 +79,12 @@ class cOBjStoreDB {
     //#####################################################################
 
     private function replace_sql($psSQL) {
-        $sSQL = str_replace(":t", $this->table, $psSQL);
-        $sSQL = str_replace(":r", self::COL_REALM, $sSQL);
-        $sSQL = str_replace(":h", self::COL_HASH, $sSQL);
-        $sSQL = str_replace(":c", self::COL_CONTENT, $sSQL);
-        $sSQL = str_replace(":d", self::COL_DATE, $sSQL);
-        $sSQL = str_replace(":u", self::COL_USER, $sSQL);
+        $sSQL = str_replace(":table", $this->table, $psSQL);
+        $sSQL = str_replace(":realm_col", self::COL_REALM, $sSQL);
+        $sSQL = str_replace(":hash_col", self::COL_HASH, $sSQL);
+        $sSQL = str_replace(":data_col", self::COL_CONTENT, $sSQL);
+        $sSQL = str_replace(":date_col", self::COL_DATE, $sSQL);
+        $sSQL = str_replace(":user_col", self::COL_USER, $sSQL);
         return $sSQL;
     }
 
@@ -112,7 +103,7 @@ class cOBjStoreDB {
 
         //table doesnt exist
         cDebug::extra_debug("table '{$this->table}' does not exist");
-        $sSQL = "CREATE TABLE ':t' ( ':r' TEXT not null, ':h' TEXT not null, ':c' TEXT, ':u' TEXT,':d' DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ':r', ':h'))";
+        $sSQL = "CREATE TABLE ':table' ( ':realm_col' TEXT not null, ':hash_col' TEXT not null, ':data_col' TEXT, ':user_col' TEXT,':date_col' DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ':realm_col', ':hash_col'))";
         $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 
@@ -120,7 +111,7 @@ class cOBjStoreDB {
         cDebug::extra_debug("table created");
 
         //create an index on the table
-        $sSQL = "CREATE INDEX idx_users on ':t' ( :r, :u )";
+        $sSQL = "CREATE INDEX idx_users on ':table' ( :realm_col, :user_col )";
         $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
         $oStmt = $oSQL->query($sSQL);
@@ -268,15 +259,15 @@ class cOBjStoreDB {
         $sHash = cHash::hash($psKey);
         //cDebug::extra_debug("hash: $sHash");
 
-        $sSQL = "REPLACE INTO `:t` (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
-        if (!$pbOverride) $sSQL = "INSERT INTO `:t` (:r, :h, :c, :d ) VALUES (?, ?, ?, ?)";
+        $sSQL = "REPLACE INTO `:table` (:realm_col, :hash_col, :data_col, :date_col ) VALUES (:realm, :hash, :data, :date)";
+        if (!$pbOverride) $sSQL = "INSERT INTO `:table` (:realm_col, :hash_col, :data_col, :date_col ) VALUES (:realm, :hash, :data, :date)";
         $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
         $oStmt = $oSQL->prepare($sSQL);
-        $oStmt->bindValue(1, $this->realm);
-        $oStmt->bindValue(2, $sHash);
-        $oStmt->bindValue(3, cGzip::encode($pvAnything));
-        $oStmt->bindValue(4, date('d-m-Y H:i:s'));
+        $oStmt->bindValue(":realm", $this->realm);
+        $oStmt->bindValue(":hash", $sHash);
+        $oStmt->bindValue(":data", cGzip::encode($pvAnything));
+        $oStmt->bindValue(":date", date('d-m-Y H:i:s'));
         $oResultSet = $oSQL->exec_stmt($oStmt);
 
         //cDebug::leave();		
@@ -293,14 +284,14 @@ class cOBjStoreDB {
         $sHash = cHash::hash($psKey);
         $oSQL = self::$oSQLite;
 
-        $sSQL = "SELECT :r,:c,:d FROM `:t` where :r=? AND :h=?";
+        $sSQL = "SELECT :realm_col,:data_col,:date_col FROM `:table` where :realm_col=:realm AND :hash_col=:hash";
         $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 
         //bind the values
         $oStmt = $oSQL->prepare($sSQL);
-        $oStmt->bindValue(1, $this->realm);
-        $oStmt->bindValue(2, $sHash);
+        $oStmt->bindValue(":realm", $this->realm);
+        $oStmt->bindValue(":hash", $sHash);
         $oResultSet = $oSQL->exec_stmt($oStmt);
         if ($oResultSet == null) {
             cDebug::leave();
@@ -323,7 +314,7 @@ class cOBjStoreDB {
                     $this->kill($psKey);
                     $vResult = null;
                 } else
-                    cDebug::extra_debug("<font style='background-color:lavender'>cached: item will expire in $iDiff seconds</font>");
+                    cDebug::extra_debug_warning("cached: item will expire in $iDiff seconds");
             }
         }
 
@@ -342,13 +333,13 @@ class cOBjStoreDB {
         $sHash = cHash::hash($psKey);
         cDebug::extra_debug("hash: $sHash");
 
-        $sSQL = "DELETE from `:t` where :r=? AND :h=?";
+        $sSQL = "DELETE from `:table` where :realm_col=:realm AND :hash_col=:hash?";
         $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug("SQL: $sSQL");
 
         $oStmt = $oSQL->prepare($sSQL);
-        $oStmt->bindValue(1, $this->realm);
-        $oStmt->bindValue(2, $sHash);
+        $oStmt->bindValue(":realm", $this->realm);
+        $oStmt->bindValue(":hash", $sHash);
         $oResultSet = $oSQL->exec_stmt($oStmt);
 
         cDebug::leave();
