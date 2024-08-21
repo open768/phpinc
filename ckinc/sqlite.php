@@ -251,9 +251,9 @@ class  cSqlLite {
 
     //********************************************************************************
     public function table_exists($psName) {
-        $sSQL = 'SELECT name FROM sqlite_master WHERE name=?';
+        $sSQL = 'SELECT name FROM sqlite_master WHERE name=:table';
         $oStmt = $this->prepare($sSQL);
-        $oStmt->bindValue(1, $psName);
+        $oStmt->bindValue(":table", $psName);
         $oResultSet = $this->exec_stmt($oStmt);
         $aResults = $oResultSet->fetchArray();
         if (is_array($aResults))
