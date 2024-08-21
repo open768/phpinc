@@ -42,7 +42,9 @@ class cCachedHttp {
     }
     //*****************************************************************************
     public function deleteCachedURL($psURL) {
-        cHash::delete($psURL);
+        /** @var cObjStoreDB $oDB **/
+        $oDB = self::$objstoreDB;
+        $oDB->kill($psURL);
     }
 
     //*****************************************************************************

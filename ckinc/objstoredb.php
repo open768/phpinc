@@ -333,7 +333,7 @@ class cOBjStoreDB {
         $sHash = cHash::hash($psKey);
         cDebug::extra_debug("hash: $sHash");
 
-        $sSQL = "DELETE from `:table` where :realm_col=:realm AND :hash_col=:hash?";
+        $sSQL = "DELETE from `:table` where :realm_col=:realm AND :hash_col=:hash";
         $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug("SQL: $sSQL");
 
