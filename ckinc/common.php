@@ -228,6 +228,21 @@ class cPageOutput {
     }
 
     //**************************************************************************
+    private static function pr_write_JS_thing($psKey, $pvValue) {
+        echo "\tstatic {$psKey} = ";
+        switch (gettype($pvValue)) {
+            case "number":
+                echo $pvValue;
+                break;
+            case "boolean":
+                echo ($pvValue ? "true" : "false");
+                break;
+            default:
+                echo "'{$pvValue}'";
+        }
+        echo "\n";
+    }
+
     public static function write_JS_class_constant_IDs($psClassName) {
         $oReflection = new ReflectionClass($psClassName);
         $aConsts = $oReflection->getConstants();
@@ -238,12 +253,13 @@ class cPageOutput {
         echo "<script>\n"; {
             echo "class {$psClassName} {\n";
             foreach ($aConsts as $sKey => $sValue)
-                echo "\tstatic {$sKey} = '{$sValue}'\n";
+                self::pr_write_JS_thing($sKey, $sValue);
             foreach ($aStatics as $sKey => $sValue)
-                echo "\tstatic {$sKey} = '{$sValue}'\n";
+                self::pr_write_JS_thing($sKey, $sValue);
             echo "}";
         }
         echo "</script>\n";
+        cDebug::flush();
     }
 
     //**************************************************************************
