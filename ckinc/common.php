@@ -238,7 +238,8 @@ class cPageOutput {
                 echo ($pvValue ? "true" : "false");
                 break;
             default:
-                echo "'{$pvValue}'";
+                $sText = str_replace("'", "\"", $pvValue);
+                echo "'{$sText}'";
         }
         echo "\n";
     }
