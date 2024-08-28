@@ -127,7 +127,7 @@ class cFacebook_ServerSide {
         $oDB = self::$objstoreDB;
 
         //store the details
-        $oDB->put_oldstyle(self::FB_USER_FOLDER, $psUserID, $poData);
+        $oDB->put(self::FB_USER_FOLDER . "/$psUserID", $poData);
         self::add_to_index($psUserID);
 
         cDebug::leave();

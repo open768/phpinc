@@ -59,7 +59,7 @@ class cAuth {
         if (!isset($aRoleDetails[$psUserID])) {
             cDebug::write("Adding $psUserID to role $psRole");
             $aRoleDetails[$psUserID] = true;
-            $oDB->put_oldstyle(self::ROLES_FOLDER, $psRole, $aRoleDetails);
+            $oDB->put(self::ROLES_FOLDER . "/$psRole", $aRoleDetails);
         } else
             cDebug::write("user $psUserID allready has role $psRole ");
         cDebug::leave();
