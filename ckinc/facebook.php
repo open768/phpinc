@@ -152,7 +152,7 @@ class cFacebook_ServerSide {
         $sFolder = self::FB_USER_FOLDER;
         cDebug::extra_debug("folder:$sFolder file:$psUserID");
 
-        $oUser = $oDB->get_oldstyle(self::FB_USER_FOLDER, $psUserID);
+        $oUser = $oDB->get(self::FB_USER_FOLDER . "/$psUserID");
 
         cDebug::leave();
         return $oUser;
@@ -163,7 +163,7 @@ class cFacebook_ServerSide {
         cDebug::enter();
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
-        $aData = $oDB->get_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS);
+        $aData = $oDB->get(self::FB_USER_FOLDER . "/" . self::FB_ALL_USERS);
         cDebug::leave();
         return $aData;
     }

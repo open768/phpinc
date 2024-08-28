@@ -54,7 +54,7 @@ class cAuth {
         cDebug::enter();
 
         $oDB = self::$objstoreDB;
-        $aRoleDetails = $oDB->get_oldstyle(self::ROLES_FOLDER, $psRole);
+        $aRoleDetails = $oDB->get(self::ROLES_FOLDER . "/" . $psRole);
         if (!$aRoleDetails) $aRoleDetails = [];
         if (!isset($aRoleDetails[$psUserID])) {
             cDebug::write("Adding $psUserID to role $psRole");
@@ -80,7 +80,7 @@ class cAuth {
             return false;
         }
 
-        $aRoleDetails = $oDB->get_oldstyle(self::ROLES_FOLDER, $psRole);
+        $aRoleDetails = $oDB->get(self::ROLES_FOLDER . "/$psRole");
         if (!$aRoleDetails) {
             cDebug::write("role '$psRole' is not known");
             cDebug::leave();
