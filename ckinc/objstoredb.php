@@ -210,16 +210,6 @@ class cOBjStoreDB {
     }
 
     //********************************************************************************
-    public function kill_oldstyle($psFolder, $psFile) {
-        cDebug::enter();
-        self::pr_warn_deprecated();
-        $sFullpath = $psFolder . "/" . $psFile;
-        $this->kill($psFolder, $psFile);
-        $this->kill($sFullpath);
-        cDebug::leave();
-    }
-
-    //********************************************************************************
     /**
      * @param string $psFolder
      * @todo make this work on the objstore
