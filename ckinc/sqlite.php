@@ -75,6 +75,24 @@ class cSQLExecStmtAction extends cSQLAction {
         return $oResultset;
     }
 }
+//#############################################################################
+//# utility functions
+//#############################################################################
+class cSqlLiteUtils {
+    //********************************************************************************
+    static function fetch_all(SQLite3Result $poResultset) {
+        $aRows = [];
+        while ($oRow = $poResultset->fetchArray())
+            $aRows[] = $oRow;
+        return $aRows;
+    }
+
+    //********************************************************************************
+    static function vacuum(string $psDatabase) {
+        $oDB = cSqlLite::open_sql_db($psDatabase);
+        $oDB->exec("VACUUM;");
+    }
+}
 
 //#############################################################################
 //#
@@ -112,27 +130,35 @@ class  cSqlLite {
     //#####################################################################
     //# PRIVATES
     //#####################################################################
-    private function pr_check_for_db(string $psDB) {
+    static function open_sql_db(string $psDBFilename) {
+        global $root;
+        cDebug::extra_debug("opening database");
+
+        //check if folder exists for database
+        $sFolder = $root . "/" . self::DB_folder;
+        if (!is_dir($sFolder)) {
+            cDebug::extra_debug("making folder $sFolder");
+            mkdir($sFolder);
+        }
+
+        //now open the database
+        $sPath = $sFolder . "/" . $psDBFilename;
+        if (!file_exists($sPath))
+            cDebug::extra_debug("database file doesnt exist $sPath");
+
+        cDebug::extra_debug("opening database  $sPath");
+        $oDB = new SQLite3($sPath);
+        cDebug::extra_debug("database opened");
+
+        return $oDB;
+    }
+
+    //********************************************************************************
+    private function pr_check_for_db(string $psDBFilename) {
         global $root;
         //cDebug::enter();
         if ($this->database == null) {
-            cDebug::extra_debug("opening database");
-
-            //check if folder exists for database
-            $sFolder = $root . "/" . self::DB_folder;
-            if (!is_dir($sFolder)) {
-                cDebug::extra_debug("making folder $sFolder");
-                mkdir($sFolder);
-            }
-
-            //now open the database
-            $sPath = $sFolder . "/" . $psDB;
-            if (!file_exists($sPath))
-                cDebug::extra_debug("database file doesnt exist $sPath");
-
-            cDebug::extra_debug("opening database  $sPath");
-            $oDB = new SQLite3($sPath);
-            cDebug::extra_debug("database opened");
+            $oDB = self::open_sql_db($psDBFilename);
             $this->database = $oDB;
             $oDB->enableExceptions(true);
             $oDB->busyTimeout(self::BUSY_TIMEOUT);
@@ -264,6 +290,9 @@ class  cSqlLite {
         return $bExists;
     }
 
+
+    //********************************************************************************
+    //* transactions
     //********************************************************************************
     public function begin_transaction() {
         $oDB = $this->database;
@@ -274,17 +303,5 @@ class  cSqlLite {
     public function commit() {
         $oDB = $this->database;
         $oDB->exec("COMMIT;");
-    }
-    //********************************************************************************
-    public function vacuum() {
-        $oDB = $this->database;
-        $oDB->exec("VACUUM;");
-    }
-
-    public function fetch_all(SQLite3Result $poResultset) {
-        $aRows = [];
-        while ($oRow = $poResultset->fetchArray())
-            $aRows[] = $oRow;
-        return $aRows;
     }
 }
