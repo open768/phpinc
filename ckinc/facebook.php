@@ -96,6 +96,7 @@ class cFacebook_ServerSide {
     //*******************************************************************
     public static function getStoredUser($psUserID) {
         cDebug::enter();
+        $sUser = null;
 
         if (cDebug::$IGNORE_CACHE)
             cDebug::extra_debug("nocache - not looking here");
@@ -109,7 +110,6 @@ class cFacebook_ServerSide {
                 $oUser = self::get_userDetails($psUserID);
                 if ($oUser) {
                     cDebug::write("found stored user");
-                    cDebug::vardump($oUser, true);
                     $sUser = self::pr_setSessionUser($oUser);
                 }
             }
@@ -138,7 +138,7 @@ class cFacebook_ServerSide {
         cDebug::enter();
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
-        $oDB->add_to_array_oldstyle(self::FB_USER_FOLDER, self::FB_ALL_USERS, $psUserID);
+        $oDB->add_to_array(self::FB_USER_FOLDER . "/" . self::FB_ALL_USERS, $psUserID);
         cDebug::leave();
     }
 
@@ -183,7 +183,7 @@ class cFacebook_ServerSide {
     }
 
     //*******************************************************************
-    public static function getUserIDDetails($psUserID, $psToken) {
+    public static function getUserName($psUserID, $psToken) {
         cDebug::enter();
         $oAppID = self::getAppID();
 
@@ -202,12 +202,14 @@ class cFacebook_ServerSide {
         cDebug::extra_debug("-- requesting from Graph");
         $oFBRequest = new FacebookRequest($oSession, 'GET', '/me');
         $oFBResponse = $oFBRequest->execute();
-        $oUser = $oFBResponse->getGraphObject();
+        $oGraph = $oFBResponse->getGraphObject();
+        cDebug::vardump($oGraph);
 
         //remember this user
         cDebug::extra_debug("-- remembering user");
-        $sUser = self::pr_setSessionUser($oUser);
-        self::pr_storeUserDetails($psUserID, $oUser);
+        $sUser = self::pr_setSessionUser($oGraph);
+        cDebug::write("User is '$sUser'");
+        self::pr_storeUserDetails($psUserID, $oGraph);
 
         cDebug::leave();
         return $sUser;

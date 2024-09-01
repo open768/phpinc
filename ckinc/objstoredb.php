@@ -173,17 +173,14 @@ class cOBjStoreDB {
      * @param [type] $poData
      * @return void
      */ //********************************************************************************
-    public function add_to_array_oldstyle($psFolder, $psFile, $poData) {
+    public function add_to_array($psKey, $poData) {
         //cDebug::enter();
-
         self::pr_warn_deprecated();
-        $sFullpath = $psFolder . "/" . $psFile;
-        $aData = $this->get($sFullpath);
+        $aData = $this->get($psKey);
         if (!$aData) $aData = [];
         $aData[] = $poData; //add to the array
-        $this->put($sFullpath, $aData, true);
-        cDebug::leave();
-        //return $aData;
+        $this->put($psKey, $aData, true);
+        //cDebug::leave();
     }
 
     //********************************************************************************
