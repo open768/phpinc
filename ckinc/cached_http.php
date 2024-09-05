@@ -71,6 +71,16 @@ class cCachedHttp {
     }
 
     //*****************************************************************************
+    public function is_cached($psURL, $pbCheckExpiry) {
+        /** @var cObjStoreDB $oDB **/
+        $oDB = self::$objstoreDB;
+        $oData = $oDB->get($psURL, $pbCheckExpiry);
+        $bIsCached = $oData !== null;
+
+        return $bIsCached;
+    }
+
+    //*****************************************************************************
     public function getCachedUrltoFile($psURL) {    //for large files too big for sql
         cDebug::enter();
         $sHash = cHash::hash($psURL);
