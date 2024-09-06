@@ -1,5 +1,6 @@
 <?php
 require_once  "$phpInc/ckinc/image.php";
+require_once  "$phpInc/ckinc/hash.php";
 
 /**************************************************************************
 Copyright (C) Chicken Katsu 2013 - 2024
@@ -81,11 +82,12 @@ class cBlobber {
     static function exists(string $psKey) {
         /** @var cSQLLite $oSqLDB  */
         $oSqLDB = self::$oSQLDB;
+        $sKeyHash = cHash::hash($psKey);
 
         $sQL = "SELECT :key_col from `:table` where :key_col=:key";
         $sQL = self::pr_replace_sql_params($sQL);
         $oStmt = $oSqLDB->prepare($sQL);
-        $oStmt->bindParam(":key", $psKey);
+        $oStmt->bindParam(":key", $sKeyHash);
         $oResultSet = $oSqLDB->exec_stmt($oStmt);
         $aData = $oResultSet->fetchArray();
         return is_array($aData);
@@ -95,11 +97,12 @@ class cBlobber {
     static function remove(string $psKey) {
         /** @var cSQLLite $oSqLDB  */
         $oSqLDB = self::$oSQLDB;
+        $sKeyHash = cHash::hash($psKey);
 
         $sQL = "DELETE from `:table` where :key_col=:key";
         $sQL = self::pr_replace_sql_params($sQL);
         $oStmt = $oSqLDB->prepare($sQL);
-        $oStmt->bindParam(":key", $psKey);
+        $oStmt->bindParam(":key", $sKeyHash);
         $oSqLDB->exec_stmt($oStmt);
     }
 
@@ -107,11 +110,12 @@ class cBlobber {
     static function put_obj(string $psKey, string $psMimeType, string $psBlobData) {
         /** @var cSQLLite $oSqLDB  */
         $oSqLDB = self::$oSQLDB;
+        $sKeyHash = cHash::hash($psKey);
 
         $sQL = "INSERT into `:table` (:key_col, :mime_col, :blob_col) VALUES ( :key,  :mime, :data)";
         $sQL = self::pr_replace_sql_params($sQL);
         $oStmt = $oSqLDB->prepare($sQL);
-        $oStmt->bindParam(":key", $psKey);
+        $oStmt->bindParam(":key", $sKeyHash);
         $oStmt->bindParam(":mime", $psMimeType);
         $oStmt->bindParam(":data", $psBlobData, SQLITE3_BLOB);
 
@@ -120,19 +124,26 @@ class cBlobber {
 
     //*************************************************************
     static function get(string $psKey) {
+        /** @var cSQLLite $oSqLDB  */
+        $oSqLDB = self::$oSQLDB;
+        $sKeyHash = cHash::hash($psKey);
+
+        $sQL = "SELECT :blob_col,:mime_col from `:table` where :key_col=:key";
+        $sQL = self::pr_replace_sql_params($sQL);
+        $oStmt = $oSqLDB->prepare($sQL);
+        $oStmt->bindParam(":key", $sKeyHash);
+        $oResultSet = $oSqLDB->exec_stmt($oStmt);
+        $aData = cSqlLiteUtils::fetch_all($oResultSet);
+        if (count($aData) == 0)
+            cDebug::error("unable to find $psKey");
+
+        return $aData[0];
     }
 
     //*************************************************************
     //see https://www.quora.com/How-can-I-get-a-blob-image-from-a-database-in-PHP
     static function serve_image($psKey) {
         /** @var cSQLLite $oSqLDB  */
-        $oSqLDB = self::$oSQLDB;
-
-        $sQL = "SELECT :blob_col,:mime_col from `:table` where :key_col=:key";
-        $sQL = self::pr_replace_sql_params($sQL);
-        $oStmt = $oSqLDB->prepare($sQL);
-        $oStmt->bindParam(":key", $psKey);
-        $aData = $oSqLDB->exec_stmt($oStmt);
 
         cDebug::vardump($aData);
     }
