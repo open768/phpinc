@@ -52,6 +52,7 @@ class cSQLQueryAction extends cSQLAction {
         $this->sSQL = $psSQL;
     }
     public function execute(SQLite3 $oDB) {
+        //cDebug::extra_debug("SQL: {$this->sSQL}");
         $oResultset = $oDB->query($this->sSQL);
         return $oResultset;
     }
@@ -281,6 +282,7 @@ class  cSqlLite {
         $oStmt->bindValue(":table", $psName);
         $oResultSet = $this->exec_stmt($oStmt);
         $aResults = $oResultSet->fetchArray();
+        //cDebug::vardump($aResults);
         if (is_array($aResults))
             $bExists = count($aResults) > 0;
         else
