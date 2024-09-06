@@ -23,7 +23,7 @@ class cBlobber {
     const COL_DATE_ADDED = "da";
 
     //*************************************************************
-    static function init_db($pDBFilename = null) {
+    static function init_db(string $pDBFilename = null) {
         //cDebug::enter();
         if (!cCommon::is_string_empty($pDBFilename)) {
             $sExtension = substr($pDBFilename, -3);
@@ -56,7 +56,7 @@ class cBlobber {
         cDebug::extra_debug("table doesnt exist " . self::BLOB_TABLE);
         $sSQL =
             "CREATE TABLE `:table` ( " .
-            ":key_col TEXT PRIMARY KEY, :mime_col TEXT not null, :blob_col BLOB, :date_col INTEGER" .
+            ":key_col TEXT PRIMARY KEY, :mime_col TEXT not null, :blob_col BLOB, :date_col INTEGER DEFAULT (unixepoch())" .
             ")";
         $sSQL = self::pr_replace_sql_params($sSQL);
         $oSqLDB->querySQL($sSQL);
@@ -67,7 +67,7 @@ class cBlobber {
     }
 
     //*************************************************************
-    private static function pr_replace_sql_params($psSQL) {
+    private static function pr_replace_sql_params(string $psSQL) {
         $sSQL = str_replace(":table", self::BLOB_TABLE, $psSQL);
         $sSQL = str_replace(":key_col", self::COL_KEY, $sSQL);
         $sSQL = str_replace(":mime_col", self::COL_MIME_TYPE, $sSQL);
@@ -78,23 +78,60 @@ class cBlobber {
 
     //*************************************************************
     //*************************************************************
-    static function put($psID, $psFilename) {
+    static function exists(string $psKey) {
+        /** @var cSQLLite $oSqLDB  */
+        $oSqLDB = self::$oSQLDB;
+
+        $sQL = "SELECT :key_col from `:table` where :key_col=:key";
+        $sQL = self::pr_replace_sql_params($sQL);
+        $oStmt = $oSqLDB->prepare($sQL);
+        $oStmt->bindParam(":key", $psKey);
+        $oResultSet = $oSqLDB->exec_stmt($oStmt);
+        $aData = $oResultSet->fetchArray();
+        return is_array($aData);
     }
 
     //*************************************************************
-    static function get($psID) {
+    static function remove(string $psKey) {
+        /** @var cSQLLite $oSqLDB  */
+        $oSqLDB = self::$oSQLDB;
+
+        $sQL = "DELETE from `:table` where :key_col=:key";
+        $sQL = self::pr_replace_sql_params($sQL);
+        $oStmt = $oSqLDB->prepare($sQL);
+        $oStmt->bindParam(":key", $psKey);
+        $oSqLDB->exec_stmt($oStmt);
+    }
+
+    //*************************************************************
+    static function put_obj(string $psKey, string $psMimeType, string $psBlobData) {
+        /** @var cSQLLite $oSqLDB  */
+        $oSqLDB = self::$oSQLDB;
+
+        $sQL = "INSERT into `:table` (:key_col, :mime_col, :blob_col) VALUES ( :key,  :mime, :data)";
+        $sQL = self::pr_replace_sql_params($sQL);
+        $oStmt = $oSqLDB->prepare($sQL);
+        $oStmt->bindParam(":key", $psKey);
+        $oStmt->bindParam(":mime", $psMimeType);
+        $oStmt->bindParam(":data", $psBlobData, SQLITE3_BLOB);
+
+        $oSqLDB->exec_stmt($oStmt);
+    }
+
+    //*************************************************************
+    static function get(string $psKey) {
     }
 
     //*************************************************************
     //see https://www.quora.com/How-can-I-get-a-blob-image-from-a-database-in-PHP
-    static function serve_image($psID) {
+    static function serve_image($psKey) {
         /** @var cSQLLite $oSqLDB  */
         $oSqLDB = self::$oSQLDB;
 
         $sQL = "SELECT :blob_col,:mime_col from `:table` where :key_col=:key";
         $sQL = self::pr_replace_sql_params($sQL);
         $oStmt = $oSqLDB->prepare($sQL);
-        $oStmt->bindParam(":key", $psID);
+        $oStmt->bindParam(":key", $psKey);
         $aData = $oSqLDB->exec_stmt($oStmt);
 
         cDebug::vardump($aData);

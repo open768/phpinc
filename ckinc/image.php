@@ -35,7 +35,7 @@ class cImageFunctions {
     }
 
     //************************************************************************************
-    static function make_thumbnail_obj($psImgUrl, $piHeight, $piQuality) {
+    private static function pr_make_thumbnail_obj(string $psImgUrl, int $piHeight, int $piQuality) {
         //----get the original image --------------------------------------------------------
         cDebug::write("fetching $psImgUrl");
         $oHttp = new cHttp();
@@ -60,12 +60,33 @@ class cImageFunctions {
     }
 
     //************************************************************************************
-    static function make_thumbnail($psImgUrl, $piHeight, $piQuality, $psOutFilename) {
+    static function make_thumbnail_blob(string $psImgUrl, int $piHeight, int $piQuality) {
+        $oData = null;
+        cDebug::enter();
+        $oThumb = self::pr_make_thumbnail_obj($psImgUrl, $piHeight, $piQuality);
+
+        try {
+            ob_start();
+            try {
+                imagejpeg($oThumb, null, $piQuality);
+                $oData = ob_get_contents();
+            } finally {
+                ob_end_clean();
+            }
+        } finally {
+            imagedestroy($oThumb);
+        }
+        cDebug::leave();
+        return $oData;
+    }
+
+    //************************************************************************************
+    static function make_thumbnail(string $psImgUrl, int $piHeight, int $piQuality, string $psOutFilename) {
         //dont generate a thumbnail that allready exists
         if (file_exists($psOutFilename))
             return;
 
-        $oThumb = self::make_thumbnail_obj($psImgUrl, $piHeight, $piQuality);
+        $oThumb = self::pr_make_thumbnail_obj($psImgUrl, $piHeight, $piQuality);
         try {
             //------------------WRITE IT OUT
             $sFolder = dirname($psOutFilename);
