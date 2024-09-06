@@ -107,14 +107,14 @@ class cOBjStoreDB {
         $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
 
-        $oStmt = $oSQL->query($sSQL);
+        $oSQL->querySQL($sSQL);
         cDebug::extra_debug("table created");
 
         //create an index on the table
         $sSQL = "CREATE INDEX idx_users on ':table' ( :realm_col, :user_col )";
         $sSQL = self::replace_sql($sSQL);
         if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
-        $oStmt = $oSQL->query($sSQL);
+        $oSQL->querySQL($sSQL);
         cDebug::extra_debug("index created");
 
         //add an Audit timestamp to say when this database was created
@@ -256,7 +256,7 @@ class cOBjStoreDB {
         $oStmt->bindValue(":hash", $sHash);
         $oStmt->bindValue(":data", cGzip::encode($pvAnything));
         $oStmt->bindValue(":date", date('d-m-Y H:i:s'));
-        $oResultSet = $oSQL->exec_stmt($oStmt);
+        $oSQL->exec_stmt($oStmt);
 
         //cDebug::leave();		
     }

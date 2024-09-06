@@ -59,7 +59,7 @@ class cBlobber {
             ":key_col TEXT PRIMARY KEY, :mime_col TEXT not null, :blob_col BLOB, :date_col INTEGER" .
             ")";
         $sSQL = self::pr_replace_sql_params($sSQL);
-        $oSqLDB->query($sSQL);
+        $oSqLDB->querySQL($sSQL);
         cDebug::extra_debug("table created");
         // index and uniqueness are implicit for primary keys
 
@@ -86,7 +86,18 @@ class cBlobber {
     }
 
     //*************************************************************
+    //see https://www.quora.com/How-can-I-get-a-blob-image-from-a-database-in-PHP
     static function serve_image($psID) {
+        /** @var cSQLLite $oSqLDB  */
+        $oSqLDB = self::$oSQLDB;
+
+        $sQL = "SELECT :blob_col,:mime_col from `:table` where :key_col=:key";
+        $sQL = self::pr_replace_sql_params($sQL);
+        $oStmt = $oSqLDB->prepare($sQL);
+        $oStmt->bindParam(":key", $psID);
+        $aData = $oSqLDB->exec_stmt($oStmt);
+
+        cDebug::vardump($aData);
     }
 }
 cBlobber::init_db();

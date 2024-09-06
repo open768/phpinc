@@ -51,9 +51,9 @@ class cSQLQueryAction extends cSQLAction {
         parent::__construct("query");
         $this->sSQL = $psSQL;
     }
-    public function execute(SQLite3 $oDB) {
+    public function execute(SQLite3 $poSqlDb) {
         //cDebug::extra_debug("SQL: {$this->sSQL}");
-        $oResultset = $oDB->query($this->sSQL);
+        $oResultset = $poSqlDb->query($this->sSQL);
         return $oResultset;
     }
 }
@@ -251,7 +251,7 @@ class  cSqlLite {
         return $oResultSet;
     }
     //********************************************************************************
-    public function query($psSQL) {
+    public function querySQL(string $psSQL) {
         //cDebug::enter();
         $oAction = new cSQLQueryAction($psSQL);
         $oResultSet = $this->pr_do_action($oAction);
