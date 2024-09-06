@@ -132,7 +132,7 @@ class  cSqlLite {
     //#####################################################################
     static function open_sql_db(string $psDBFilename) {
         global $root;
-        cDebug::extra_debug("opening database");
+        //cDebug::extra_debug("opening database");
 
         //check if folder exists for database
         $sFolder = $root . "/" . self::DB_folder;
@@ -148,7 +148,7 @@ class  cSqlLite {
 
         cDebug::extra_debug("opening database  $sPath");
         $oDB = new SQLite3($sPath);
-        cDebug::extra_debug("database opened");
+        //cDebug::extra_debug("database opened");
 
         return $oDB;
     }

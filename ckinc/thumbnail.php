@@ -1,4 +1,5 @@
 <?php
+require_once  "$phpInc/ckinc/image.php";
 
 /**************************************************************************
 Copyright (C) Chicken Katsu 2013 - 2024
@@ -11,10 +12,11 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
  **************************************************************************/
 
-class cThumbnailBlobber {
+class cBlobber {
+    /** @var cSQLLite $oSqLDB  */
     static $oSQLDB = null;
-    const BLOB_TABLE = "THUMBBLOB";
-    static $db_filename = "tb.db";
+    const BLOB_TABLE = "BLOBS";
+    static $db_filename = "blobs.db";
     const COL_KEY = "k";
     const COL_MIME_TYPE = "m";
     const COL_BLOB = "b";
@@ -22,6 +24,7 @@ class cThumbnailBlobber {
 
     //*************************************************************
     static function init_db($pDBFilename = null) {
+        //cDebug::enter();
         if (!cCommon::is_string_empty($pDBFilename)) {
             $sExtension = substr($pDBFilename, -3);
             if ($sExtension !== ".db") cDebug::error("database filename must end with '.db'");
@@ -29,20 +32,23 @@ class cThumbnailBlobber {
         }
         $oSqLDB = self::$oSQLDB;
         if ($oSqLDB == null) {
-            cDebug::extra_debug("opening cSqlLite database");
+            cDebug::extra_debug("opening cSqlLite database: " . self::$db_filename);
             $oSqLDB = new cSqlLite(self::$db_filename);
             self::$oSQLDB = $oSqLDB;
         }
         self::pr_create_table();
+        //cDebug::leave();
     }
 
     //*************************************************************
     //*************************************************************
     private static function pr_create_table() {
+        //cDebug::enter();
+        /** @var cSQLLite $oSqLDB  */
         $oSqLDB = self::$oSQLDB;
         $bTableExists = $oSqLDB->table_exists(self::BLOB_TABLE);
-        if (!$bTableExists) {
-            cDebug::extra_debug("table exists: " . self::BLOB_TABLE);
+        if ($bTableExists) {
+            //cDebug::extra_debug("table exists: " . self::BLOB_TABLE);
             return;
         }
 
@@ -50,14 +56,14 @@ class cThumbnailBlobber {
         cDebug::extra_debug("table doesnt exist " . self::BLOB_TABLE);
         $sSQL =
             "CREATE TABLE `:table` ( " .
-            ":key_col PRIMARY KEY TEXT, :mime_col TEXT not null, :blob_col BLOB, :date_col INTEGER, " .
-            "CONSTRAINT cblob UNIQUE (:key_col) " .
+            ":key_col TEXT PRIMARY KEY, :mime_col TEXT not null, :blob_col BLOB, :date_col INTEGER" .
             ")";
         $sSQL = self::pr_replace_sql_params($sSQL);
         $oSqLDB->query($sSQL);
         cDebug::extra_debug("table created");
         // index and uniqueness are implicit for primary keys
 
+        //cDebug::leave();
     }
 
     //*************************************************************
@@ -83,5 +89,4 @@ class cThumbnailBlobber {
     static function serve_image($psID) {
     }
 }
-
-cThumbnailBlobber::init_db();
+cBlobber::init_db();

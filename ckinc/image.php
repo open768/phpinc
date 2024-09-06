@@ -14,6 +14,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 
 class cImageFunctions {
+    //************************************************************************************
     static function crop($poImg, $piX, $piY, $piWidth, $piHeight, $piQuality, $psOutFile) {
         cDebug::write("cropping to $piX, $piY");
 
@@ -31,5 +32,45 @@ class cImageFunctions {
         cDebug::write("writing jpeg to $psOutFile");
         imagejpeg($oDest, $psOutFile, $piQuality);
         imagedestroy($oDest);
+    }
+
+    //************************************************************************************
+    static function make_thumbnail($psImgUrl, $piHeight, $piQuality, $psOutFilename) {
+
+        //dont generate a thumbnail that allready exists
+        if (file_exists($psOutFilename))
+            return;
+
+        //----get the original image --------------------------------------------------------
+        cDebug::write("fetching $psImgUrl");
+        $oHttp = new cHttp();
+        $oImg = $oHttp->fetch_image($psImgUrl);
+        cDebug::write("got image $psImgUrl");
+
+        try {
+            //----work out new width --------------------------------------------------------
+            $iWidth = imagesx($oImg);
+            $iHeight = imagesy($oImg);
+            $iNewWidth = floor($iWidth * $piHeight / $iHeight);
+
+            //----resize image --------------------------------------------------------
+            cDebug::write("new Width is $iNewWidth .. resizing");
+            $oThumb = imagecreatetruecolor($iNewWidth, $piHeight);
+            try {
+                imagecopyresampled($oThumb, $oImg, 0, 0, 0, 0, $iNewWidth, $piHeight, $iWidth, $iHeight);
+
+                //------------------WRITE IT OUT
+                $sFolder = dirname($psOutFilename);
+                if (!file_exists($sFolder)) {
+                    cDebug::write("creating folder: $sFolder");
+                    mkdir($sFolder, 0755, true); //in case folder needs to readable by apache
+                }
+                imagejpeg($oThumb, $psOutFilename, $piQuality);
+            } finally {
+                imagedestroy($oThumb);
+            }
+        } finally {
+            imagedestroy($oImg);
+        }
     }
 }

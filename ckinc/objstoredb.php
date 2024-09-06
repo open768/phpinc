@@ -61,7 +61,7 @@ class cOBjStoreDB {
 
         //check whether SQLLite has been 
         if (self::$oSQLite == null) {
-            cDebug::extra_debug("opening cSqlLite database");
+            //cDebug::extra_debug("opening cSqlLite database");
             $oDB = new cSqlLite(self::DB_FILENAME);
             self::$oSQLite = $oDB;
         }
@@ -96,7 +96,7 @@ class cOBjStoreDB {
         //check if table exists
         $bTableExists = $oSQL->table_exists($this->table);
         if ($bTableExists) {
-            cDebug::extra_debug("table '{$this->table}' exists");
+            //cDebug::extra_debug("table '{$this->table}' exists");
             //cDebug::leave();
             return;
         }
