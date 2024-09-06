@@ -35,12 +35,7 @@ class cImageFunctions {
     }
 
     //************************************************************************************
-    static function make_thumbnail($psImgUrl, $piHeight, $piQuality, $psOutFilename) {
-
-        //dont generate a thumbnail that allready exists
-        if (file_exists($psOutFilename))
-            return;
-
+    static function make_thumbnail_obj($psImgUrl, $piHeight, $piQuality) {
         //----get the original image --------------------------------------------------------
         cDebug::write("fetching $psImgUrl");
         $oHttp = new cHttp();
@@ -56,21 +51,31 @@ class cImageFunctions {
             //----resize image --------------------------------------------------------
             cDebug::write("new Width is $iNewWidth .. resizing");
             $oThumb = imagecreatetruecolor($iNewWidth, $piHeight);
-            try {
-                imagecopyresampled($oThumb, $oImg, 0, 0, 0, 0, $iNewWidth, $piHeight, $iWidth, $iHeight);
-
-                //------------------WRITE IT OUT
-                $sFolder = dirname($psOutFilename);
-                if (!file_exists($sFolder)) {
-                    cDebug::write("creating folder: $sFolder");
-                    mkdir($sFolder, 0755, true); //in case folder needs to readable by apache
-                }
-                imagejpeg($oThumb, $psOutFilename, $piQuality);
-            } finally {
-                imagedestroy($oThumb);
-            }
+            imagecopyresampled($oThumb, $oImg, 0, 0, 0, 0, $iNewWidth, $piHeight, $iWidth, $iHeight);
         } finally {
             imagedestroy($oImg);
+        }
+
+        return $oThumb;
+    }
+
+    //************************************************************************************
+    static function make_thumbnail($psImgUrl, $piHeight, $piQuality, $psOutFilename) {
+        //dont generate a thumbnail that allready exists
+        if (file_exists($psOutFilename))
+            return;
+
+        $oThumb = self::make_thumbnail_obj($psImgUrl, $piHeight, $piQuality);
+        try {
+            //------------------WRITE IT OUT
+            $sFolder = dirname($psOutFilename);
+            if (!file_exists($sFolder)) {
+                cDebug::write("creating folder: $sFolder");
+                mkdir($sFolder, 0755, true); //in case folder needs to readable by apache
+            }
+            imagejpeg($oThumb, $psOutFilename, $piQuality);
+        } finally {
+            imagedestroy($oThumb);
         }
     }
 }
