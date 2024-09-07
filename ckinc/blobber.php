@@ -139,13 +139,5 @@ class cBlobber {
 
         return $aData[0];
     }
-
-    //*************************************************************
-    //see https://www.quora.com/How-can-I-get-a-blob-image-from-a-database-in-PHP
-    static function serve_image($psKey) {
-        /** @var cSQLLite $oSqLDB  */
-
-        cDebug::vardump($aData);
-    }
 }
 cBlobber::init_db();

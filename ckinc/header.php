@@ -63,7 +63,7 @@ class cHeader {
             return null;
         }
 
-        if ($sValue == null)
+        if (cCommon::is_string_empty($sValue))
             return null;
 
         while (strstr($sValue, "%")) {
