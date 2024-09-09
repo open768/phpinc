@@ -100,9 +100,9 @@ class cCachedHttp {
 
     //*****************************************************************************
     public function getCachedJson($psURL, $pbCheckExpiry = true) {
-        cDebug::enter();
+        //cDebug::enter();
         $oResult = $this->pr_do_get($psURL, true, $pbCheckExpiry);
-        cDebug::leave();
+        //cDebug::leave();
         return $oResult;
     }
 
@@ -110,7 +110,7 @@ class cCachedHttp {
     //*
     //*****************************************************************************
     private function pr_do_get($psURL, $pbJson, $pbCheckExpiry = true) {
-        cDebug::enter();
+        //cDebug::enter();
 
         $oHttp = new cHttp();
         $oHttp->USE_CURL = $this->USE_CURL;
@@ -140,7 +140,7 @@ class cCachedHttp {
                     $oData = json_decode($oData);
         }
 
-        cDebug::leave();
+        //cDebug::leave();
         return $oData;
     }
 }
