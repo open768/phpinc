@@ -14,6 +14,8 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 
 class cImageFunctions {
+    const BLOB_MIME_TYPE = "image/jpeg";
+
     //************************************************************************************
     static function crop($poImg, $piX, $piY, $piWidth, $piHeight, $piQuality, $psOutFile) {
         cDebug::write("cropping to $piX, $piY");
@@ -57,6 +59,18 @@ class cImageFunctions {
         }
 
         return $oThumb;
+    }
+
+    //************************************************************************************
+    static function get_thumbnail_blob_data(string $psImgUrl, int $piHeight, int $piQuality) {
+        $aData = null;
+        if (!cBlobber::exists($psImgUrl)) {
+            $sBlob = cImageFunctions::make_thumbnail_blob($psImgUrl, $piHeight, $piQuality);
+            cBlobber::put_obj($psImgUrl, self::BLOB_MIME_TYPE, $sBlob);
+        }
+        cDebug::write("getting data");
+        $aData = cBlobber::get($psImgUrl);
+        return $aData;
     }
 
     //************************************************************************************
