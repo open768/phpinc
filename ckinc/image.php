@@ -19,7 +19,7 @@ class cImageFunctions {
     const BLOBBER_DB = "imageblobs.db";
 
     static function init_blobber() {
-        if (self::$blobber) self::$blobber = new cBlobber(self::BLOBBER_DB);
+        if (self::$blobber == null) self::$blobber = new cBlobber(self::BLOBBER_DB);
     }
 
     //************************************************************************************

@@ -118,7 +118,8 @@ class cBlobber {
         $oStmt->bindParam(":key", $sKeyHash);
         $oStmt->bindParam(":mime", $psMimeType);
         $oStmt->bindParam(":data", $psBlobData, SQLITE3_BLOB);
-        $oStmt->bindParam(":epoch", time());
+        $iEpoch = time();
+        $oStmt->bindParam(":epoch", $iEpoch);
 
         $oSqlDB->exec_stmt($oStmt);
     }
