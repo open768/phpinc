@@ -14,7 +14,13 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 
 class cImageFunctions {
+    static $blobber = null;
     const BLOB_MIME_TYPE = "image/jpeg";
+    const BLOBBER_DB = "imageblobs.db";
+
+    static function init_blobber() {
+        if (self::$blobber) self::$blobber = new cBlobber(self::BLOBBER_DB);
+    }
 
     //************************************************************************************
     static function crop($poImg, $piX, $piY, $piWidth, $piHeight, $piQuality, $psOutFile) {
@@ -64,12 +70,13 @@ class cImageFunctions {
     //************************************************************************************
     static function get_thumbnail_blob_data(string $psImgUrl, int $piHeight, int $piQuality) {
         $aData = null;
-        if (!cBlobber::exists($psImgUrl)) {
+        $oBlobber = self::$blobber;
+        if (!$oBlobber->exists($psImgUrl)) {
             $sBlob = cImageFunctions::make_thumbnail_blob($psImgUrl, $piHeight, $piQuality);
-            cBlobber::put_obj($psImgUrl, self::BLOB_MIME_TYPE, $sBlob);
+            $oBlobber->put_obj($psImgUrl, self::BLOB_MIME_TYPE, $sBlob);
         }
         cDebug::write("getting data");
-        $aData = cBlobber::get($psImgUrl);
+        $aData = $oBlobber->get($psImgUrl);
         return $aData;
     }
 
@@ -114,3 +121,4 @@ class cImageFunctions {
         }
     }
 }
+cImageFunctions::init_blobber();

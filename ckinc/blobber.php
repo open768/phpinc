@@ -14,28 +14,28 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
  **************************************************************************/
 
 class cBlobber {
-    /** @var cSQLLite $oSqLDB  */
-    static $oSQLDB = null;
+    /** @var cSQLLite $oSqlDB  */
+    private $oSqlDB = null;
     const BLOB_TABLE = "BLOBS";
-    static $db_filename = "blobs.db";
+    public $db_filename = "blobs.db";
     const COL_KEY = "k";
     const COL_MIME_TYPE = "m";
     const COL_BLOB = "b";
     const COL_DATE_ADDED = "da";
 
     //*************************************************************
-    static function init_db(string $pDBFilename = null) {
+    function __construct(string $pDBFilename = null) {
         //cDebug::enter();
         if (!cCommon::is_string_empty($pDBFilename)) {
             $sExtension = substr($pDBFilename, -3);
             if ($sExtension !== ".db") cDebug::error("database filename must end with '.db'");
-            self::$db_filename = $pDBFilename;
+            $this->db_filename = $pDBFilename;
         }
-        $oSqLDB = self::$oSQLDB;
-        if ($oSqLDB == null) {
-            cDebug::extra_debug("opening cSqlLite database: " . self::$db_filename);
-            $oSqLDB = new cSqlLite(self::$db_filename);
-            self::$oSQLDB = $oSqLDB;
+        $oSqlDB = $this->oSqlDB;
+        if ($oSqlDB == null) {
+            cDebug::extra_debug("opening cSqlLite database: " . $this->db_filename);
+            $oSqlDB = new cSqlLite($this->db_filename);
+            $this->oSqlDB = $oSqlDB;
         }
         self::pr_create_table();
         //cDebug::leave();
@@ -43,11 +43,11 @@ class cBlobber {
 
     //*************************************************************
     //*************************************************************
-    private static function pr_create_table() {
+    private function pr_create_table() {
         //cDebug::enter();
-        /** @var cSQLLite $oSqLDB  */
-        $oSqLDB = self::$oSQLDB;
-        $bTableExists = $oSqLDB->table_exists(self::BLOB_TABLE);
+        /** @var cSQLLite $oSqlDB  */
+        $oSqlDB = $this->oSqlDB;
+        $bTableExists = $oSqlDB->table_exists(self::BLOB_TABLE);
         if ($bTableExists) {
             //cDebug::extra_debug("table exists: " . self::BLOB_TABLE);
             return;
@@ -60,7 +60,7 @@ class cBlobber {
             ":key_col TEXT PRIMARY KEY, :mime_col TEXT not null, :blob_col BLOB, :date_col INTEGER" .
             ")";
         $sSQL = self::pr_replace_sql_params($sSQL);
-        $oSqLDB->querySQL($sSQL);
+        $oSqlDB->querySQL($sSQL);
         cDebug::extra_debug("table created");
         // index and uniqueness are implicit for primary keys
 
@@ -79,61 +79,61 @@ class cBlobber {
 
     //*************************************************************
     //*************************************************************
-    static function exists(string $psKey) {
-        /** @var cSQLLite $oSqLDB  */
-        $oSqLDB = self::$oSQLDB;
+    function exists(string $psKey) {
+        /** @var cSQLLite $oSqlDB  */
+        $oSqlDB = $this->oSqlDB;
         $sKeyHash = cHash::hash($psKey);
 
         $sQL = "SELECT :key_col from `:table` where :key_col=:key";
         $sQL = self::pr_replace_sql_params($sQL);
-        $oStmt = $oSqLDB->prepare($sQL);
+        $oStmt = $oSqlDB->prepare($sQL);
         $oStmt->bindParam(":key", $sKeyHash);
-        $oResultSet = $oSqLDB->exec_stmt($oStmt);
+        $oResultSet = $oSqlDB->exec_stmt($oStmt);
         $aData = $oResultSet->fetchArray();
         return is_array($aData);
     }
 
     //*************************************************************
-    static function remove(string $psKey) {
-        /** @var cSQLLite $oSqLDB  */
-        $oSqLDB = self::$oSQLDB;
+    function remove(string $psKey) {
+        /** @var cSQLLite $oSqlDB  */
+        $oSqlDB = $this->oSqlDB;
         $sKeyHash = cHash::hash($psKey);
 
         $sQL = "DELETE from `:table` where :key_col=:key";
         $sQL = self::pr_replace_sql_params($sQL);
-        $oStmt = $oSqLDB->prepare($sQL);
+        $oStmt = $oSqlDB->prepare($sQL);
         $oStmt->bindParam(":key", $sKeyHash);
-        $oSqLDB->exec_stmt($oStmt);
+        $oSqlDB->exec_stmt($oStmt);
     }
 
     //*************************************************************
-    static function put_obj(string $psKey, string $psMimeType, string $psBlobData) {
-        /** @var cSQLLite $oSqLDB  */
-        $oSqLDB = self::$oSQLDB;
+    function put_obj(string $psKey, string $psMimeType, string $psBlobData) {
+        /** @var cSQLLite $oSqlDB  */
+        $oSqlDB = $this->oSqlDB;
         $sKeyHash = cHash::hash($psKey);
 
         $sQL = "INSERT into `:table` (:key_col, :mime_col, :blob_col, :date_col ) VALUES ( :key,  :mime, :data, :epoch)";
         $sQL = self::pr_replace_sql_params($sQL);
-        $oStmt = $oSqLDB->prepare($sQL);
+        $oStmt = $oSqlDB->prepare($sQL);
         $oStmt->bindParam(":key", $sKeyHash);
         $oStmt->bindParam(":mime", $psMimeType);
         $oStmt->bindParam(":data", $psBlobData, SQLITE3_BLOB);
         $oStmt->bindParam(":epoch", time());
 
-        $oSqLDB->exec_stmt($oStmt);
+        $oSqlDB->exec_stmt($oStmt);
     }
 
     //*************************************************************
-    static function get(string $psKey) {
-        /** @var cSQLLite $oSqLDB  */
-        $oSqLDB = self::$oSQLDB;
+    function get(string $psKey) {
+        /** @var cSQLLite $oSqlDB  */
+        $oSqlDB = $this->oSqlDB;
         $sKeyHash = cHash::hash($psKey);
 
         $sQL = "SELECT :blob_col,:mime_col from `:table` where :key_col=:key";
         $sQL = self::pr_replace_sql_params($sQL);
-        $oStmt = $oSqLDB->prepare($sQL);
+        $oStmt = $oSqlDB->prepare($sQL);
         $oStmt->bindParam(":key", $sKeyHash);
-        $oResultSet = $oSqLDB->exec_stmt($oStmt);
+        $oResultSet = $oSqlDB->exec_stmt($oStmt);
         $aData = cSqlLiteUtils::fetch_all($oResultSet);
         if (count($aData) == 0)
             cDebug::error("unable to find $psKey");
@@ -141,4 +141,3 @@ class cBlobber {
         return $aData[0];
     }
 }
-cBlobber::init_db();
