@@ -57,7 +57,7 @@ class cBlobber {
         cDebug::extra_debug("table doesnt exist " . self::BLOB_TABLE);
         $sSQL =
             "CREATE TABLE `:table` ( " .
-            ":key_col TEXT PRIMARY KEY, :mime_col TEXT not null, :blob_col BLOB, :date_col INTEGER DEFAULT (unixepoch())" .
+            ":key_col TEXT PRIMARY KEY, :mime_col TEXT not null, :blob_col BLOB, :date_col INTEGER" .
             ")";
         $sSQL = self::pr_replace_sql_params($sSQL);
         $oSqLDB->querySQL($sSQL);
@@ -112,12 +112,13 @@ class cBlobber {
         $oSqLDB = self::$oSQLDB;
         $sKeyHash = cHash::hash($psKey);
 
-        $sQL = "INSERT into `:table` (:key_col, :mime_col, :blob_col) VALUES ( :key,  :mime, :data)";
+        $sQL = "INSERT into `:table` (:key_col, :mime_col, :blob_col, :date_col ) VALUES ( :key,  :mime, :data, :epoch)";
         $sQL = self::pr_replace_sql_params($sQL);
         $oStmt = $oSqLDB->prepare($sQL);
         $oStmt->bindParam(":key", $sKeyHash);
         $oStmt->bindParam(":mime", $psMimeType);
         $oStmt->bindParam(":data", $psBlobData, SQLITE3_BLOB);
+        $oStmt->bindParam(":epoch", time());
 
         $oSqLDB->exec_stmt($oStmt);
     }
