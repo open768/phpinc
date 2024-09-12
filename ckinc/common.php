@@ -232,6 +232,7 @@ class cPageOutput {
 
     //**************************************************************************
     private static function pr_write_JS_thing($psKey, $pvValue) {
+        if (cCommon::is_string_empty($pvValue)) return;
         echo "\tstatic {$psKey} = ";
         switch (gettype($pvValue)) {
             case "number":
