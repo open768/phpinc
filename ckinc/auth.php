@@ -123,13 +123,10 @@ class cAuth {
 
     //**********************************************************
     public static function check_for_admin_id_file() {
-        global $appConfig;
-
-
         cDebug::enter();
 
         //--------check that file is there -------------------------
-        $filename = $appConfig . "/" . self::ID_FILENAME;
+        $filename = cAppGlobals::$appConfig . "/" . self::ID_FILENAME;
         cDebug::write("checking for ID file '$filename'");
         if (!file_exists($filename)) {
             cDebug::write("file doesnt exist - no users to ad to admin role");
