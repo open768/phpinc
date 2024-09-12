@@ -134,7 +134,7 @@ class cHttp {
 
     //********************************************************************
     private function pr__fetch_basic_url($psUrl, $pbAllowNull = true) {
-        global $http_response_header;
+        global $http_response_header;  //PHP global set by file_get_contents
 
         if ($this->debug) cDebug::enter();
         $sHTML = null;
