@@ -1,6 +1,6 @@
 <?php
-require_once  "$phpInc/ckinc/image.php";
-require_once  "$phpInc/ckinc/hash.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/image.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/hash.php";
 
 /**************************************************************************
 Copyright (C) Chicken Katsu 2013 - 2024

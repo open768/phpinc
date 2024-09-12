@@ -11,9 +11,9 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
  **************************************************************************/
-require_once "$phpInc/ckinc/facebook.php";
-require_once "$phpInc/ckinc/header.php";
-require_once  "$phpInc/ckinc/objstoredb.php";
+require_once cAppGlobals::$phpInc . "/ckinc/facebook.php";
+require_once cAppGlobals::$phpInc . "/ckinc/header.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/objstoredb.php";
 
 class cAuth {
     const ROLES_FOLDER = "[roles]";
@@ -67,7 +67,7 @@ class cAuth {
 
     //**********************************************************
     public static function is_role($psRole) {
-        global $root;
+
         cDebug::enter();
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;

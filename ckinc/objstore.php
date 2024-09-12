@@ -6,10 +6,10 @@
 //%  so reduce this SQLlite3
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-require_once  "$phpInc/ckinc/gz.php";
-require_once  "$phpInc/ckinc/common.php";
-require_once  "$phpInc/ckinc/hash.php";
-require_once  "$phpInc/ckinc/objstoredb.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/gz.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/common.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/hash.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/objstoredb.php";
 
 
 //TBD functions to be made non static so that a different realm can be used by different 
@@ -41,11 +41,11 @@ class cObjStore {
     //# PUBLIC
     //#####################################################################
     public static function backup() {
-        global $root;
+
 
         cPageOutput::warning("objdata (used by cObjStore) backup to be deprecated");
 
-        $sFilename = addslashes("$root/backup.zip");
+        $sFilename = addslashes(cAppGlobals::$root . "/backup.zip");
         $sFolder = addslashes(self::$rootFolder);
         $cmd = "zip -r \"$sFilename\" \"$sFolder\"";
         cDebug::write("running command $cmd");
@@ -159,4 +159,4 @@ class cObjStore {
         return $aData;
     }
 }
-cObjStore::$rootFolder = "$root/[objdata]";
+cObjStore::$rootFolder = cAppGlobals::$root . "/[objdata]";

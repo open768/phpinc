@@ -11,7 +11,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
  **************************************************************************/
-require_once  "$phpInc/ckinc/curl.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/curl.php";
 
 class cHttpTuple {
     public $key;
@@ -86,19 +86,19 @@ class cHttp {
 
     //*****************************************************************************
     public function large_url_path($psFilename) {
-        global $root;
 
-        $sDir = "$root/" . $this->LARGE_URL_DIR;
+
+        $sDir = cAppGlobals::$root . "/" . $this->LARGE_URL_DIR;
         return "$sDir/$psFilename";
     }
 
     //*****************************************************************************
     public function fetch_large_url($psUrl, $psFilename, $pbOverwrite = false) {
-        global $root;
+
         //cDebug::enter();
 
         //check the folder is there
-        $sDir = "$root/" . $this->LARGE_URL_DIR;
+        $sDir = cAppGlobals::$root . "/" . $this->LARGE_URL_DIR;
         if (!is_dir($sDir)) {
             cDebug::write("making cache dir $sDir");
             mkdir($sDir, 0700, true);
@@ -252,7 +252,7 @@ class cHttp {
     //############################################################################
     private function pr__curl_init($psUrl) {
         //cDebug::enter();
-        global $root;
+
 
         $oCurl = new cCurl($psUrl);
         $oCurl->setopt(CURLOPT_URL, $psUrl);
@@ -292,7 +292,7 @@ class cHttp {
 
             $oCurl->setopt(CURLOPT_SSL_VERIFYPEER, true);
             $oCurl->setopt(CURLOPT_SSL_VERIFYHOST, 2);
-            $sCertPath = $root . "/" . $this->HTTPS_CERT_FILENAME;
+            $sCertPath = cAppGlobals::$root . "/" . $this->HTTPS_CERT_FILENAME;
             cDebug::extra_debug("set cert to $sCertPath");
             $oCurl->setopt(CURLOPT_CAINFO, $sCertPath);
             $oCurl->setopt(CURLOPT_CAPATH, $sCertPath); //broken
@@ -316,7 +316,7 @@ class cHttp {
 
     //*****************************************************************************
     private function pr__fetch_curl_url($psUrl) {
-        global $root;
+
 
         //cDebug::enter();
 

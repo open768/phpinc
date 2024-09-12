@@ -115,13 +115,13 @@ class  cSqlLite {
     //# constructor
     //#####################################################################
     function __construct(string $psDB) {
-        global $root;
+
         //cDebug::enter();
 
         //cDebug::extra_debug("SQLLIte version:");
         //cDebug::vardump(SQLite3::version());
         $this->dbname = $psDB;
-        $this->rootFolder = "$root/[db]";
+        $this->rootFolder = cAppGlobals::$root . "/[db]";
         $this->pr_check_for_db($psDB);
 
         //cDebug::leave();
@@ -131,11 +131,11 @@ class  cSqlLite {
     //# PRIVATES
     //#####################################################################
     static function open_sql_db(string $psDBFilename) {
-        global $root;
+
         //cDebug::extra_debug("opening database");
 
         //check if folder exists for database
-        $sFolder = $root . "/" . self::DB_folder;
+        $sFolder = cAppGlobals::$root . "/" . self::DB_folder;
         if (!is_dir($sFolder)) {
             cDebug::extra_debug("making folder $sFolder");
             mkdir($sFolder);
@@ -155,7 +155,7 @@ class  cSqlLite {
 
     //********************************************************************************
     private function pr_check_for_db(string $psDBFilename) {
-        global $root;
+
         //cDebug::enter();
         if ($this->database == null) {
             $oDB = self::open_sql_db($psDBFilename);
@@ -221,8 +221,8 @@ class  cSqlLite {
     //# PUBLICS
     //#####################################################################
     public function get_db_path($psDBname) {
-        global $root;
-        return   $root . "/" . self::DB_folder . "/" . $psDBname;
+
+        return  cAppGlobals::$root . "/" . self::DB_folder . "/" . $psDBname;
     }
 
     //********************************************************************************

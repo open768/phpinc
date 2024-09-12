@@ -11,12 +11,10 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
  **************************************************************************/
 
-require_once  "$phpInc/ckinc/debug.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/debug.php";
 
-class cColour
-{
-    public static function multigradient($paColours)
-    {
+class cColour {
+    public static function multigradient($paColours) {
         $aOut = [];
 
         for ($i = 1; $i < count($paColours); $i++) {
@@ -30,8 +28,7 @@ class cColour
         return $aOut;
     }
 
-    public static function showGradient($paColours, $psText = "&nbsp;", $piWidth = 30)
-    {
+    public static function showGradient($paColours, $psText = "&nbsp;", $piWidth = 30) {
         $aOut = [];
 
         echo "<table><tr>";
@@ -40,8 +37,7 @@ class cColour
         echo "</tr></table>";
     }
 
-    public static function lineargradient($r1, $g1, $b1, $r2, $g2, $b2, $steps)
-    {
+    public static function lineargradient($r1, $g1, $b1, $r2, $g2, $b2, $steps) {
         $colorindex = array();
         $dr = ($r2 - $r1) / $steps;
         $dg = ($g2 - $g1) / $steps;

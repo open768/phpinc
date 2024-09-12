@@ -13,14 +13,13 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
  **************************************************************************/
 
 //see 
-require_once  "$phpInc/ckinc/hash.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/hash.php";
 
 //#################################################################
 //# Auditing for users of the application
 //# TBD move to using objstoreDB
 //#################################################################
-class cAuditAccount
-{
+class cAuditAccount {
     public $host = null;
     public $account = null;
     public $user = null;
@@ -29,15 +28,13 @@ class cAuditAccount
 }
 
 //TBD move to using objstoredb
-class cAudit
-{
+class cAudit {
     const ACCOUNTS_KEY = "cAudit.accounts.key";
     const ACCOUNT_BASE_KEY = "cAudit.account.basekey.";
     const MAX_ENTRIES_PER_USER = 100;
 
     //**************************************************************************************
-    public static function audit($poCredentials, $psEvent)
-    {
+    public static function audit($poCredentials, $psEvent) {
         cDebug::enter();
         if (!property_exists($poCredentials, "host")) cDebug::error("no host in credentials");
         if (!property_exists($poCredentials, "account")) cDebug::error("no account in credentials");
@@ -47,7 +44,7 @@ class cAudit
         $oAccount->host = $poCredentials->host;
         $oAccount->account = $poCredentials->account;
         $oAccount->user = $poCredentials->get_username();
-        $oAccount->timstamp = $sDate = date('d-m-Y H:i:s');
+        $oAccount->timestamp = $sDate = date('d-m-Y H:i:s');
 
         //if this this account hasnt been audited before add to the Audited customers table
         cDebug::write("checking known accounts");
@@ -73,29 +70,25 @@ class cAudit
 
 
     //**************************************************************************************
-    public static function get_audited_accounts()
-    {
+    public static function get_audited_accounts() {
         return cHash::get(self::ACCOUNTS_KEY);
     }
 
     //**************************************************************************************
-    public static function get_known_users($poAccount)
-    {
+    public static function get_known_users($poAccount) {
         return cHash::get(self::pr__get_account_key($poAccount));
     }
 
 
     //**************************************************************************************
-    public static function get_user_entries($poAccount)
-    {
+    public static function get_user_entries($poAccount) {
         return cHash::get(self::pr__get_user_key($poAccount));
     }
 
     //**************************************************************************************
     //*
     //**************************************************************************************
-    private static function pr_add_user_entry($poAccount)
-    {
+    private static function pr_add_user_entry($poAccount) {
         $sHash = self::pr__get_user_key($poAccount);
 
         $aAuditLines = cHash::get($sHash);
@@ -113,20 +106,17 @@ class cAudit
     }
 
     //**************************************************************************************
-    private static function pr__get_user_key($poAccount)
-    {
+    private static function pr__get_user_key($poAccount) {
         return self::pr__get_account_key($poAccount) . $poAccount->user;
     }
 
     //**************************************************************************************
-    private static function pr__get_account_key($poAccount)
-    {
+    private static function pr__get_account_key($poAccount) {
         return self::ACCOUNT_BASE_KEY . $poAccount->host . $poAccount->account;
     }
 
     //**************************************************************************************
-    private static function pr__add_known_user($poAccount)
-    {
+    private static function pr__add_known_user($poAccount) {
         $sHash = self::pr__get_account_key($poAccount);
         $aUsers = cHash::get($sHash);
         if ($aUsers == null) $aUsers = [];
@@ -135,8 +125,7 @@ class cAudit
     }
 
     //**************************************************************************************
-    private static function pr__add_audited_account($poAccount)
-    {
+    private static function pr__add_audited_account($poAccount) {
         $aAccounts = self::get_audited_accounts();
         if ($aAccounts == null) $aAccounts = [];
 

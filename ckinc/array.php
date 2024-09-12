@@ -14,38 +14,32 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 //
  **************************************************************************/
 
-require_once  "$phpInc/ckinc/debug.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/debug.php";
 
 //########################################################################
 //#
 //########################################################################
-class cAssocArray
-{
+class cAssocArray {
     private $data = [];
 
-    public function get($psKey)
-    {
+    public function get($psKey) {
         if (isset($this->data[$psKey]))
             return $this->data[$psKey];
         else
             return null;
     }
 
-    public function set($psKey, $pvValue)
-    {
+    public function set($psKey, $pvValue) {
         $this->data[$psKey] = $pvValue;
     }
-    public function keys()
-    {
+    public function keys() {
         return array_keys($this->data);
     }
-    public function key_exists($psKey)
-    {
+    public function key_exists($psKey) {
         return isset($this->data[$psKey]);
     }
 
-    public function count()
-    {
+    public function count() {
         return count($this->data);
     }
 }
@@ -53,16 +47,14 @@ class cAssocArray
 //########################################################################
 //#
 //########################################################################
-class c2DArray
-{
+class c2DArray {
     private $caRows = null;
     private $caRowNames = null;
     private $caColNames = null;
     private $caColInfo = null;
 
     // *************************** constructor ***************************
-    public function __construct()
-    {
+    public function __construct() {
         $this->caRows = new cAssocArray;
         $this->caRowNames = new cAssocArray;
         $this->caColNames = new cAssocArray;
@@ -70,8 +62,7 @@ class c2DArray
     }
 
     //********************************************************************
-    private function pr__get_row($psRow, $pbCreate = false)
-    {
+    private function pr__get_row($psRow, $pbCreate = false) {
         if (!$this->caRowNames->key_exists($psRow))
             if ($pbCreate) {
                 $this->caRowNames->set($psRow, 1);
@@ -82,26 +73,22 @@ class c2DArray
     }
 
     //********************************************************************
-    public function colNames()
-    {
+    public function colNames() {
         return $this->caColNames->keys();
     }
 
     //********************************************************************
-    public function rowNames()
-    {
+    public function rowNames() {
         return $this->caRowNames->keys();
     }
 
     //********************************************************************
-    public function length()
-    {
+    public function length() {
         return count($this->rowNames());
     }
 
     //********************************************************************
-    public function get($psRow, $psCol)
-    {
+    public function get($psRow, $psCol) {
         $oRow = $this->pr__get_row($psRow, false);
         if ($oRow == null) return null;
 
@@ -109,8 +96,7 @@ class c2DArray
     }
 
     //********************************************************************
-    public function set($psRow, $psCol, $pvData)
-    {
+    public function set($psRow, $psCol, $pvData) {
         cDebug::enter();
 
         $oRow = $this->pr__get_row($psRow, true);
@@ -122,16 +108,14 @@ class c2DArray
     }
 
     //********************************************************************
-    public function add_col_data_array($psCol, $paData)
-    {
+    public function add_col_data_array($psCol, $paData) {
         $aRowNames = array_keys($paData);
         foreach ($aRowNames as $sRow)
             $this->set($sRow, $psCol, $paData[$sRow]);
     }
 
     //********************************************************************
-    public function add_col_data_obj($psCol, $poData)
-    {
+    public function add_col_data_obj($psCol, $poData) {
         $sClass = get_class($poData);
         if ($sClass !== "cAssocArray") cDebug::error("unexpected class type: $sClass");
 
@@ -141,8 +125,7 @@ class c2DArray
     }
 
     //********************************************************************
-    public function add_col_data($psCol, $pvData)
-    {
+    public function add_col_data($psCol, $pvData) {
         cDebug::enter();
         $sType = gettype($pvData);
         switch ($sType) {
@@ -158,27 +141,22 @@ class c2DArray
         cDebug::leave();
     }
 
-    public function set_col_info($psCol, $pvInfo)
-    {
+    public function set_col_info($psCol, $pvInfo) {
         $this->caColInfo->set($psCol, $pvInfo);
     }
-    public function get_col_info($psCol)
-    {
+    public function get_col_info($psCol) {
         return $this->caColInfo->get($psCol);
     }
 }
 
-class cArrayUtil
-{
-    public static function array_is_empty($paInput)
-    {
+class cArrayUtil {
+    public static function array_is_empty($paInput) {
         if ($paInput == null) return true;
         return (count($paInput) == 0);
     }
 
     //**************************************************************************
-    public static function add_count_to_array(&$paArray, $psKey, $piAmount = 1)
-    {
+    public static function add_count_to_array(&$paArray, $psKey, $piAmount = 1) {
         //cDebug::write("addcounttoarray - $psKey");
         if (array_key_exists($psKey, $paArray))
             $paArray[$psKey] += $piAmount;

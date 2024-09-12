@@ -1,12 +1,12 @@
 <?php
-require_once  "$phpInc/ckinc/debug.php";
-require_once  "$phpInc/ckinc/common.php";
-require_once  "$phpInc/ckinc/objstoredb.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/debug.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/common.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/objstoredb.php";
 
 // @todo the following is deprecated FB now only supports their graph API
 // https://github.com/facebookarchive/php-graph-sdk
 //load facebook classes
-require_once  "$phpInc/extra/facebook/autoload.php";
+require_once  cAppGlobals::$phpInc . "/extra/facebook/autoload.php";
 
 use Facebook\FacebookSession;
 use Facebook\FacebookRequest;

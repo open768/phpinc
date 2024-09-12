@@ -17,12 +17,11 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 //TODO: switch this to use sqllite in a single file - reduce the number of inodes used
  **************************************************************************/
 
-require_once  "$phpInc/ckinc/debug.php";
-require_once  "$phpInc/ckinc/gz.php";
-require_once  "$phpInc/ckinc/sqlite.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/debug.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/gz.php";
+require_once  cAppGlobals::$phpInc . "/ckinc/sqlite.php";
 
-class cHash
-{
+class cHash {
     const HASH_FOLDER = "[cache]/[hash]";
     const FOREVER = -1;
     private $HASH_REALM = "general";
@@ -34,8 +33,7 @@ class cHash
 
     //####################################################################
     //####################################################################
-    private static function pr__exists_hash($psHash, $pbCached = false)
-    {
+    private static function pr__exists_hash($psHash, $pbCached = false) {
         $sFile = self::getPath($psHash);
         $bExists = file_exists($sFile);
         if (self::$show_hashes) cDebug::write("hash: $bExists - $psHash");
@@ -57,15 +55,13 @@ class cHash
 
     //####################################################################
     //####################################################################
-    public static function hash($psAnything)
-    {
+    public static function hash($psAnything) {
         //unique md5 - impossible that the reverse hash is the same as hash
         return  md5($psAnything) . md5(strrev($psAnything));
     }
 
     //************************************************************************
-    public static function delete_hash($psHash)
-    {
+    public static function delete_hash($psHash) {
         if (self::pr__exists_hash($psHash)) {
             $sFile = self::getPath($psHash);
             cDebug::write("deleting hash $psHash");
@@ -74,19 +70,17 @@ class cHash
     }
 
     //************************************************************************
-    public static function get_folder($psHash)
-    {
-        global $root;
+    public static function get_folder($psHash) {
+
 
         $d1 = substr($psHash, 0, 2);
         $d2 = substr($psHash, 2, 2);
-        return "$root/" . self::HASH_FOLDER . "/$d1/$d2";
+        return cAppGlobals::$root . "/" . self::HASH_FOLDER . "/$d1/$d2";
     }
 
 
     //************************************************************************
-    public static function getPath($psHash)
-    {
+    public static function getPath($psHash) {
         if (!self::$shown_deprecated_warning) {
             cPageOutput::warning("file based hash will be deprecated");
             self::$shown_deprecated_warning = true;
@@ -99,8 +93,7 @@ class cHash
     }
 
     //************************************************************************
-    public static function make_hash_folder($psHash)
-    {
+    public static function make_hash_folder($psHash) {
         $sFolder = self::get_folder($psHash);
         if (!is_dir($sFolder)) {
             cDebug::write("making folder: for hash $psHash");
@@ -110,8 +103,7 @@ class cHash
     }
 
     //************************************************************************
-    public static function pr__put_obj($psHash, $poObj, $pbOverwrite = false, $pbCached = false)
-    {
+    public static function pr__put_obj($psHash, $poObj, $pbOverwrite = false, $pbCached = false) {
         $sFile = self::getPath($psHash);
         if (!$pbOverwrite && self::pr__exists_hash($psHash))
             cDebug::error("hash exists: $psHash");
@@ -122,8 +114,7 @@ class cHash
     }
 
     //************************************************************************
-    public static function pr__get_obj($psHash, $pbCached = false)
-    {
+    public static function pr__get_obj($psHash, $pbCached = false) {
         $oResponse = null;
         if (self::pr__exists_hash($psHash)) {
             if (self::$show_cache_hit) cDebug::write("exists in cache");
@@ -136,30 +127,26 @@ class cHash
     }
 
     //************************************************************************
-    public static function get($psAnything, $pbCached = false)
-    {
+    public static function get($psAnything, $pbCached = false) {
         $sHash = self::hash($psAnything);
         $oThing = self::pr__get_obj($sHash, $pbCached);
         return $oThing;
     }
 
     //************************************************************************
-    public static function put($psAnything, $poObj, $pbOverwrite = false, $pbCached = false)
-    {
+    public static function put($psAnything, $poObj, $pbOverwrite = false, $pbCached = false) {
         $sHash = self::hash($psAnything);
         self::pr__put_obj($sHash, $poObj, $pbOverwrite);
     }
 
     //************************************************************************
-    public static function exists($psAnything, $pbCached = false)
-    {
+    public static function exists($psAnything, $pbCached = false) {
         $sHash = self::hash($psAnything);
         return self::pr__exists_hash($sHash, $pbCached);
     }
 
     //************************************************************************
-    public static function delete($psAnything)
-    {
+    public static function delete($psAnything) {
         cDebug::enter();
         $sHash = self::hash($psAnything);
         self::delete_hash($sHash);
