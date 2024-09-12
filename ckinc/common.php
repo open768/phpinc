@@ -247,6 +247,7 @@ class cPageOutput {
         echo "\n";
     }
 
+    //**************************************************************************
     public static function write_JS_class_constant_IDs($psClassName) {
         $oReflection = new ReflectionClass($psClassName);
         $aConsts = $oReflection->getConstants();
