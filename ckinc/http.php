@@ -378,7 +378,6 @@ class cHttp {
             $this->progress_len = 0;
             echo "<br>";
         }
-        echo "*";
-        cDebug::flush();
+        cCommon::flushprint("*");
     }
 }

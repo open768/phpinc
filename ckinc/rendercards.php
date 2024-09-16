@@ -17,16 +17,14 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 /** 
  * Class cRenderCards - uses MATERIAL DESIGN
  */
-class cRenderCards
-{
+class cRenderCards {
     private static $iCardID = 0;
     private static $iChipID = 0;
 
     //**************************************************************************
     //*
     //**************************************************************************
-    public static function card_start($psTitle = "", $psExtraClass = "")
-    {
+    public static function card_start($psTitle = "", $psExtraClass = "") {
         self::$iCardID++;
         $sID = "CARDID_" . self::$iCardID;
         $sClass = "mdl-card mdl-shadow--2dp rapport-card";
@@ -40,51 +38,41 @@ class cRenderCards
         return self::$iCardID;
     }
     //**************************************************************************
-    public static function card_title($psTitle)
-    {
+    public static function card_title($psTitle) {
         echo "<div class='mdl-card__title'>$psTitle</div>";
     }
 
     //**************************************************************************
-    public static function action_start()
-    {
+    public static function action_start() {
         echo "<div class='mdl-card__actions mdl-card--border'>";
     }
 
     //**************************************************************************
-    public static function body_start()
-    {
+    public static function body_start() {
         echo "<div class='mdl-card__supporting-text'>";
     }
 
     //**************************************************************************
     //*
     //**************************************************************************
-    public static function action_end()
-    {
-        echo "</div><!-- mdl actions -->";
-        cDebug::flush();
+    public static function action_end() {
+        cCommon::flushprint("</div><!-- mdl actions -->");
     }
 
     //**************************************************************************
-    public static function body_end()
-    {
-        echo "</div><!-- mdl body -->";
-        cDebug::flush();
+    public static function body_end() {
+        cCommon::flushprint("</div><!-- mdl body -->");
     }
 
     //**************************************************************************
-    public static function card_end()
-    {
-        echo "</div><!--mdl-card-->";
-        cDebug::flush();
+    public static function card_end() {
+        cCommon::flushprint("</div><!--mdl-card-->");
     }
 
     //**************************************************************************
     //*
     //**************************************************************************
-    public static function chip($psContent, $psTooltip = null)
-    {
+    public static function chip($psContent, $psTooltip = null) {
         self::$iChipID++;
         $sID = "CHIPID_" . self::$iChipID;
         echo "<span class='mdl-chip'>";
