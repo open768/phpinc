@@ -141,16 +141,24 @@ class  cSqlLite {
             mkdir($sFolder);
         }
 
+        //check if db_exists
+        if (!self::db_exists($psDBFilename))
+            cDebug::extra_debug("database file doesnt exist $psDBFilename");
+
         //now open the database
         $sPath = $sFolder . "/" . $psDBFilename;
-        if (!file_exists($sPath))
-            cDebug::extra_debug("database file doesnt exist $sPath");
-
         cDebug::extra_debug("opening database  $sPath");
         $oDB = new SQLite3($sPath);
         //cDebug::extra_debug("database opened");
 
         return $oDB;
+    }
+
+    //********************************************************************************
+    static function db_exists(string $psDBFilename) {
+        $sFolder = cAppGlobals::$root . "/" . self::DB_folder;
+        $sPath = $sFolder . "/" . $psDBFilename;
+        return file_exists($sPath);
     }
 
     //********************************************************************************
