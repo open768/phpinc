@@ -110,6 +110,7 @@ class  cSqlLite {
     public $path = null;
     /** @var SQLite3 $database */
     public $database = null;        //always the same database
+    static $in_transaction = false;
 
     //#####################################################################
     //# constructor
@@ -304,13 +305,24 @@ class  cSqlLite {
     //* transactions
     //********************************************************************************
     public function begin_transaction() {
+        if (self::$in_transaction) cDebug::error("allready in a transaction");
+        self::$in_transaction = true;
         $oDB = $this->database;
         $oDB->exec("BEGIN;");
     }
 
     //********************************************************************************
     public function commit() {
+        if (!self::$in_transaction) cDebug::error("not allready in a transaction");
+        self::$in_transaction = false;
         $oDB = $this->database;
         $oDB->exec("COMMIT;");
+    }
+
+    public function rollback() {
+        if (!self::$in_transaction) cDebug::error("not allready in a transaction");
+        self::$in_transaction = false;
+        $oDB = $this->database;
+        $oDB->exec("ROLLBACK;");
     }
 }
