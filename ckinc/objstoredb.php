@@ -313,13 +313,12 @@ class cOBjStoreDB {
 
     //********************************************************************************
     public function kill($psKey) {
-        cDebug::enter();
+        //cDebug::enter();
         $this->pr_check_realm();
         $oSQL = self::$oSQLite;
 
         //read from the database and decompress
         $sHash = cHash::hash($psKey);
-        cDebug::extra_debug("hash: $sHash");
 
         $sSQL = "DELETE from `:table` where :realm_col=:realm AND :hash_col=:hash";
         $sSQL = self::replace_sql($sSQL);
@@ -330,6 +329,6 @@ class cOBjStoreDB {
         $oStmt->bindValue(":hash", $sHash);
         $oResultSet = $oSQL->exec_stmt($oStmt);
 
-        cDebug::leave();
+        //cDebug::leave();
     }
 }
