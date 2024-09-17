@@ -123,7 +123,8 @@ class cCachedHttp {
 
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
-        $oData = $oDB->get($psURL, $pbCheckExpiry);
+        $oData = null;
+        if (!cDebug::$IGNORE_CACHE)  $oData = $oDB->get($psURL, $pbCheckExpiry);
         if ($oData == null) {
             cDebug::write("fetching live url:$psURL");
             if ($pbJson)
