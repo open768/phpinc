@@ -287,13 +287,13 @@ class cOBjStoreDB {
         }
 
         $vResult = null;
-        $aResult = $oResultSet->fetchArray();
+        $aResult = $oResultSet->fetchArray(SQLITE3_ASSOC);
         if (is_array($aResult)) {
-            $sEncoded = $aResult[1];
+            $sEncoded = $aResult[self::COL_CONTENT];
             $vResult = cGzip::decode($sEncoded);
 
             if ($pbCheckExpiry) {
-                $sItemDate = $aResult[2]; //this is a string
+                $sItemDate = $aResult[SELF::COL_DATE]; //this is a string
                 $dItemDate = strtotime($sItemDate);
                 $iExpires = $dItemDate + $this->expire_time;
                 $iDiff = $iExpires - time();
@@ -327,7 +327,7 @@ class cOBjStoreDB {
         $oStmt = $oSQL->prepare($sSQL);
         $oStmt->bindValue(":realm", $this->realm);
         $oStmt->bindValue(":hash", $sHash);
-        $oResultSet = $oSQL->exec_stmt($oStmt);
+        $oSQL->exec_stmt($oStmt);
 
         //cDebug::leave();
     }

@@ -89,7 +89,7 @@ class cBlobber {
         $oStmt = $oSqlDB->prepare($sQL);
         $oStmt->bindParam(":key", $sKeyHash);
         $oResultSet = $oSqlDB->exec_stmt($oStmt);
-        $aData = $oResultSet->fetchArray();
+        $aData = $oResultSet->fetchArray(SQLITE3_ASSOC);
         return is_array($aData);
     }
 

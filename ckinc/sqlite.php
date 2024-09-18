@@ -82,7 +82,7 @@ class cSqlLiteUtils {
     //********************************************************************************
     static function fetch_all(SQLite3Result $poResultset) {
         $aRows = [];
-        while ($oRow = $poResultset->fetchArray())
+        while ($oRow = $poResultset->fetchArray(SQLITE3_ASSOC))
             $aRows[] = $oRow;
         return $aRows;
     }
@@ -285,12 +285,12 @@ class  cSqlLite {
     }
 
     //********************************************************************************
-    public function table_exists($psName) {
+    public function table_exists(string $psName) {
         $sSQL = 'SELECT name FROM sqlite_master WHERE name=:table';
         $oStmt = $this->prepare($sSQL);
         $oStmt->bindValue(":table", $psName);
         $oResultSet = $this->exec_stmt($oStmt);
-        $aResults = $oResultSet->fetchArray();
+        $aResults = $oResultSet->fetchArray(SQLITE3_ASSOC);
         //cDebug::vardump($aResults);
         if (is_array($aResults))
             $bExists = count($aResults) > 0;
