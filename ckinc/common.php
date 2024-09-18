@@ -64,6 +64,13 @@ class cCommon {
     }
 
     //**************************************************************************
+    public static function  UTC_to_epoch(string $psUTC) {
+        $dUtc = new DateTime($psUTC, new DateTimeZone("UTC"));
+        $iUtc = $dUtc->format('U');
+        return $iUtc;
+    }
+
+    //**************************************************************************
     public static function get_session($psKey) {
         global $_SESSION;
 
