@@ -293,8 +293,17 @@ class cPageOutput {
         <div class='w3-panel w3-blue w3-round-large w3-padding-16 w3-leftbar'>
             <?= $psMessage ?>
         </div>
-<?php
+    <?php
         cDebug::flush();
+    }
+
+    //**************************************************************************
+    static function scroll_to_bottom() {
+    ?>
+        <script>
+            window.scrollTo(0, document.body.scrollHeight)
+        </script>
+<?php
     }
 }
 ?>
