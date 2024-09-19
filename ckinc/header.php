@@ -52,19 +52,26 @@ class cHeader {
     }
 
     //*******************************************************************
-    public static function get($psKey) {
+    public static function get($psKey, $pbMustGet = false, $pbMustBeNumeric = false) {
         $sValue = null;
         if (isset($_GET[$psKey]))
             $sValue = $_GET[$psKey];
         else if (isset($_POST[$psKey]))
             $sValue = $_POST[$psKey];
-        else {
-            cDebug::extra_debug("key:$psKey not found in GET or POST");
-            return null;
-        }
 
+        //check 
         if (cCommon::is_string_empty($sValue))
-            return null;
+            if ($pbMustGet)
+                cDebug::error("header doesnt contain param: $psKey");
+            else {
+                cDebug::write("header doesnt contain param: $psKey");
+                return null;
+            }
+
+
+        if ($pbMustBeNumeric && !is_numeric($sValue))
+            cDebug::error("param: $psKey must be numeric");
+
 
         while (strstr($sValue, "%")) {
             $sDecoded = urldecode($sValue);    //reverse proxy double encodes strings
@@ -74,6 +81,7 @@ class cHeader {
         }
         return $sValue;
     }
+
 
     //*******************************************************************
     public static function get_server() {
