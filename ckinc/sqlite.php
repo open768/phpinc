@@ -83,7 +83,7 @@ class cSqlLiteUtils {
     static function fetch_all(SQLite3Result $poResultset) {
         $aRows = [];
         while ($oRow = $poResultset->fetchArray(SQLITE3_ASSOC))
-            $aRows[] = $oRow;
+            $aRows[] = (object) $oRow;
         return $aRows;
     }
 
