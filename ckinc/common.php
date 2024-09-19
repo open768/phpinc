@@ -150,8 +150,7 @@ class cCommonFiles {
                 if (is_dir("$psDir/$sfile") && !is_link($psDir))
                     self::delTree("$psDir/$sfile");
                 else {
-                    echo ".";
-                    cDebug::flush();
+                    cCommon::flushprint(".");
                     unlink("$psDir/$sfile");
                 }
             } catch (Exception $e) {

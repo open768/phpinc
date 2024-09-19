@@ -115,8 +115,7 @@ class cDebug {
         if (self::is_extra_debugging() || $pbForce) {
             echo "<table border=1 width=100%><tr><td><PRE>";
             var_dump($poThing);
-            echo "</PRE></td></tr></table>";
-            self::flush();
+            cCommon::flushprint("</PRE></td></tr></table>");
         } else
             self::write(__FUNCTION__ . " only available in debug2");
     }
