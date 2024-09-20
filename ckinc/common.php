@@ -278,7 +278,7 @@ class cPageOutput {
     public static function errorbox($psMessage) {
 ?>
         <p>
-        <div class='w3-panel w3-red w3-leftbar'>
+        <div class="w3-panel w3-red w3-leftbar w3-border-yellow">
             <h2>Oops there was an error</h2>
             <p>
                 <?= $psMessage ?>

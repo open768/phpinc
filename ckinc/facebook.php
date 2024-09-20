@@ -44,7 +44,7 @@ class cFacebook_ServerSide {
     //*******************************************************************
     public static function is_facebook() {
         //force on query string
-        $sFB = cHeader::get("fb");
+        $sFB = cHeader::get(cAppUrlParams::FACEBOOK);
         if (!cCommon::is_string_empty($sFB)) return true;
 
         //user agent is like facebookexternalhit/1.1
