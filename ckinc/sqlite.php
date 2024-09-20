@@ -278,6 +278,8 @@ class  cSqlLite {
      */
     public function exec_stmt(SQLite3Stmt $poStmt) {
         //cDebug::enter();
+        cDebug::extra_debug($poStmt->getSQL(TRUE));
+
         $oAction = new cSQLExecStmtAction($poStmt);
         $oResultSet = $this->pr_do_action($oAction);
         //cDebug::leave();		
