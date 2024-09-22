@@ -80,7 +80,7 @@ class cSQLExecStmtAction extends cSQLAction {
 //#############################################################################
 class cSqlLiteUtils {
     //********************************************************************************
-    static function fetch_all(SQLite3Result $poResultset) {
+    static function fetch_all(SQLite3Result $poResultset): array {
         $aRows = [];
         while ($oRow = $poResultset->fetchArray(SQLITE3_ASSOC))
             $aRows[] = (object) $oRow;
@@ -88,9 +88,29 @@ class cSqlLiteUtils {
     }
 
     //********************************************************************************
-    static function vacuum(string $psDatabase) {
+    static function vacuum(string $psDatabase): void {
         $oDB = cSqlLite::open_sql_db($psDatabase);
         $oDB->exec("VACUUM;");
+    }
+}
+
+//#############################################################################
+//#
+//#############################################################################
+class cSqlBindItem {
+    public $name;
+    public $value;
+    public function __construct(string $psName, $pValue) {
+        $this->name = $psName;
+        $this->value = $pValue;
+    }
+}
+
+class cSqlBinds {
+    public array $binds = [];
+
+    public function add_bind($psName, $psValue) {
+        $this->binds[] =  new cSqlBindItem($psName, $psValue);
     }
 }
 
@@ -259,6 +279,7 @@ class  cSqlLite {
         //cDebug::leave();	
         return $oResultSet;
     }
+
     //********************************************************************************
     public function querySQL(string $psSQL) {
         //cDebug::enter();
@@ -287,12 +308,22 @@ class  cSqlLite {
     }
 
     //********************************************************************************
+    public function prep_exec_fetch(string $psSQL, cSqlBinds $poBinds): array {
+        $oStmt = $this->prepare($psSQL);
+        foreach ($poBinds->binds as $oItem)
+            $oStmt->bindValue($oItem->name, $oItem->value);
+        $oResultSet = $this->exec_stmt($oStmt);
+        $aResults = cSqlLiteUtils::fetch_all($oResultSet);
+        return $aResults;
+    }
+
+    //********************************************************************************
     public function table_exists(string $psName) {
         $sSQL = 'SELECT name FROM sqlite_master WHERE name=:table';
-        $oStmt = $this->prepare($sSQL);
-        $oStmt->bindValue(":table", $psName);
-        $oResultSet = $this->exec_stmt($oStmt);
-        $aResults = $oResultSet->fetchArray(SQLITE3_ASSOC);
+        $oBinds = new cSqlBinds(); {
+            $oBinds->add_bind(":table", $psName);
+        }
+        $aResults = self::prep_exec_fetch($sSQL, $oBinds);
         //cDebug::vardump($aResults);
         if (is_array($aResults))
             $bExists = count($aResults) > 0;

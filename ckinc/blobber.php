@@ -130,12 +130,12 @@ class cBlobber {
         $oSqlDB = $this->oSqlDB;
         $sKeyHash = cHash::hash($psKey);
 
-        $sQL = "SELECT :blob_col,:mime_col from `:table` where :key_col=:key";
-        $sQL = self::pr_replace_sql_params($sQL);
-        $oStmt = $oSqlDB->prepare($sQL);
-        $oStmt->bindParam(":key", $sKeyHash);
-        $oResultSet = $oSqlDB->exec_stmt($oStmt);
-        $aData = cSqlLiteUtils::fetch_all($oResultSet);
+        $sSQL = "SELECT :blob_col,:mime_col from `:table` where :key_col=:key";
+        $sSQL = self::pr_replace_sql_params($sSQL);
+        $oBinds = new cSqlBinds(); {
+            $oBinds->add_bind(":key", $sKeyHash);
+        }
+        $aData = $oSqlDB->prep_exec_fetch($sSQL, $oBinds);
         if (count($aData) == 0)
             cDebug::error("unable to find $psKey");
 
