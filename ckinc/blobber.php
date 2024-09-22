@@ -88,7 +88,7 @@ class cBlobber {
         $sQL = self::pr_replace_sql_params($sQL);
         $oStmt = $oSqlDB->prepare($sQL);
         $oStmt->bindParam(":key", $sKeyHash);
-        $oResultSet = $oSqlDB->exec_stmt($oStmt);
+        $oResultSet = $oSqlDB->exec_stmt($oStmt); //not worth changing to prep_exec_fetch
         $aData = $oResultSet->fetchArray(SQLITE3_ASSOC);
         return is_array($aData);
     }
@@ -103,7 +103,7 @@ class cBlobber {
         $sQL = self::pr_replace_sql_params($sQL);
         $oStmt = $oSqlDB->prepare($sQL);
         $oStmt->bindParam(":key", $sKeyHash);
-        $oSqlDB->exec_stmt($oStmt);
+        $oSqlDB->exec_stmt($oStmt); //not worth changing to prep_exec_fetch
     }
 
     //*************************************************************

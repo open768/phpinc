@@ -313,6 +313,8 @@ class  cSqlLite {
         foreach ($poBinds->binds as $oItem)
             $oStmt->bindValue($oItem->name, $oItem->value);
         $oResultSet = $this->exec_stmt($oStmt);
+        if ($oResultSet == false)
+            return null;
         $aResults = cSqlLiteUtils::fetch_all($oResultSet);
         return $aResults;
     }

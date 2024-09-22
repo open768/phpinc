@@ -287,7 +287,7 @@ class cOBjStoreDB {
         }
 
         $vResult = null;
-        $aResult = $oResultSet->fetchArray(SQLITE3_ASSOC);
+        $aResult = $oResultSet->fetchArray(SQLITE3_ASSOC); //fine to use fetchArray as only looking for a single row
         if (is_array($aResult)) {
             $sEncoded = $aResult[self::COL_CONTENT];
             $vResult = cGzip::decode($sEncoded);
