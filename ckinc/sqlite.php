@@ -80,10 +80,11 @@ class cSQLExecStmtAction extends cSQLAction {
 //#############################################################################
 class cSqlLiteUtils {
     //********************************************************************************
-    static function fetch_all(SQLite3Result $poResultset): array {
+    static function fetch_all(SQLite3Result $poResultset): ?array {
         $aRows = [];
         while ($oRow = $poResultset->fetchArray(SQLITE3_ASSOC))
             $aRows[] = (object) $oRow;
+        if (count($aRows) == 0)  return null;
         return $aRows;
     }
 
