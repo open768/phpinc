@@ -309,7 +309,7 @@ class  cSqlLite {
     }
 
     //********************************************************************************
-    public function prep_exec_fetch(string $psSQL, cSqlBinds $poBinds): array {
+    public function prep_exec_fetch(string $psSQL, cSqlBinds $poBinds): ?array {
         $oStmt = $this->prepare($psSQL);
         foreach ($poBinds->binds as $oItem)
             $oStmt->bindValue($oItem->name, $oItem->value);
@@ -321,7 +321,7 @@ class  cSqlLite {
     }
 
     //********************************************************************************
-    public function table_exists(string $psName) {
+    public function table_exists(string $psName): bool {
         $sSQL = 'SELECT name FROM sqlite_master WHERE name=:table';
         $oBinds = new cSqlBinds(); {
             $oBinds->add_bind(":table", $psName);
