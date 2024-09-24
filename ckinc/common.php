@@ -238,24 +238,29 @@ class cPageOutput {
 
     //**************************************************************************
     private static function pr_write_JS_thing($psKey, $pvValue) {
-        if (cCommon::is_string_empty($pvValue)) return;
         echo "\tstatic {$psKey} = ";
-        switch (gettype($pvValue)) {
+        $sType = gettype($pvValue);
+        switch ($sType) {
             case "number":
                 echo $pvValue;
                 break;
             case "boolean":
-                echo ($pvValue ? "true" : "false");
+                $sValue = ($pvValue ? "true" : "false");
+                echo $sValue;
                 break;
-            default:
+            case "string":
                 $sText = str_replace("'", "\"", $pvValue);
                 echo "'{$sText}'";
+                break;
+            default:
+                cDebug::error("dont know type: $sType");
         }
         echo "\n";
     }
 
     //**************************************************************************
     public static function write_JS_class_constant_IDs($psClassName) {
+        cDebug::enter();
         $oReflection = new ReflectionClass($psClassName);
         $aConsts = $oReflection->getConstants();
         $aStatics = $oReflection->getStaticProperties();
@@ -272,6 +277,7 @@ class cPageOutput {
         }
         echo "</script>\n";
         cDebug::flush();
+        cDebug::leave();
     }
 
     //**************************************************************************
