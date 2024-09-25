@@ -11,39 +11,19 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
 //
  **************************************************************************/
-
-
-class cImageFunctions {
+class cThumbNailer {
     static $blobber = null;
     const BLOB_MIME_TYPE = "image/jpeg";
-    const BLOBBER_DB = "imageblobs.db";
+    const BLOBBER_DB = "thumbblobs.db";
 
     static function init_blobber() {
         if (self::$blobber == null) self::$blobber = new cBlobber(self::BLOBBER_DB);
     }
 
     //************************************************************************************
-    static function crop($poImg, $piX, $piY, $piWidth, $piHeight, $piQuality, $psOutFile) {
-        cDebug::write("cropping to $piX, $piY");
-
-        $oDest = imagecreatetruecolor($piWidth, $piHeight);
-        cDebug::write("cropping ($piX, $piY), w=" . $piWidth . " h=" . $piHeight);
-        imagecopy($oDest, $poImg, 0, 0, $piX, $piY, $piWidth, $piHeight);
-
-        //write out the file
-        $sFolder = dirname($psOutFile);
-        if (!file_exists($sFolder)) {
-            cDebug::write("creating folder: $sFolder");
-            mkdir($sFolder, 0755, true); //folder needs to readable by apache
-        }
-
-        cDebug::write("writing jpeg to $psOutFile");
-        imagejpeg($oDest, $psOutFile, $piQuality);
-        imagedestroy($oDest);
-    }
-
+    //* thumbnail
     //************************************************************************************
-    private static function pr_make_thumbnail_obj(string $psImgUrl, int $piHeight, int $piQuality) {
+    private static function pr_make_thumbnail_obj(string $psImgUrl, int $piHeight, int $piQuality): GdImage {
         //----get the original image --------------------------------------------------------
         cDebug::write("fetching $psImgUrl");
         $oHttp = new cHttp();
@@ -72,7 +52,7 @@ class cImageFunctions {
         $aData = null;
         $oBlobber = self::$blobber;
         if (!$oBlobber->exists($psImgUrl)) {
-            $sBlob = cImageFunctions::make_thumbnail_blob($psImgUrl, $piHeight, $piQuality);
+            $sBlob = cThumbNailer::make_thumbnail_blob($psImgUrl, $piHeight, $piQuality);
             $oBlobber->put_obj($psImgUrl, self::BLOB_MIME_TYPE, $sBlob);
         }
         cDebug::write("getting data");
@@ -81,7 +61,7 @@ class cImageFunctions {
     }
 
     //************************************************************************************
-    static function make_thumbnail_blob(string $psImgUrl, int $piHeight, int $piQuality) {
+    static function make_thumbnail_blob(string $psImgUrl, int $piHeight, int $piQuality): string {
         $oData = null;
         cDebug::enter();
         $oThumb = self::pr_make_thumbnail_obj($psImgUrl, $piHeight, $piQuality);
@@ -121,4 +101,45 @@ class cImageFunctions {
         }
     }
 }
-cImageFunctions::init_blobber();
+cThumbNailer::init_blobber();
+
+//####################################################################################
+//#
+//####################################################################################
+class cCropper {
+    static $blobber = null;
+    const BLOB_MIME_TYPE = "image/jpeg";
+    const BLOBBER_DB = "cropblobs.db";
+
+    static function init_blobber() {
+        if (self::$blobber == null) self::$blobber = new cBlobber(self::BLOBBER_DB);
+    }
+
+    private static function pr_make_crop_obj(\GdImage $poImg, int $piX, int $piY, int $piWidth, int $piHeight): \GdImage {
+        cDebug::enter();
+        $oDest = imagecreatetruecolor($piWidth, $piHeight);
+        cDebug::write("cropping ($piX, $piY), w=" . $piWidth . " h=" . $piHeight);
+        imagecopy($oDest, $poImg, 0, 0, $piX, $piY, $piWidth, $piHeight);
+        cDebug::leave();
+        return $oDest;
+    }
+
+    //************************************************************************************
+    static function crop(\GdImage $poImg, int $piX, int $piY, int $piWidth, int $piHeight, int $piQuality, $psOutFile) {
+        cDebug::write("cropping to $piX, $piY");
+
+        $oDest = self::pr_make_crop_obj($poImg,  $piX,  $piY,  $piWidth,  $piHeight);
+
+        //write out the file
+        $sFolder = dirname($psOutFile);
+        if (!file_exists($sFolder)) {
+            cDebug::write("creating folder: $sFolder");
+            mkdir($sFolder, 0755, true); //folder needs to readable by apache
+        }
+
+        cDebug::write("writing jpeg to $psOutFile");
+        imagejpeg($oDest, $psOutFile, $piQuality);
+        imagedestroy($oDest);
+    }
+}
+cCropper::init_blobber();
