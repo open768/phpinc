@@ -52,7 +52,7 @@ class cThumbNailer {
         $aData = null;
         $oBlobber = self::$blobber;
         if (!$oBlobber->exists($psImgUrl)) {
-            $sBlob = cThumbNailer::make_thumbnail_blob($psImgUrl, $piHeight, $piQuality);
+            $sBlob = self::pr_make_thumbnail_blob($psImgUrl, $piHeight, $piQuality);
             $oBlobber->put_obj($psImgUrl, self::BLOB_MIME_TYPE, $sBlob);
         }
         cDebug::write("getting data");
@@ -61,7 +61,7 @@ class cThumbNailer {
     }
 
     //************************************************************************************
-    static function make_thumbnail_blob(string $psImgUrl, int $piHeight, int $piQuality): string {
+    private static function pr_make_thumbnail_blob(string $psImgUrl, int $piHeight, int $piQuality): string {
         $oData = null;
         cDebug::enter();
         $oThumb = self::pr_make_thumbnail_obj($psImgUrl, $piHeight, $piQuality);
@@ -82,7 +82,7 @@ class cThumbNailer {
     }
 
     //************************************************************************************
-    static function make_thumbnail(string $psImgUrl, int $piHeight, int $piQuality, string $psOutFilename) {
+    static function make_thumbnail_file(string $psImgUrl, int $piHeight, int $piQuality, string $psOutFilename) {
         //dont generate a thumbnail that allready exists
         if (file_exists($psOutFilename))
             return;
@@ -108,24 +108,79 @@ cThumbNailer::init_blobber();
 //####################################################################################
 class cCropper {
     static $blobber = null;
+    const BLOB_PREFIX = "CROP:";
     const BLOB_MIME_TYPE = "image/jpeg";
     const BLOBBER_DB = "cropblobs.db";
+    const JPEG_QUALITY = 90;
 
     static function init_blobber() {
         if (self::$blobber == null) self::$blobber = new cBlobber(self::BLOBBER_DB);
     }
 
-    private static function pr_make_crop_obj(\GdImage $poImg, int $piX, int $piY, int $piWidth, int $piHeight): \GdImage {
+    //************************************************************************************
+    static function get_crop_blob_data(string $psImgUrl, int $piLeft, int $piTop, int $piWidth, int $piHeight) {
+        cDebug::enter();
+        $sKey = self::BLOB_PREFIX . "{$psImgUrl}/{$piLeft}/{$piTop}/{$piWidth}/{$piHeight}";
+        $oBlobber = self::$blobber;
+        if (!$oBlobber->exists($sKey)) {
+            $sBlob = self::pr_make_crop_blob($psImgUrl,  $piLeft, $piTop, $piWidth, $piHeight);
+            $oBlobber->put_obj($sKey, self::BLOB_MIME_TYPE, $sBlob);
+        }
+        cDebug::write("getting data");
+        $aData = $oBlobber->get($sKey);
+        cDebug::leave();
+        return $aData;
+    }
+
+    //************************************************************************************
+    private static function pr_make_crop_blob(string $psUrl, int $piLeft, int $piTop, int $piWidth, int $piHeight): string {
+        cDebug::enter();
+        $oSource = null;
+        $oCropped = null;
+        $oJpgData = null;
+
+        //------------------fetch the source image
+        $oHttp = new cHttp;
+        $oSource = $oHttp->fetch_image($psUrl);
+        if ($oSource == null) cDebug::error("unable to fetch image $psUrl");
+
+        try {
+            //-------- crop the image
+            $oCropped = self::pr_make_crop_obj($oSource, $piLeft, $piTop, $piWidth, $piHeight);
+
+            //------capture the image from the buffer
+            try {
+                ob_start();
+                try {
+                    imagejpeg($oCropped, null, self::JPEG_QUALITY);
+                    $oJpgData = ob_get_contents();
+                } finally {
+                    ob_end_clean();
+                }
+            } finally {
+                imagedestroy($oCropped);
+            }
+        } finally {
+            imagedestroy($oSource);
+        }
+
+        cDebug::leave();
+        return $oJpgData;
+    }
+
+
+    //************************************************************************************
+    private static function pr_make_crop_obj(\GdImage $poImg, int $piLeft, int $piTop, int $piWidth, int $piHeight): \GdImage {
         cDebug::enter();
         $oDest = imagecreatetruecolor($piWidth, $piHeight);
-        cDebug::write("cropping ($piX, $piY), w=" . $piWidth . " h=" . $piHeight);
-        imagecopy($oDest, $poImg, 0, 0, $piX, $piY, $piWidth, $piHeight);
+        cDebug::write("cropping ($piLeft, $piTop), w=" . $piWidth . " h=" . $piHeight);
+        imagecopy($oDest, $poImg, 0, 0, $piLeft, $piTop, $piWidth, $piHeight);
         cDebug::leave();
         return $oDest;
     }
 
     //************************************************************************************
-    static function crop(\GdImage $poImg, int $piX, int $piY, int $piWidth, int $piHeight, int $piQuality, $psOutFile) {
+    static function crop_to_file(\GdImage $poImg, int $piX, int $piY, int $piWidth, int $piHeight, int $piQuality, $psOutFile) {
         cDebug::write("cropping to $piX, $piY");
 
         $oDest = self::pr_make_crop_obj($poImg,  $piX,  $piY,  $piWidth,  $piHeight);
