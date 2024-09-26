@@ -111,7 +111,7 @@ class cCropper {
     const BLOB_PREFIX = "CROP:";
     const BLOB_MIME_TYPE = "image/jpeg";
     const BLOBBER_DB = "cropblobs.db";
-    const JPEG_QUALITY = 90;
+    const JPEG_QUALITY = 100;
 
     static function init_blobber() {
         if (self::$blobber == null) self::$blobber = new cBlobber(self::BLOBBER_DB);
