@@ -205,19 +205,23 @@ class cHttp {
     //############################################################################
     //#  URL Building functions
     //############################################################################
-    public static function build_qs_from_array($psBase, $paAssoc) {
+    public static function build_qs_from_array(string $psBase, array $paAssoc) {
         $sQS = $psBase;
         foreach ($paAssoc as $sKey => $sValue)
             $sQS = self::build_qs($sQS, $sKey, $sValue);
         return $sQS;
     }
 
-    public static function build_qs($psBase, $psQueryParam, $psQueryValue = null) {
+    //******************************************************************************
+    public static function build_qs(string $psBase, string $psQueryParam, $psQueryValue = null) {
         if ($psQueryParam == "") return $psBase;
 
         $sUrl = $psBase;
-        if ($sUrl == null) $sUrl = "";
-        if (($sUrl !== "") && (substr($sUrl, -1) !== "?"))    $sUrl .= "&";
+        if (!strpos($sUrl, "?"))
+            $sUrl .= "?";
+        else
+            $sUrl .= "&";
+
         $sUrl .= $psQueryParam;
         if ($psQueryValue !== null)
             $sUrl .= "=" . urlencode($psQueryValue);
@@ -225,11 +229,10 @@ class cHttp {
         return $sUrl;
     }
 
-    public static function build_url($psBase, $psQueryParam, $psQueryValue = null) {
-        if (($psBase == null) || ($psBase == "")) cDebug::error("base url cant be empty");
-        $sUrl = $psBase;
-        if (strpos($sUrl, "?") == false)     $sUrl .= "?";
-        $sUrl = self::build_qs($sUrl, $psQueryParam, $psQueryValue);
+    //******************************************************************************
+    public static function build_url(string $psBase, $psQueryParam, $psQueryValue = null) {
+        if (cCommon::is_string_empty($psBase)) cDebug::error("base url cant be empty");
+        $sUrl = self::build_qs($psBase, $psQueryParam, $psQueryValue);
 
         return $sUrl;
     }
