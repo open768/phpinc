@@ -67,7 +67,7 @@ class cFacebook_ServerSide {
 
     //*******************************************************************
     public static function getSessionUser() {
-        cDebug::enter();
+        //cDebug::enter();
         $sUser = null;
         //get the user from the session
         if (isset($_SESSION[self::FB_SESS_USER]))
@@ -79,7 +79,7 @@ class cFacebook_ServerSide {
         else
             cDebug::write("no facebook session user");
 
-        cDebug::leave();
+        //cDebug::leave();
         return $sUser;
     }
 
@@ -172,14 +172,14 @@ class cFacebook_ServerSide {
     //*******************************************************************
     public static function getAppID() {
         $sID = null;
-        cDebug::enter();
+        //cDebug::enter();
         if (cDebug::is_localhost()) {
             cDebug::write("using FB development credentials for localhost");
             $oID = new cFacebookID(cAppSecret::FB_DEV_APP, cAppSecret::FB_DEV_SECRET);
         } else
             $oID = new cFacebookID(cAppSecret::FB_APP, cAppSecret::FB_SECRET);
 
-        cDebug::leave();
+        //cDebug::leave();
         return $oID;
     }
 
