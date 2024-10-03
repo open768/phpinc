@@ -16,6 +16,7 @@ require_once  cAppGlobals::$phpInc . "/ckinc/session.php";
 class cDebug {
     private static $DEBUGGING = false;
     private static $EXTRA_DEBUGGING = false;
+    static $SHOW_SQL = false;
     public static $IGNORE_CACHE = false;
     private static $aThings = [];
     const DEBUG_STR = "debug";
@@ -194,6 +195,11 @@ class cDebug {
             self::write("ignore cache is on");
         } else
             self::write("nocache option is available");
+
+        if (isset($_GET["showsql"]) || isset($_POST["showsql"]))
+            self::$SHOW_SQL = true;
+        else
+            self::write("showsql option is available");
     }
 
     //##############################################################################

@@ -42,7 +42,6 @@ class cOBjStoreDB {
     const OBJSTORE_CREATE_KEY = "created on";
 
     //class properties
-    public $SHOW_SQL = false;
     public $rootFolder = null;
     public $realm = null;
     public $expire_time = null;
@@ -105,7 +104,7 @@ class cOBjStoreDB {
         cDebug::extra_debug("table '{$this->table}' does not exist");
         $sSQL = "CREATE TABLE ':table' ( ':realm_col' TEXT not null, ':hash_col' TEXT not null, ':data_col' TEXT, ':user_col' TEXT,':date_col' DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ':realm_col', ':hash_col'))";
         $sSQL = self::replace_sql($sSQL);
-        if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
+        if (cDebug::$SHOW_SQL) cDebug::extra_debug($sSQL);
 
         $oSQL->querySQL($sSQL);
         cDebug::extra_debug("table created");
@@ -113,7 +112,7 @@ class cOBjStoreDB {
         //create an index on the table
         $sSQL = "CREATE INDEX idx_users on ':table' ( :realm_col, :user_col )";
         $sSQL = self::replace_sql($sSQL);
-        if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
+        if (cDebug::$SHOW_SQL) cDebug::extra_debug($sSQL);
         $oSQL->querySQL($sSQL);
         cDebug::extra_debug("index created");
 
@@ -250,7 +249,7 @@ class cOBjStoreDB {
         $sSQL = "REPLACE INTO `:table` (:realm_col, :hash_col, :data_col, :date_col ) VALUES (:realm, :hash, :data, :date)";
         if (!$pbOverride) $sSQL = "INSERT INTO `:table` (:realm_col, :hash_col, :data_col, :date_col ) VALUES (:realm, :hash, :data, :date)";
         $sSQL = self::replace_sql($sSQL);
-        if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
+        if (cDebug::$SHOW_SQL) cDebug::extra_debug($sSQL);
         $oStmt = $oSQL->prepare($sSQL);
         $oStmt->bindValue(":realm", $this->realm);
         $oStmt->bindValue(":hash", $sHash);
@@ -274,7 +273,7 @@ class cOBjStoreDB {
 
         $sSQL = "SELECT :realm_col,:data_col,:date_col FROM `:table` where :realm_col=:realm AND :hash_col=:hash";
         $sSQL = self::replace_sql($sSQL);
-        if ($this->SHOW_SQL) cDebug::extra_debug($sSQL);
+        if (cDebug::$SHOW_SQL) cDebug::extra_debug($sSQL);
 
         //bind the values
         $oStmt = $oSQL->prepare($sSQL);
@@ -322,7 +321,7 @@ class cOBjStoreDB {
 
         $sSQL = "DELETE from `:table` where :realm_col=:realm AND :hash_col=:hash";
         $sSQL = self::replace_sql($sSQL);
-        if ($this->SHOW_SQL) cDebug::extra_debug("SQL: $sSQL");
+        if (cDebug::$SHOW_SQL) cDebug::extra_debug("SQL: $sSQL");
 
         $oStmt = $oSQL->prepare($sSQL);
         $oStmt->bindValue(":realm", $this->realm);

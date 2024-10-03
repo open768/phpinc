@@ -125,7 +125,6 @@ class  cSqlLite {
     const NRETRIES = 4;
     const SQLITE_LOCKED = 6;
     const SQLITE_BUSY = 5;
-    public $SHOW_SQL = false;
 
     private $rootFolder = null;
     public $dbname = null;
@@ -301,7 +300,7 @@ class  cSqlLite {
      */
     public function exec_stmt(SQLite3Stmt $poStmt) {
         //cDebug::enter();
-        if ($this->SHOW_SQL)
+        if (cDebug::$SHOW_SQL)
             cDebug::extra_debug($poStmt->getSQL(TRUE));
 
         $oAction = new cSQLExecStmtAction($poStmt);
