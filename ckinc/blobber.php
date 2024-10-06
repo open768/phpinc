@@ -12,6 +12,11 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
  **************************************************************************/
+class cBlobData {
+    public ?string $key = null;
+    public ?string $mime_type = null;
+    public ?string $blob  = null;
+}
 
 class cBlobber {
     /** @var cSQLLite $oSqlDB  */
@@ -125,7 +130,7 @@ class cBlobber {
     }
 
     //*************************************************************
-    function get(string $psKey) {
+    function get(string $psKey): cBlobData {
         /** @var cSQLLite $oSqlDB  */
         $oSqlDB = $this->oSqlDB;
         $sKeyHash = cHash::hash($psKey);
@@ -138,7 +143,14 @@ class cBlobber {
         $aData = $oSqlDB->prep_exec_fetch($sSQL, $oBinds);
         if (count($aData) == 0)
             cDebug::error("unable to find $psKey");
+        $aRow = (array) $aData[0];
 
-        return $aData[0];
+        $oBlob = new cBlobData; {
+            $oBlob->key = $psKey;
+            $oBlob->mime_type = $aRow[self::COL_MIME_TYPE];
+            $oBlob->blob = $aRow[self::COL_BLOB];
+        }
+
+        return $oBlob;
     }
 }

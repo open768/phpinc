@@ -106,6 +106,15 @@ cThumbNailer::init_blobber();
 //####################################################################################
 //#
 //####################################################################################
+class cCropData {
+    public cBlobData $blob;
+    public string $img_url;
+    public int $left;
+    public int $top;
+    public int $width;
+    public int $height;
+}
+
 class cCropper {
     static $blobber = null;
     const BLOB_PREFIX = "CROP:";
@@ -118,7 +127,7 @@ class cCropper {
     }
 
     //************************************************************************************
-    static function get_crop_blob_data(string $psImgUrl, int $piLeft, int $piTop, int $piWidth, int $piHeight) {
+    static function get_crop_blob_data(string $psImgUrl, int $piLeft, int $piTop, int $piWidth, int $piHeight): cCropData {
         cDebug::enter();
         $sKey = self::BLOB_PREFIX . "{$psImgUrl}/{$piLeft}/{$piTop}/{$piWidth}/{$piHeight}";
         $oBlobber = self::$blobber;
@@ -127,9 +136,18 @@ class cCropper {
             $oBlobber->put_obj($sKey, self::BLOB_MIME_TYPE, $sBlob);
         }
         cDebug::write("getting data");
-        $aData = $oBlobber->get($sKey);
+        $oBlob = $oBlobber->get($sKey);
+        $oCrop = new cCropData; {
+            $oCrop->img_url = $psImgUrl;
+            $oCrop->top = $piTop;
+            $oCrop->left = $piLeft;
+            $oCrop->height = $piHeight;
+            $oCrop->width = $piWidth;
+            $oCrop->blob = $oBlob;
+        }
+
         cDebug::leave();
-        return $aData;
+        return $oCrop;
     }
 
     //************************************************************************************
