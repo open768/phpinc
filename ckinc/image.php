@@ -132,10 +132,12 @@ class cCropper {
         $sKey = self::BLOB_PREFIX . "{$psImgUrl}/{$piLeft}/{$piTop}/{$piWidth}/{$piHeight}";
         $oBlobber = self::$blobber;
         if (!$oBlobber->exists($sKey)) {
+            cDebug::write("generating crop");
             $sBlob = self::pr_make_crop_blob($psImgUrl,  $piLeft, $piTop, $piWidth, $piHeight);
             $oBlobber->put_obj($sKey, self::BLOB_MIME_TYPE, $sBlob);
-        }
-        cDebug::write("getting data");
+        } else
+            cDebug::write("crop allready present");
+
         $oBlob = $oBlobber->get($sKey);
         $oCrop = new cCropData; {
             $oCrop->img_url = $psImgUrl;
