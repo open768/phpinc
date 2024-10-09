@@ -1,5 +1,5 @@
 <?php
-require_once  cAppGlobals::$phpInc . "/ckinc/debug.php";
+require_once  cAppGlobals::$ckPhpInc . "/debug.php";
 
 class cSession {
     public static $THROW_ON_SESSION_ERROR = false;

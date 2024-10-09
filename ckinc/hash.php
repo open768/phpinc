@@ -17,9 +17,9 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 //TODO: switch this to use sqllite in a single file - reduce the number of inodes used
  **************************************************************************/
 
-require_once  cAppGlobals::$phpInc . "/ckinc/debug.php";
-require_once  cAppGlobals::$phpInc . "/ckinc/gz.php";
-require_once  cAppGlobals::$phpInc . "/ckinc/sqlite.php";
+require_once  cAppGlobals::$ckPhpInc . "/debug.php";
+require_once  cAppGlobals::$ckPhpInc . "/gz.php";
+require_once  cAppGlobals::$ckPhpInc . "/sqlite.php";
 
 class cHash {
     const HASH_FOLDER = "[cache]/[hash]";

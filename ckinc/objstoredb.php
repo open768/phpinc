@@ -17,11 +17,11 @@ or leave a message on github
 //%
  **************************************************************************/
 
-require_once  cAppGlobals::$phpInc . "/ckinc/objstore.php";
-require_once  cAppGlobals::$phpInc . "/ckinc/common.php";
-require_once  cAppGlobals::$phpInc . "/ckinc/gz.php";
-require_once  cAppGlobals::$phpInc . "/ckinc/hash.php";
-require_once  cAppGlobals::$phpInc . "/ckinc/sqlite.php";
+require_once  cAppGlobals::$ckPhpInc . "/objstore.php";
+require_once  cAppGlobals::$ckPhpInc . "/common.php";
+require_once  cAppGlobals::$ckPhpInc . "/gz.php";
+require_once  cAppGlobals::$ckPhpInc . "/hash.php";
+require_once  cAppGlobals::$ckPhpInc . "/sqlite.php";
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%% Database 

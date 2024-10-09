@@ -11,9 +11,9 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
  **************************************************************************/
-require_once cAppGlobals::$phpInc . "/ckinc/facebook.php";
-require_once cAppGlobals::$phpInc . "/ckinc/header.php";
-require_once  cAppGlobals::$phpInc . "/ckinc/objstoredb.php";
+require_once cAppGlobals::$ckPhpInc . "/facebook.php";
+require_once cAppGlobals::$ckPhpInc . "/header.php";
+require_once  cAppGlobals::$ckPhpInc . "/objstoredb.php";
 
 class cAuth {
     const ROLES_FOLDER = "[roles]";

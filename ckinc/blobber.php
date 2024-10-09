@@ -1,6 +1,6 @@
 <?php
-require_once  cAppGlobals::$phpInc . "/ckinc/image.php";
-require_once  cAppGlobals::$phpInc . "/ckinc/hash.php";
+require_once  cAppGlobals::$ckPhpInc . "/image.php";
+require_once  cAppGlobals::$ckPhpInc . "/hash.php";
 
 /**************************************************************************
 Copyright (C) Chicken Katsu 2013 - 2024
@@ -141,7 +141,7 @@ class cBlobber {
             $oBinds->add_bind(":key", $sKeyHash);
         }
         $aData = $oSqlDB->prep_exec_fetch($sSQL, $oBinds);
-        if (count($aData) == 0)
+        if ($aData == null || count($aData) == 0)
             cDebug::error("unable to find $psKey");
         $aRow = (array) $aData[0];
 

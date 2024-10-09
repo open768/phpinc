@@ -11,13 +11,14 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
  **************************************************************************/
-require_once  cAppGlobals::$phpInc . "/ckinc/session.php";
+require_once  cAppGlobals::$ckPhpInc . "/session.php";
 
 class cDebug {
     private static $DEBUGGING = false;
     private static $EXTRA_DEBUGGING = false;
     static $SHOW_SQL = false;
     public static $IGNORE_CACHE = false;
+    public static $IGNORE_SESSION_USER = false;
     private static $aThings = [];
     const DEBUG_STR = "debug";
     const DEBUG2_STR = "debug2";
@@ -192,14 +193,21 @@ class cDebug {
 
         if (isset($_GET["nocache"]) || isset($_POST["nocache"])) {
             self::$IGNORE_CACHE = true;
-            self::write("ignore cache is on");
+            self::write("nocache is on");
         } else
             self::write("nocache option is available");
 
-        if (isset($_GET["showsql"]) || isset($_POST["showsql"]))
+        if (isset($_GET["showsql"]) || isset($_POST["showsql"])) {
             self::$SHOW_SQL = true;
-        else
+            self::write("showsql is on");
+        } else
             self::write("showsql option is available");
+
+        if (isset($_GET["nouser"]) || isset($_POST["nouser"])) {
+            self::write("nouser is on");
+            self::$IGNORE_SESSION_USER = true;
+        } else
+            self::write("nouser option is available");
     }
 
     //##############################################################################

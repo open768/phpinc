@@ -1,7 +1,7 @@
 <?php
-require_once  cAppGlobals::$phpInc . "/ckinc/debug.php";
-require_once  cAppGlobals::$phpInc . "/ckinc/common.php";
-require_once  cAppGlobals::$phpInc . "/ckinc/objstoredb.php";
+require_once  cAppGlobals::$ckPhpInc . "/debug.php";
+require_once  cAppGlobals::$ckPhpInc . "/common.php";
+require_once  cAppGlobals::$ckPhpInc . "/objstoredb.php";
 
 // @todo the following is deprecated FB now only supports their graph API
 // https://github.com/facebookarchive/php-graph-sdk
@@ -71,7 +71,7 @@ class cFacebook_ServerSide {
         $sUser = null;
         //get the user from the session
         if (isset($_SESSION[self::FB_SESS_USER]))
-            if (!cDebug::$IGNORE_CACHE) {
+            if (!cDebug::$IGNORE_SESSION_USER) {
                 cDebug::extra_debug("using session user");
                 $sUser = $_SESSION[self::FB_SESS_USER];
             } else

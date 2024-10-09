@@ -13,7 +13,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
  **************************************************************************/
 
 //see 
-require_once  cAppGlobals::$phpInc . "/ckinc/hash.php";
+require_once  cAppGlobals::$ckPhpInc . "/hash.php";
 
 //#################################################################
 //# Auditing for users of the application

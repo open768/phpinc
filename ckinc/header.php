@@ -1,8 +1,8 @@
 <?php
-require_once  cAppGlobals::$phpInc . "/ckinc/debug.php";
+require_once  cAppGlobals::$ckPhpInc . "/debug.php";
 
 //----------- start the session --------------------
-require_once cAppGlobals::$phpInc . "/ckinc/session.php";
+require_once cAppGlobals::$ckPhpInc . "/session.php";
 //cSession::set_folder();  //dont set the session as this folder will never be cleaned up
 if (!cSession::is_session_started()) {
     cDebug::extra_debug("session status is not active - starting session:");
