@@ -11,6 +11,9 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
 //
  **************************************************************************/
+//###########################################################################################
+//#
+//###########################################################################################
 class cThumbNailer {
     static $blobber = null;
     const BLOB_MIME_TYPE = "image/jpeg";
@@ -128,7 +131,7 @@ class cCropper {
 
     //************************************************************************************
     static function get_crop_blob_data(string $psImgUrl, int $piLeft, int $piTop, int $piWidth, int $piHeight): cCropData {
-        cDebug::enter();
+        //cDebug::enter();
         $sKey = self::BLOB_PREFIX . "{$psImgUrl}/{$piLeft}/{$piTop}/{$piWidth}/{$piHeight}";
         $oBlobber = self::$blobber;
         if (!$oBlobber->exists($sKey)) {
@@ -148,7 +151,7 @@ class cCropper {
             $oCrop->blob = $oBlob;
         }
 
-        cDebug::leave();
+        //cDebug::leave();
         return $oCrop;
     }
 
@@ -198,23 +201,98 @@ class cCropper {
         cDebug::leave();
         return $oDest;
     }
-
-    //************************************************************************************
-    static function crop_to_file(\GdImage $poImg, int $piX, int $piY, int $piWidth, int $piHeight, int $piQuality, $psOutFile) {
-        cDebug::write("cropping to $piX, $piY");
-
-        $oDest = self::pr_make_crop_obj($poImg,  $piX,  $piY,  $piWidth,  $piHeight);
-
-        //write out the file
-        $sFolder = dirname($psOutFile);
-        if (!file_exists($sFolder)) {
-            cDebug::write("creating folder: $sFolder");
-            mkdir($sFolder, 0755, true); //folder needs to readable by apache
-        }
-
-        cDebug::write("writing jpeg to $psOutFile");
-        imagejpeg($oDest, $psOutFile, $piQuality);
-        imagedestroy($oDest);
-    }
 }
 cCropper::init_blobber();
+
+
+//###########################################################################################
+//#
+//###########################################################################################
+class cMosaicer {
+    const BLOBBER_DB = "mosblobs.db";
+    const JPEG_QUALITY = 100;
+    const BLOB_MIME_TYPE = "image/jpeg";
+    static $blobber = null;
+    static $BORDER_WIDTH = 5;
+
+    //************************************************************************************
+    static function init_blobber() {
+        if (self::$blobber == null) self::$blobber = new cBlobber(self::BLOBBER_DB);
+    }
+
+    //************************************************************************************
+    static function get(string $psKey): cBlobData {
+        $oBlobber = self::$blobber;
+        return $oBlobber->get($psKey);
+    }
+
+    static function exists(string $psKey): bool {
+        $oBlobber = self::$blobber;
+        return $oBlobber->exists($psKey);
+    }
+
+    //************************************************************************************
+    static function make(string $psKey, array $paBlobs, int $piTileWidth, int $piTileHeight, int $piCols): cBlobData {
+        cDebug::enter();
+
+        $oBlobber = self::$blobber;
+
+        //----------check if mosaic exists ------------------------------------------------
+        if ($oBlobber->exists($psKey) && !cDebug::$IGNORE_CACHE) {
+            cDebug::leave();
+            return self::get($psKey);
+        }
+
+        //----------generate mosaic ------------------------------------------------
+        $iImages = count($paBlobs);
+        $iRows = ceil($iImages  / $piCols);
+        $iWidth = self::$BORDER_WIDTH * (1 +  $piCols * $piTileWidth);
+        $iHeight = self::$BORDER_WIDTH * (1 +  $iRows * $piTileHeight);
+
+        $imgMosaic =  imagecreatetruecolor($iWidth, $iHeight);
+        try {
+            $iX = self::$BORDER_WIDTH;
+            $iY = self::$BORDER_WIDTH;
+            $iCol = 1;
+            foreach ($paBlobs as $oCrop) {
+                $sBlob = $oCrop->blob->blob;
+                //- - - - - -blit each blob
+                $imgTile = imagecreatefromstring($sBlob);
+                try {
+                    imagecopy($imgMosaic, $imgTile, $iX, $iY, 0, 0, $piTileWidth, $piTileHeight);
+                } finally {
+                    imagedestroy($imgTile);
+                }
+
+                //- - - - - - position for next image
+                $iX += self::$BORDER_WIDTH + $piTileWidth;
+                $iCol++;
+                if ($iCol > $piCols) {
+                    $iX = self::$BORDER_WIDTH;
+                    $iY += self::$BORDER_WIDTH + $piTileHeight;
+                    $iCol = 1;
+                }
+            }
+
+            //create a jpeg from the mosaic
+            ob_start();
+            try {
+                imagejpeg($imgMosaic, null, self::JPEG_QUALITY);
+                $sJpgData = ob_get_contents();
+            } finally {
+                ob_end_clean();
+            }
+        } finally {
+            imagedestroy($imgMosaic);
+        }
+
+        //------------write the jpeg to the blob
+        $oBlobber->put_obj($psKey, self::BLOB_MIME_TYPE, $sJpgData);
+        $oBlob =  $oBlobber->get($psKey);
+
+        //----------return the result ------------------------------------------------
+        cDebug::leave();
+        return $oBlob;
+    }
+}
+cMosaicer::init_blobber();
