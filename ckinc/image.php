@@ -212,6 +212,8 @@ class cMosaicer {
     const BLOBBER_DB = "mosblobs.db";
     const JPEG_QUALITY = 100;
     const BLOB_MIME_TYPE = "image/jpeg";
+
+    /** @var cBlobber $blobber **/
     static $blobber = null;
     static $BORDER_WIDTH = 5;
 
@@ -224,6 +226,10 @@ class cMosaicer {
     static function get(string $psKey): cBlobData {
         $oBlobber = self::$blobber;
         return $oBlobber->get($psKey);
+    }
+    static function delete(string $psKey): void {
+        $oBlobber = self::$blobber;
+        $oBlobber->remove($psKey);
     }
 
     static function exists(string $psKey): bool {
@@ -238,18 +244,29 @@ class cMosaicer {
         $oBlobber = self::$blobber;
 
         //----------check if mosaic exists ------------------------------------------------
-        if ($oBlobber->exists($psKey) && !cDebug::$IGNORE_CACHE) {
-            cDebug::leave();
-            return self::get($psKey);
-        }
+        if ($oBlobber->exists($psKey))
+            if (!cDebug::$IGNORE_CACHE) {
+                cDebug::leave();
+                return self::get($psKey);
+            } else {
+                cDebug::extra_debug("deleting existing mosaic");
+                self::delete($psKey);
+            }
 
         //----------generate mosaic ------------------------------------------------
-        $iImages = count($paBlobs);
-        $iRows = ceil($iImages  / $piCols);
-        $iWidth = self::$BORDER_WIDTH * (1 +  $piCols * $piTileWidth);
-        $iHeight = self::$BORDER_WIDTH * (1 +  $iRows * $piTileHeight);
+        $iImageCount = count($paBlobs);
+        $iCols = $piCols;
+        if ($iImageCount < $piCols) {
+            $iCols = $iImageCount;
+            $iRows = 1;
+        } else
+            $iRows = ceil($iImageCount  / $piCols);
+        cDebug::extra_debug("mosaic has {$iRows} rows and {$iCols} columns");
+        $iMosWidth = self::$BORDER_WIDTH  +  $iCols * ($piTileWidth + self::$BORDER_WIDTH);
+        $iMosHeight = self::$BORDER_WIDTH +  $iRows * ($piTileHeight + self::$BORDER_WIDTH);
+        cDebug::extra_debug("mosaic has {$iMosWidth} width and {$iMosHeight} height");
 
-        $imgMosaic =  imagecreatetruecolor($iWidth, $iHeight);
+        $imgMosaic =  imagecreatetruecolor($iMosWidth, $iMosHeight);
         try {
             $iX = self::$BORDER_WIDTH;
             $iY = self::$BORDER_WIDTH;
