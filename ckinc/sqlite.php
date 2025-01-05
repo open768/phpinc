@@ -119,7 +119,6 @@ class cSqlBinds {
 //#
 //#############################################################################
 class  cSqlLite {
-    const DB_folder = "[db]";
     const RETRY_DELAY = 300;
     const BUSY_TIMEOUT = 1000;
     const NRETRIES = 4;
@@ -143,7 +142,7 @@ class  cSqlLite {
         //cDebug::extra_debug("SQLLIte version:");
         //cDebug::vardump(SQLite3::version());
         $this->dbname = $psDB;
-        $this->rootFolder = cAppGlobals::$root . "/[db]";
+        $this->rootFolder = cAppGlobals::$dbRoot;
         $this->pr_check_for_db($psDB);
 
         //cDebug::leave();
@@ -157,7 +156,7 @@ class  cSqlLite {
         //cDebug::extra_debug("opening database");
 
         //check if folder exists for database
-        $sFolder = cAppGlobals::$root . "/" . self::DB_folder;
+        $sFolder = cAppGlobals::$dbRoot;
         if (!is_dir($sFolder)) {
             cDebug::extra_debug("making folder $sFolder");
             mkdir($sFolder);
@@ -178,8 +177,7 @@ class  cSqlLite {
 
     //********************************************************************************
     static function db_exists(string $psDBFilename) {
-        $sFolder = cAppGlobals::$root . "/" . self::DB_folder;
-        $sPath = $sFolder . "/" . $psDBFilename;
+        $sPath = cAppGlobals::$dbRoot . "/" . $psDBFilename;
         return file_exists($sPath);
     }
 
@@ -252,7 +250,7 @@ class  cSqlLite {
     //#####################################################################
     public function get_db_path($psDBname) {
 
-        return  cAppGlobals::$root . "/" . self::DB_folder . "/" . $psDBname;
+        return  cAppGlobals::$dbRoot . "/" . $psDBname;
     }
 
     //********************************************************************************
