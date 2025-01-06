@@ -188,6 +188,8 @@ class  cSqlLite {
         if ($this->database == null) {
             $oDB = self::open_sql_db($psDBFilename);
             $this->database = $oDB;
+            $this->path = cAppGlobals::$dbRoot . "/" . $psDBFilename;
+
             $oDB->enableExceptions(true);
             $oDB->busyTimeout(self::BUSY_TIMEOUT);
         }
