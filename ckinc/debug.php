@@ -115,11 +115,17 @@ class cDebug {
     //**************************************************************************
     public static function vardump($poThing, $pbForce = false) {
         if (self::is_extra_debugging() || $pbForce) {
-            echo "<table border=1 width=100%><tr><td><PRE>";
+            echo "<div><PRE style='background-color: #f0f0f0;font-name: courier;'>";
             var_dump($poThing);
-            cCommon::flushprint("</PRE></td></tr></table>");
+            cCommon::flushprint("</PRE></div>");
         } else
             self::write(__FUNCTION__ . " only available in debug2");
+    }
+
+    //**************************************************************************
+    public static function get_object_type(object $poThing) {
+        $oReflect = new ReflectionClass($poThing);
+        return $oReflect->getName();
     }
 
     //**************************************************************************
