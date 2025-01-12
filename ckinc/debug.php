@@ -27,6 +27,11 @@ class cDebug {
     private static $ENTER_DEPTH = 0;
     const EXTRA_DEBUG_FONT_COLOUR = "#483D8B";
     const DEBUG_FONT_COLOUR = "#006400";
+    static $core_classes;
+
+    public static function get_core_classes() {
+        self::$core_classes = get_declared_classes();
+    }
 
     //##############################################################################
     public static function is_debugging() {
