@@ -91,7 +91,6 @@ class cOBjStoreDB {
         //cDebug::enter();
         $oSQL = self::$oSQLite;
 
-
         //check if table exists
         $bTableExists = $oSQL->table_exists($this->table);
         if ($bTableExists) {
@@ -110,7 +109,7 @@ class cOBjStoreDB {
         cDebug::extra_debug("table created");
 
         //create an index on the table
-        $sSQL = "CREATE INDEX idx_users on ':table' ( :realm_col, :user_col )";
+        $sSQL = "CREATE INDEX idx_users_:table on ':table' ( :realm_col, :user_col )";
         $sSQL = self::replace_sql($sSQL);
         if (cDebug::$SHOW_SQL) cDebug::extra_debug($sSQL);
         $oSQL->querySQL($sSQL);
