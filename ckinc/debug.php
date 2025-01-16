@@ -12,6 +12,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
  **************************************************************************/
 require_once  cAppGlobals::$ckPhpInc . "/session.php";
+require_once  cAppGlobals::$ckPhpInc . "/common.php";
 
 class cDebug {
     private static $DEBUGGING = false;
@@ -27,11 +28,7 @@ class cDebug {
     private static $ENTER_DEPTH = 0;
     const EXTRA_DEBUG_FONT_COLOUR = "#483D8B";
     const DEBUG_FONT_COLOUR = "#006400";
-    static $core_classes;
 
-    public static function get_core_classes() {
-        self::$core_classes = get_declared_classes();
-    }
 
     //##############################################################################
     public static function is_debugging() {
@@ -282,3 +279,7 @@ class cDebug {
         return str_repeat("&nbsp;", self::$ENTER_DEPTH * 4) . "{$sDate}: {$psWhat}";
     }
 }
+
+
+//check if debugging is needed
+cDebug::check_GET_or_POST();
