@@ -1,7 +1,19 @@
 <?php
 require_once cAppGlobals::$ckPhpInc . "/debug.php";
 
-//##############################################################################
+/**************************************************************************
+Copyright (C) Chicken Katsu 2013 - 2024
+
+This code is protected by copyright under the terms of the 
+Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
+http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+
+For licenses that allow for commercial use please contact cluck@chickenkatsu.co.uk
+
+// USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
+//
+ **************************************************************************/
+
 class cClassInstrumenter {
     static $core_classes;
     static $excluded_classes = [];          //the app should  classes here that it doesnt want to instrument
@@ -49,8 +61,10 @@ class cClassInstrumenter {
     }
 
     static function instrument_classes() {
+        return;     //disabled
+
         $aLocations = self::get_class_locations();
-        cDebug::vardump($aLocations);
+        //cDebug::vardump($aLocations);
         //process classes
 
         //update instrumented classes
