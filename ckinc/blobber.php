@@ -38,7 +38,7 @@ class cBlobber {
         }
         $oSqlDB = $this->oSqlDB;
         if ($oSqlDB == null) {
-            cDebug::extra_debug("opening cSqlLite database: " . $this->db_filename);
+            // cDebug::extra_debug("opening cSqlLite database: " . $this->db_filename);
             $oSqlDB = new cSqlLite($this->db_filename);
             $this->oSqlDB = $oSqlDB;
         }
