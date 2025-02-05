@@ -135,7 +135,6 @@ class cCachedHttp {
             if ($oData)
                 $oDB->put($psURL, $oData, true);
         } else {
-            cDebug::extra_debug(" cached ");
             if ($pbJson)
                 if (gettype($oData) === "string")
                     $oData = json_decode($oData);
