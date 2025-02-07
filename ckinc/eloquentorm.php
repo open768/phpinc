@@ -64,15 +64,22 @@ class cEloquentORM {
 //      https://stackoverflow.com/questions/36764838/how-to-use-transaction-in-eloquent-model
 //
 class TransactionsORM extends EloquentModel {
+    public static function get_connection() {
+        return self::getConnectionResolver()->connection();
+    }
+
     public static function beginTransaction() {
-        self::getConnectionResolver()->connection()->beginTransaction();
+        self::get_connection()->beginTransaction();
     }
 
     public static function commit() {
-        self::getConnectionResolver()->connection()->commit();
+        self::get_connection()->commit();
     }
 
     public static function rollBack() {
-        self::getConnectionResolver()->connection()->rollBack();
+        self::get_connection()->rollBack();
+    }
+    public static function vacuum() {
+        self::get_connection()->statement('VACUUM');
     }
 }
