@@ -6,10 +6,15 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class cEloquentORM {
     const ELOQUENT_CLASSNAME = "Illuminate\Database\Capsule\Manager";
+    const DEFAULT_DB = "default_orm.db";
+    const DEFAULT_CONNECTION_NAME = "default";
+
+    private static $capsule;
 
     static function create_table(string $psTableName, Closure $pfnCreate) {
         /** @var CapsuleManager $oManager */
-        $oManager = cMissionManifest::$capsuleManager;
+        $oManager = self::$capsule;
+
         /** @var oSchemaBuilder $oSchemaBuilder */
         $oSchemaBuilder = $oManager->schema();
 
@@ -25,7 +30,7 @@ class cEloquentORM {
     }
 
     //**********************************************************************************************
-    static function init_db($psDbName) {
+    static function init_db() {
         //check that database class has been loaded - redundant as composer would throw an error if it wasnt
         $classname = self::ELOQUENT_CLASSNAME;
         if (!class_exists($classname))
@@ -36,50 +41,73 @@ class cEloquentORM {
         if (!extension_loaded("pdo_sqlite"))
             cDebug::error("pdo_sqlite extension is not loaded");
 
-        //create sqlite database if it does not exist
-        $oDB = new cSqlLite($psDbName);
-        $sDBPath = $oDB->path;
-        cDebug::write("DB path is $sDBPath");
-
         //connect the ORM to a SQL lite database
         $oCapsule = new DB();
-        $oCapsule->addConnection([
-            'driver' => 'sqlite',
-            'database' => $sDBPath,
-            'prefix' => ''
-        ]);
+        self::$capsule = $oCapsule;
+        self::add_connection(self::DEFAULT_DB, self::DEFAULT_CONNECTION_NAME);
 
         // Make this Capsule instance available globally via static methods... (optional)
         $oCapsule->setAsGlobal();       //should be optional but isnt
         $oCapsule->bootEloquent();
 
         //ok everything should be set
-        cDebug::extra_debug("started eloquent - db is $sDBPath");
+        cDebug::extra_debug("started eloquent");
         return $oCapsule;
     }
+
+    //**********************************************************************************************
+    static function add_connection($psDbName, $psConnectionName = null) {
+        // Check if the connection already exists
+        $oCapsule = self::$capsule;
+        if (isset($oCapsule->getDatabaseManager()->getConnections()[$psDbName]))
+            cDebug::error("connection $psDbName already exists");
+
+        //create sqlite database if it does not exist
+        $oDB = new cSqlLite($psDbName);
+        $sDBPath = $oDB->path;
+        cDebug::write("DB path is $sDBPath");
+
+        $sConnectionName = $psConnectionName;
+        if ($sConnectionName == null) $sConnectionName = $psDbName;
+
+        $oCapsule->addConnection([
+            'driver' => 'sqlite',
+            'database' => $sDBPath,
+            'prefix' => ''
+        ], $sConnectionName);
+
+        // Add the new connection
+        cDebug::extra_debug("added new connection - name is $psDbName");
+    }
 }
+cEloquentORM::init_db();
 
 //*************************************************************************************************
 //  following code from 
 //      https://stackoverflow.com/questions/36764838/how-to-use-transaction-in-eloquent-model
 //
 class TransactionsORM extends EloquentModel {
-    public static function get_connection() {
-        return self::getConnectionResolver()->connection();
+    public $connection_name = null;
+
+    public function __construct($psConnectionName) {
+        $this->connection_name = $psConnectionName;
+    }
+    public function get_connection() {
+        return self::getConnectionResolver($this->connection_name)->connection();
     }
 
-    public static function beginTransaction() {
-        self::get_connection()->beginTransaction();
+    public function beginTransaction() {
+        $this->get_connection()->beginTransaction();
     }
 
-    public static function commit() {
-        self::get_connection()->commit();
+    public function commit() {
+        $this->get_connection()->commit();
     }
 
-    public static function rollBack() {
-        self::get_connection()->rollBack();
+    public function rollBack() {
+        $this->get_connection()->rollBack();
     }
-    public static function vacuum() {
-        self::get_connection()->statement('VACUUM');
+    public function vacuum() {
+        $this->get_connection()->statement('VACUUM');
     }
 }
