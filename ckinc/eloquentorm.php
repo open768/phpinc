@@ -141,35 +141,19 @@ class cEloquentORM {
         cDebug::extra_debug("added new connection - name is $sConnectionName");
         cDebug::leave();
     }
+    static function beginTransaction($psConnectionName) {
+        self::get_connection($psConnectionName)->beginTransaction();
+    }
+
+    static function commit($psConnectionName) {
+        self::get_connection($psConnectionName)->commit();
+    }
+
+    static function rollBack($psConnectionName) {
+        self::get_connection($psConnectionName)->rollBack();
+    }
+    static function vacuum($psConnectionName) {
+        self::get_connection($psConnectionName)->statement('VACUUM');
+    }
 }
 cEloquentORM::init_db();
-
-//*************************************************************************************************
-//  following code from 
-//      https://stackoverflow.com/questions/36764838/how-to-use-transaction-in-eloquent-model
-//
-class TransactionsORM extends EloquentModel {
-    public $connection_name = null;
-
-    public function __construct($psConnectionName) {
-        $this->connection_name = $psConnectionName;
-    }
-    public function get_connection() {
-        return self::getConnectionResolver($this->connection_name)->connection();
-    }
-
-    public function beginTransaction() {
-        $this->get_connection()->beginTransaction();
-    }
-
-    public function commit() {
-        $this->get_connection()->commit();
-    }
-
-    public function rollBack() {
-        $this->get_connection()->rollBack();
-    }
-    public function vacuum() {
-        $this->get_connection()->statement('VACUUM');
-    }
-}
