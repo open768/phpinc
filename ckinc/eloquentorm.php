@@ -2,6 +2,8 @@
 
 //ORM is eloquent: https://github.com/illuminate/database
 use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\Connection;
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class cEloquentORM {
@@ -9,24 +11,29 @@ class cEloquentORM {
     const DEFAULT_DB = "default_orm.db";
     const DEFAULT_CONNECTION_NAME = "default";
 
+    /** @var DB $capsule */
     private static $capsule;
 
-    static function create_table(string $psTableName, Closure $pfnCreate) {
-        /** @var CapsuleManager $oManager */
-        $oManager = self::$capsule;
-
+    static function create_table(string $psConnection, string $psTableName,  Closure $pfnCreate) {
+        cDebug::enter();
         /** @var oSchemaBuilder $oSchemaBuilder */
-        $oSchemaBuilder = $oManager->schema();
+        $oCapsule = self::$capsule;
+        if (!self::is_connection_defined($psConnection)) {
+            cDebug::vardump($oCapsule->getDatabaseManager()->getConnections());
+            cDebug::error("no such connection :$psConnection");
+        }
+        $oSchema = self::get_schema($psConnection);
 
         cDebug::extra_debug("checking table exists  " . $psTableName);
-        $bHasTable = $oSchemaBuilder->hasTable($psTableName);
+        $bHasTable = $oSchema->hasTable($psTableName);
         if (!$bHasTable) {
             //create table
-            $oSchemaBuilder->create($psTableName, function ($poTable) use ($pfnCreate) {
+            $oSchema->create($psTableName, function ($poTable) use ($pfnCreate) {
                 $pfnCreate($poTable);
             });
             cDebug::extra_debug("created table " . $psTableName);
         }
+        cDebug::leave();
     }
 
     //**********************************************************************************************
@@ -56,28 +63,83 @@ class cEloquentORM {
     }
 
     //**********************************************************************************************
+    /**
+     * 
+     * @param string $psConnectionName 
+     * @return Connection 
+     */
+    static function get_connection($psConnectionName) {
+        $oCapsule = self::$capsule;
+        return $oCapsule->getDatabaseManager()->connection($psConnectionName);
+    }
+    //**********************************************************************************************
+    /**
+     * 
+     * @param string $psConnectionName 
+     * @return Builder 
+     */
+    static function get_schema($psConnectionName) {
+        $oCapsule = self::$capsule;
+        $oConnection = self::get_connection($psConnectionName);
+        return $oConnection->getSchemaBuilder();
+    }
+
+    //**********************************************************************************************
+    /**
+     * 
+     * @param string $psConnectionName 
+     * @return boolean 
+     */
+    static function is_connection_defined($psConnectionName) {
+        $oCapsule = self::$capsule;
+        try {
+            self::get_connection($psConnectionName);
+            return true;
+        } catch (\InvalidArgumentException $e) {
+            return false;
+        }
+    }
+
+    //**********************************************************************************************
+    /**
+     * 
+     * @param string $psDbName 
+     * @param string $psConnectionName 
+     * @return void 
+     */
     static function add_connection($psDbName, $psConnectionName = null) {
         // Check if the connection already exists
+        cDebug::enter();
+
+        $sConnectionName = $psConnectionName;
+        if ($sConnectionName == null) $sConnectionName = $psDbName;
+
+        cDebug::extra_debug("checking $sConnectionName");
         $oCapsule = self::$capsule;
-        if (isset($oCapsule->getDatabaseManager()->getConnections()[$psDbName]))
-            cDebug::error("connection $psDbName already exists");
+        if (self::is_connection_defined($sConnectionName))
+            cDebug::error("connection $sConnectionName already exists");
 
         //create sqlite database if it does not exist
         $oDB = new cSqlLite($psDbName);
         $sDBPath = $oDB->path;
         cDebug::write("DB path is $sDBPath");
 
-        $sConnectionName = $psConnectionName;
-        if ($sConnectionName == null) $sConnectionName = $psDbName;
 
-        $oCapsule->addConnection([
+        $aConnectionParams = [
             'driver' => 'sqlite',
             'database' => $sDBPath,
             'prefix' => ''
-        ], $sConnectionName);
+        ];
+        $oCapsule->addConnection($aConnectionParams, $sConnectionName);
+
+        // doublecheck that the connections are there
+        if (!self::is_connection_defined($sConnectionName)) {
+            cDebug::error("connection was not actually added");
+        }
 
         // Add the new connection
-        cDebug::extra_debug("added new connection - name is $psDbName");
+        cDebug::extra_debug("added new connection - name is $sConnectionName");
+        cDebug::leave();
     }
 }
 cEloquentORM::init_db();
