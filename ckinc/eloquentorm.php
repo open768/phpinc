@@ -31,7 +31,7 @@ class cEloquentORM {
             $oSchema->create($psTableName, function ($poTable) use ($pfnCreate) {
                 $pfnCreate($poTable);
             });
-            cDebug::extra_debug("created table " . $psTableName);
+            cDebug::write("created table " . $psTableName);
         }
         cDebug::leave();
     }
@@ -72,6 +72,7 @@ class cEloquentORM {
         $oCapsule = self::$capsule;
         return $oCapsule->getDatabaseManager()->connection($psConnectionName);
     }
+
     //**********************************************************************************************
     /**
      * 

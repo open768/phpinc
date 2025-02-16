@@ -124,6 +124,7 @@ class  cSqlLite {
     const NRETRIES = 4;
     const SQLITE_LOCKED = 6;
     const SQLITE_BUSY = 5;
+    const SQLITE_DATE_FORMAT = "Y-m-d H:i:s";
 
     private $rootFolder = null;
     public $dbname = null;

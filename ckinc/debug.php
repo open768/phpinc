@@ -14,6 +14,9 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 require_once  cAppGlobals::$ckPhpInc . "/session.php";
 require_once  cAppGlobals::$ckPhpInc . "/common.php";
 
+class DebugException extends Exception {
+}
+
 class cDebug {
     private static $DEBUGGING = false;
     private static $EXTRA_DEBUGGING = false;
@@ -160,7 +163,7 @@ class cDebug {
 
         if (!$pbIsSilent)
             self::write("<b><font size='+2'>in <font color='brick'>$sClass:$sFunc (line $sLine)</font> error: <font color='brick'>$psText</font></font></b><pre>");
-        throw new Exception($psText);
+        throw new DebugException($psText);
     }
 
     //##############################################################################
