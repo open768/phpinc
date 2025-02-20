@@ -42,11 +42,6 @@ class cHeader {
     }
 
     //*******************************************************************
-    public static function is_set($psKey) {
-        return (isset($_GET[$psKey]) || isset($_POST[$psKey]));
-    }
-
-    //*******************************************************************
     public static function count_params() {
         return count($_GET) + count($_POST);
     }

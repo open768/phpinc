@@ -129,8 +129,21 @@ class cCommon {
         if ($check !== $psValue)
             cDebug::error("unable to save to session : $psKey =&gt; $psValue");
     }
+
+    public static function human_number($bytes, $decimals = 1) {
+        //https://www.php.net/manual/en/function.filesize.php
+        $factor = floor((strlen($bytes) - 1) / 3);
+        if ($factor > 0) $sz = 'KMGT';
+        return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor - 1] . 'B';
+    }
 }
 
+class cCommonHeader {
+    //*******************************************************************
+    public static function is_set($psKey) {
+        return (isset($_GET[$psKey]) || isset($_POST[$psKey]));
+    }
+}
 //###################################################################################
 //#
 //###################################################################################

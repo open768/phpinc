@@ -20,12 +20,12 @@ class DebugException extends Exception {
 class cDebug {
     private static $DEBUGGING = false;
     private static $EXTRA_DEBUGGING = false;
+    private static $MEM_DEBUGGING = false;
+
     static $SHOW_SQL = false;
     public static $IGNORE_CACHE = false;
     public static $IGNORE_SESSION_USER = false;
     private static $aThings = [];
-    const DEBUG_STR = "debug";
-    const DEBUG2_STR = "debug2";
     const EXTRA_DEBUGGING_SYMBOL = "&#10070";
     private static $one_time_debug = false;
     private static $ENTER_DEPTH = 0;
@@ -184,41 +184,38 @@ class cDebug {
         return (php_sapi_name() == "cli");
     }
 
+    private static function pr__check_param(string $psName): bool {
+        $bOut = false;
+        if (cCommonHeader::is_set($psName)) {
+            $bOut = true;
+            self::write("$psName is on");
+        } else
+            self::write("$psName option is available");
+        return $bOut;
+    }
+
     //##############################################################################
     public static function check_GET_or_POST() {
         global $_GET, $_POST, $_SERVER;
 
-        if (isset($_GET[self::DEBUG_STR]) || isset($_POST[self::DEBUG_STR])) {
+        if (cCommonHeader::is_set("debug")) {
             self::on();
             self::write("Debugging is on");
         }
 
 
-        if (isset($_GET[self::DEBUG2_STR]) || isset($_POST[self::DEBUG2_STR])) {
+        if (cCommonHeader::is_set("debug2")) {
             self::on(true);
             self::write("Extra debugging is on - shown by " . self::EXTRA_DEBUGGING_SYMBOL);
             self::write("URI is " . $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"]);
-        } elseif (self::$DEBUGGING) {
+        } else
             self::write("for extra debugging use debug2");
-        }
 
-        if (isset($_GET["nocache"]) || isset($_POST["nocache"])) {
-            self::$IGNORE_CACHE = true;
-            self::write("nocache is on");
-        } else
-            self::write("nocache option is available");
 
-        if (isset($_GET["showsql"]) || isset($_POST["showsql"])) {
-            self::$SHOW_SQL = true;
-            self::write("showsql is on");
-        } else
-            self::write("showsql option is available");
-
-        if (isset($_GET["nouser"]) || isset($_POST["nouser"])) {
-            self::write("nouser is on");
-            self::$IGNORE_SESSION_USER = true;
-        } else
-            self::write("nouser option is available");
+        self::$IGNORE_CACHE = self::pr__check_param("nocache");
+        self::$SHOW_SQL = self::pr__check_param("showsql");
+        self::$IGNORE_SESSION_USER = self::pr__check_param("nouser");
+        self::$MEM_DEBUGGING = self::pr__check_param("mem");
     }
 
     //##############################################################################
@@ -279,7 +276,14 @@ class cDebug {
 
     private static function pr_indent($psWhat) {
         $sDate = date('d-m-Y H:i:s');
-        return str_repeat("&nbsp;", self::$ENTER_DEPTH * 4) . "{$sDate}: {$psWhat}";
+        $sMem = "";
+        if (self::$MEM_DEBUGGING) {
+            $iMem = memory_get_usage();
+            $sMem = cCommon::human_number($iMem);
+            $sMem = " - $sMem - ";
+        }
+
+        return str_repeat("&nbsp;", self::$ENTER_DEPTH * 4) . "{$sDate}: {$sMem} {$psWhat}";
     }
 }
 
