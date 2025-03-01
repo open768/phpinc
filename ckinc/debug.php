@@ -54,13 +54,6 @@ class cDebug {
             session_start();
             cDebug::extra_debug("session status is not active - starting session:");
         }
-        /* not sure why i'm outputting the caller
-        $aCaller = self::pr_get_caller(1);
-        if ($aCaller) {
-            $sFunc = $aCaller['function'];
-            self::write("Caller is $sFunc");
-        }
-        */
     }
 
     public static function off() {
