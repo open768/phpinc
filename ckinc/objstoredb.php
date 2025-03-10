@@ -58,9 +58,9 @@ class cOBjStoreDB {
         $this->realm = $psRealm;
         $this->table = $psTable;
 
-        //check whether SQLLite has been 
+        //check whether DB has been opened
         if (self::$oSQLite == null) {
-            //cDebug::extra_debug("opening cSqlLite database");
+            cDebug::extra_debug("objstore SQL database is: " . self::DB_FILENAME);
             $oDB = new cSqlLite(self::DB_FILENAME);
             self::$oSQLite = $oDB;
         }
@@ -272,7 +272,7 @@ class cOBjStoreDB {
 
         $sSQL = "SELECT :realm_col,:data_col,:date_col FROM `:table` where :realm_col=:realm AND :hash_col=:hash";
         $sSQL = self::replace_sql($sSQL);
-        if (cDebug::$SHOW_SQL) cDebug::extra_debug($sSQL);
+        if (cDebug::$SHOW_SQL) cDebug::extra_debug(__CLASS__ . ": $sSQL");
 
         //bind the values
         $oStmt = $oSQL->prepare($sSQL);

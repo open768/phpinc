@@ -5,6 +5,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Database\Schema\Blueprint;
 
 class cEloquentORM {
     const ELOQUENT_CLASSNAME = "Illuminate\Database\Capsule\Manager";
@@ -14,27 +15,6 @@ class cEloquentORM {
     /** @var DB $capsule */
     private static $capsule;
 
-    static function create_table(string $psConnection, string $psTableName,  Closure $pfnCreate) {
-        cDebug::enter();
-        /** @var oSchemaBuilder $oSchemaBuilder */
-        $oCapsule = self::$capsule;
-        if (!self::is_connection_defined($psConnection)) {
-            cDebug::vardump($oCapsule->getDatabaseManager()->getConnections());
-            cDebug::error("no such connection :$psConnection");
-        }
-        $oSchema = self::get_schema($psConnection);
-
-        cDebug::extra_debug("checking table exists  " . $psTableName);
-        $bHasTable = $oSchema->hasTable($psTableName);
-        if (!$bHasTable) {
-            //create table
-            $oSchema->create($psTableName, function ($poTable) use ($pfnCreate) {
-                $pfnCreate($poTable);
-            });
-            cDebug::write("created table " . $psTableName);
-        }
-        cDebug::leave();
-    }
 
     //**********************************************************************************************
     static function init_db() {
@@ -64,18 +44,6 @@ class cEloquentORM {
 
     //**********************************************************************************************
     /**
-     * 
-     * @param string $psConnectionName 
-     * @return Connection 
-     */
-    static function get_connection($psConnectionName) {
-        $oCapsule = self::$capsule;
-        return $oCapsule->getDatabaseManager()->connection($psConnectionName);
-    }
-
-    //**********************************************************************************************
-    /**
-     * 
      * @param string $psConnectionName 
      * @return Builder 
      */
@@ -83,6 +51,47 @@ class cEloquentORM {
         $oCapsule = self::$capsule;
         $oConnection = self::get_connection($psConnectionName);
         return $oConnection->getSchemaBuilder();
+    }
+
+    //**********************************************************************************************
+    //* TABLES
+    //**********************************************************************************************
+    static function create_table(string $psConnection, string $psTableName,  Closure $pfnCreate) {
+        //cDebug::enter();
+        /** @var oSchemaBuilder $oSchemaBuilder */
+        $oCapsule = self::$capsule;
+        if (!self::is_connection_defined($psConnection)) {
+            cDebug::vardump($oCapsule->getDatabaseManager()->getConnections());
+            cDebug::error("no such connection :$psConnection");
+        }
+        $oSchema = self::get_schema($psConnection);
+
+        cDebug::extra_debug("checking table exists  " . $psTableName);
+        $bHasTable = $oSchema->hasTable($psTableName);
+        if (!$bHasTable) {
+            //create table
+            $oSchema->create($psTableName, function ($poTable) use ($pfnCreate) {
+                $pfnCreate($poTable);
+            });
+            cDebug::write("created table " . $psTableName);
+        }
+        //cDebug::leave();
+    }
+
+    static function add_relationship(Blueprint $poTable, string $psSourceCol, string $psForeignTable, string $psForeignCol) {
+        $poTable->foreign($psSourceCol)->references($psForeignCol)->on($psForeignTable);
+    }
+
+    //**********************************************************************************************
+    //* CONNECTIONS
+    //**********************************************************************************************
+    /**
+     * @param string $psConnectionName 
+     * @return Connection 
+     */
+    static function get_connection($psConnectionName) {
+        $oCapsule = self::$capsule;
+        return $oCapsule->getDatabaseManager()->connection($psConnectionName);
     }
 
     //**********************************************************************************************
@@ -110,7 +119,7 @@ class cEloquentORM {
      */
     static function add_connection($psDbName, $psConnectionName = null) {
         // Check if the connection already exists
-        cDebug::enter();
+        //cDebug::enter();
 
         $sConnectionName = $psConnectionName;
         if ($sConnectionName == null) $sConnectionName = $psDbName;
@@ -140,8 +149,12 @@ class cEloquentORM {
 
         // Add the new connection
         cDebug::extra_debug("added new connection - name is $sConnectionName");
-        cDebug::leave();
+        //cDebug::leave();
     }
+
+    //**********************************************************************************
+    //* transactions
+    //**********************************************************************************
     static function beginTransaction($psConnectionName) {
         self::get_connection($psConnectionName)->beginTransaction();
     }
