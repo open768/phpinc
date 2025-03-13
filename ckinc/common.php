@@ -138,6 +138,26 @@ class cCommon {
     }
 }
 
+class cCommonEnvironment {
+    //##############################################################################
+    public static function is_localhost() {
+        $aList = array(
+            '127.0.0.1',
+            '::1'
+        );
+
+        $sServer = $_SERVER['REMOTE_ADDR'];
+        $bLocal = in_array($sServer, $aList);
+        //cDebug::write("Server: '$sServer', local: $bLocal");
+        return $bLocal;
+    }
+
+    //**************************************************************************
+    public static function is_cli() {
+        return (php_sapi_name() == "cli");
+    }
+}
+
 class cCommonHeader {
     //*******************************************************************
     public static function is_set($psKey) {

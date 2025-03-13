@@ -122,7 +122,7 @@ class cDebug {
         }
 
         $sIndented = self::pr_indent(self::EXTRA_DEBUGGING_SYMBOL . " " . $psThing);
-        if (self::is_cli())
+        if (cCommonEnvironment::is_cli())
             echo "{$sIndented}\n";
         else {
             echo "<p>";
@@ -137,7 +137,7 @@ class cDebug {
     public static function write($poThing) {
         if (self::is_debugging()) {
             $sIndented = self::pr_indent($poThing);
-            if (self::is_cli())
+            if (cCommonEnvironment::is_cli())
                 print $sIndented . "\n";
             else {
                 echo "<p>";
@@ -201,24 +201,6 @@ class cDebug {
         if (!$pbIsSilent)
             self::write("<b><font size='+2'>in <font color='brick'>$sClass:$sFunc (line $sLine)</font> error: <font color='brick'>$psText</font></font></b><pre>");
         throw new DebugException($psText);
-    }
-
-    //##############################################################################
-    public static function is_localhost() {
-        $aList = array(
-            '127.0.0.1',
-            '::1'
-        );
-
-        $sServer = $_SERVER['REMOTE_ADDR'];
-        $bLocal = in_array($sServer, $aList);
-        //cDebug::write("Server: '$sServer', local: $bLocal");
-        return $bLocal;
-    }
-
-    //**************************************************************************
-    public static function is_cli() {
-        return (php_sapi_name() == "cli");
     }
 
     private static function pr__check_param(string $psName): bool {

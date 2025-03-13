@@ -186,7 +186,7 @@ class cFacebook_ServerSide {
     public static function getAppID() {
         $sID = null;
         //cTracing::enter();
-        if (cDebug::is_localhost()) {
+        if (cCommonEnvironment::is_localhost()) {
             cDebug::write("using FB development credentials for localhost");
             $oID = new cFacebookID(cAppSecret::FB_DEV_APP, cAppSecret::FB_DEV_SECRET);
         } else
