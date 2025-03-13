@@ -19,10 +19,10 @@ class cSession {
 
     //*******************************************************************
     public static function clear_session() {
-        cDebug::enter();
+        cTracing::enter();
         @session_destroy();
         session_start();
-        cDebug::leave();
+        cTracing::leave();
     }
 
     //*******************************************************************

@@ -30,24 +30,24 @@ class cGzip {
 
     //********************************************************************
     public static function encode($pvAnything) {
-        //cDebug::enter();
+        //cTracing::enter();
 
         $sSerial = serialize($pvAnything);
         //cDebug::extra_debug("serialised: $sSerial");
         $sZipped = gzencode($sSerial);
         $sEncoded = base64_encode($sZipped);
         //cDebug::extra_debug("encoded: $sEncoded");
-        //cDebug::leave();
+        //cTracing::leave();
         return $sEncoded;
     }
 
     //********************************************************************
     public static function decode($psEncoded) {
-        //cDebug::enter();
+        //cTracing::enter();
         $sZipped = base64_decode($psEncoded);
         $sSerial = gzdecode($sZipped);
         $sDecoded = unserialize($sSerial);
-        //cDebug::leave();
+        //cTracing::leave();
         return $sDecoded;
     }
 

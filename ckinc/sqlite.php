@@ -138,7 +138,7 @@ class  cSqlLite {
     //#####################################################################
     function __construct(string $psDB) {
 
-        //cDebug::enter();
+        //cTracing::enter();
 
         //cDebug::extra_debug("SQLLIte version:");
         //cDebug::vardump(SQLite3::version());
@@ -146,7 +146,7 @@ class  cSqlLite {
         $this->rootFolder = cAppGlobals::$dbRoot;
         $this->pr_check_for_db($psDB);
 
-        //cDebug::leave();
+        //cTracing::leave();
     }
 
     //#####################################################################
@@ -185,7 +185,7 @@ class  cSqlLite {
     //********************************************************************************
     private function pr_check_for_db(string $psDBFilename) {
 
-        //cDebug::enter();
+        //cTracing::enter();
         if ($this->database == null) {
             $oDB = self::open_sql_db($psDBFilename);
             $this->database = $oDB;
@@ -195,7 +195,7 @@ class  cSqlLite {
             $oDB->busyTimeout(self::BUSY_TIMEOUT);
         }
 
-        //cDebug::leave();
+        //cTracing::leave();
     }
 
     //********************************************************************************
@@ -209,7 +209,7 @@ class  cSqlLite {
         $bRetryAction = true;
         $iRetryCount = 0;
         $oResultSet = null;
-        //cDebug::enter();
+        //cTracing::enter();
 
         $oDB = $this->database;
         while ($bRetryAction) {
@@ -243,7 +243,7 @@ class  cSqlLite {
             }
         }
 
-        //cDebug::leave();		
+        //cTracing::leave();		
         return $oResultSet;
     }
 
@@ -274,20 +274,20 @@ class  cSqlLite {
      * @return SQLite3Stmt  
      */
     public function prepare($psSQL) {
-        //cDebug::enter();
+        //cTracing::enter();
         $oAction = new cSQLPrepareAction($psSQL);
         /** @var SQLite3Stmt $oResultSet */
         $oResultSet = $this->pr_do_action($oAction);
-        //cDebug::leave();	
+        //cTracing::leave();	
         return $oResultSet;
     }
 
     //********************************************************************************
     public function querySQL(string $psSQL) {
-        //cDebug::enter();
+        //cTracing::enter();
         $oAction = new cSQLQueryAction($psSQL);
         $oResultSet = $this->pr_do_action($oAction);
-        //cDebug::leave();	
+        //cTracing::leave();	
         return $oResultSet;
     }
 
@@ -300,13 +300,13 @@ class  cSqlLite {
      * @throws Exception 
      */
     public function exec_stmt(SQLite3Stmt $poStmt) {
-        //cDebug::enter();
+        //cTracing::enter();
         if (cDebug::$SHOW_SQL)
             cDebug::extra_debug($poStmt->getSQL(TRUE));
 
         $oAction = new cSQLExecStmtAction($poStmt);
         $oResultSet = $this->pr_do_action($oAction);
-        //cDebug::leave();		
+        //cTracing::leave();		
         return $oResultSet;
     }
 

@@ -61,7 +61,7 @@ class cHttp {
 
     //*****************************************************************************
     public  function fetch_url($psUrl) {
-        if ($this->debug) cDebug::enter();
+        if ($this->debug) cTracing::enter();
         if ($this->debug) cDebug::extra_debug($psUrl);
 
         if ($this->USE_CURL) {
@@ -69,19 +69,19 @@ class cHttp {
         } else
             $sHTML = $this->pr__fetch_basic_url($psUrl);
 
-        if ($this->debug) cDebug::leave();
+        if ($this->debug) cTracing::leave();
         return $sHTML;
     }
 
     //*****************************************************************************
     public function fetch_to_file($psUrl, $psPath, $pbOverwrite = false, $piTimeOut = 60, $pbGzip = false) {
-        //cDebug::enter();
+        //cTracing::enter();
         if ($this->USE_CURL) {
             cDebug::error("curl is not supported");
             return $this->pr__fetch_curl_to_file($psUrl, $psPath, $pbOverwrite, $piTimeOut, $pbGzip);
         } else
             cDebug::error("non Curl fetch file not implemented");
-        //cDebug::leave();
+        //cTracing::leave();
     }
 
     //*****************************************************************************
@@ -95,7 +95,7 @@ class cHttp {
     //*****************************************************************************
     public function fetch_large_url($psUrl, $psFilename, $pbOverwrite = false) {
 
-        //cDebug::enter();
+        //cTracing::enter();
 
         //check the folder is there
         $sDir = cAppGlobals::$root . "/" . $this->LARGE_URL_DIR;
@@ -107,7 +107,7 @@ class cHttp {
         $sPath = $this->large_url_path($psFilename);
         $this->show_progress = true;
         $sFilename = $this->fetch_to_file($psUrl, $sPath, $pbOverwrite, 600);
-        //cDebug::leave();
+        //cTracing::leave();
         return $sFilename;
     }
 
@@ -115,7 +115,7 @@ class cHttp {
     //#
     //############################################################################
     private function pr__make_header_string($aHeaders) {
-        if ($this->debug) cDebug::enter();
+        if ($this->debug) cTracing::enter();
 
         $sOut = null;
         if (!is_array($aHeaders))
@@ -128,7 +128,7 @@ class cHttp {
                 $bFirst = false;
             }
         }
-        if ($this->debug) cDebug::leave();
+        if ($this->debug) cTracing::leave();
         return $sOut;
     }
 
@@ -136,7 +136,7 @@ class cHttp {
     private function pr__fetch_basic_url($psUrl, $pbAllowNull = true) {
         global $http_response_header;  //PHP global set by file_get_contents
 
-        if ($this->debug) cDebug::enter();
+        if ($this->debug) cTracing::enter();
         $sHTML = null;
 
         $oContext = null;
@@ -198,7 +198,7 @@ class cHttp {
         if ($sHTML == null && !$pbAllowNull)
             cDebug::error("null response received : ");
 
-        if ($this->debug) cDebug::leave();
+        if ($this->debug) cTracing::leave();
         return $sHTML;
     }
 
@@ -254,7 +254,7 @@ class cHttp {
     //#
     //############################################################################
     private function pr__curl_init($psUrl) {
-        //cDebug::enter();
+        //cTracing::enter();
 
 
         $oCurl = new cCurl($psUrl);
@@ -301,7 +301,7 @@ class cHttp {
             $oCurl->setopt(CURLOPT_CAPATH, $sCertPath); //broken
         }
 
-        //cDebug::leave();
+        //cTracing::leave();
         return $oCurl;
     }
 
@@ -321,12 +321,12 @@ class cHttp {
     private function pr__fetch_curl_url($psUrl) {
 
 
-        //cDebug::enter();
+        //cTracing::enter();
 
         $oCurl = $this->pr__curl_init($psUrl);
         return  $oCurl->exec();
 
-        //cDebug::leave();	
+        //cTracing::leave();	
     }
 
     //*****************************************************************************

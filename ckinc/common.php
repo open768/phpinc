@@ -191,7 +191,7 @@ class cCommonFiles {
     //**************************************************************************
     // see https://www.sitepoint.com/community/t/using-recursivedirectoryiterator-to-delete-empty-directories/7144
     public static function delete_empty_folders(string $psDir) {
-        cDebug::enter();
+        cTracing::enter();
         $oDirIter = new RecursiveDirectoryIterator($psDir, FilesystemIterator::SKIP_DOTS);
         $oOnlyDirIter = new ParentIterator($oDirIter);
         $oIter = new RecursiveIteratorIterator($oOnlyDirIter, RecursiveIteratorIterator::CHILD_FIRST);
@@ -209,7 +209,7 @@ class cCommonFiles {
                 @rmdir($sPath);
             }
         }
-        cDebug::leave();
+        cTracing::leave();
     }
 }
 

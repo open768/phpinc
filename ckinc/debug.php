@@ -17,6 +17,51 @@ require_once  cAppGlobals::$ckPhpInc . "/common.php";
 class DebugException extends Exception {
 }
 
+class cTracing {
+    static $ENTER_DEPTH = 0;
+
+    public static function enter($psOverrideName = null, $pbOnce = false) {
+        if (cDebug::is_extra_debugging() || $pbOnce) {
+            $sCaller = $psOverrideName;
+            if ($psOverrideName == null) {
+                $aCaller = cDebug::get_caller(1);
+                $sFunc = $aCaller['function'];
+                $sClass = '';
+                if (isset($aCaller['class'])) {
+                    $sClass = $aCaller['class'];
+                }
+                $sCaller = "$sClass.$sFunc";
+            }
+
+            cDebug::extra_debug("<font color='#3b3c36' face='courier' size=2>Enter&gt; $sCaller</font>", $pbOnce);
+            self::$ENTER_DEPTH++;
+        }
+    }
+
+    //**************************************************************************
+    public static function leave($psOverrideName = null, $pbOnce = false) {
+        if (cDebug::is_extra_debugging() || $pbOnce) {
+
+            $sCaller = $psOverrideName;
+            if ($psOverrideName == null) {
+                $aCaller = cDebug::get_caller(1);
+                $sFunc = $aCaller['function'];
+                $sClass = '';
+                if (isset($aCaller['class'])) {
+                    $sClass = $aCaller['class'];
+                }
+                $sCaller = "$sClass.$sFunc";
+            }
+            self::$ENTER_DEPTH--;
+            if (self::$ENTER_DEPTH < 0) {
+                self::$ENTER_DEPTH = 0;
+                //self::write("too many leave calls");
+            }
+            cDebug::extra_debug("<font color='#3b3c36' face='courier' size=2>Leave &gt; $sCaller</font>", $pbOnce);
+        }
+    }
+}
+
 class cDebug {
     private static $DEBUGGING = false;
     private static $EXTRA_DEBUGGING = false;
@@ -28,7 +73,6 @@ class cDebug {
     private static $aThings = [];
     const EXTRA_DEBUGGING_SYMBOL = "&#10070";
     private static $one_time_debug = false;
-    private static $ENTER_DEPTH = 0;
     const EXTRA_DEBUG_FONT_COLOUR = "#483D8B";
     const DEBUG_FONT_COLOUR = "#006400";
 
@@ -128,7 +172,7 @@ class cDebug {
 
     //**************************************************************************
     public static function vardump_class($psClassName) {
-        self::enter();
+        cTracing::enter();
 
         //--------check if class actually exists
         if (!class_exists($psClassName))
@@ -140,13 +184,13 @@ class cDebug {
             self::write($oReflect);
         } else
             self::write(__FUNCTION__ . " only available in debug2");
-        self::leave();
+        cTracing::leave();
     }
 
     //**************************************************************************
     public static function error($psText, $pbIsSilent = false) {
         try {
-            $aCaller = self::pr_get_caller(1);
+            $aCaller = self::get_caller(1);
             $sFunc = @$aCaller['function'];
             $sClass = @$aCaller['class'];
             $sLine = @$aCaller['line'];
@@ -212,51 +256,10 @@ class cDebug {
     }
 
     //##############################################################################
-    public static function enter($psOverrideName = null, $pbOnce = false) {
-        if (self::is_extra_debugging() || $pbOnce) {
-            $sCaller = $psOverrideName;
-            if ($psOverrideName == null) {
-                $aCaller = self::pr_get_caller(1);
-                $sFunc = $aCaller['function'];
-                $sClass = '';
-                if (isset($aCaller['class'])) {
-                    $sClass = $aCaller['class'];
-                }
-                $sCaller = "$sClass.$sFunc";
-            }
-
-            self::extra_debug("<font color='#3b3c36' face='courier' size=2>Enter&gt; $sCaller</font>", $pbOnce);
-            self::$ENTER_DEPTH++;
-        }
-    }
-
-    //**************************************************************************
-    public static function leave($psOverrideName = null, $pbOnce = false) {
-        if (self::is_extra_debugging() || $pbOnce) {
-
-            $sCaller = $psOverrideName;
-            if ($psOverrideName == null) {
-                $aCaller = self::pr_get_caller(1);
-                $sFunc = $aCaller['function'];
-                $sClass = '';
-                if (isset($aCaller['class'])) {
-                    $sClass = $aCaller['class'];
-                }
-                $sCaller = "$sClass.$sFunc";
-            }
-            self::$ENTER_DEPTH--;
-            if (self::$ENTER_DEPTH < 0) {
-                self::$ENTER_DEPTH = 0;
-                //self::write("too many leave calls");
-            }
-            self::extra_debug("<font color='#3b3c36' face='courier' size=2>Leave &gt; $sCaller</font>", $pbOnce);
-        }
-    }
-
-    //##############################################################################
-    private static function pr_get_caller($piLimit = 0) {
+    static function get_caller($piLimit = 0) {
         return @debug_backtrace(0, $piLimit + 2)[$piLimit + 1];
     }
+
     //**************************************************************************
     private static function pr_stacktrace() {
         if (self::is_extra_debugging()) {
@@ -276,7 +279,7 @@ class cDebug {
             $sMem = " - $sMem - ";
         }
 
-        return str_repeat("&nbsp;", self::$ENTER_DEPTH * 4) . "{$sDate}: {$sMem} {$psWhat}";
+        return str_repeat("&nbsp;", cTracing::$ENTER_DEPTH * 4) . "{$sDate}: {$sMem} {$psWhat}";
     }
 }
 

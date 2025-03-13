@@ -66,7 +66,7 @@ class cThumbNailer {
     //************************************************************************************
     private static function pr_make_thumbnail_blob(string $psImgUrl, int $piHeight, int $piQuality): string {
         $oData = null;
-        cDebug::enter();
+        cTracing::enter();
         $oThumb = self::pr_make_thumbnail_obj($psImgUrl, $piHeight, $piQuality);
 
         try {
@@ -80,7 +80,7 @@ class cThumbNailer {
         } finally {
             imagedestroy($oThumb);
         }
-        cDebug::leave();
+        cTracing::leave();
         return $oData;
     }
 
@@ -131,7 +131,7 @@ class cCropper {
 
     //************************************************************************************
     static function get_crop_blob_data(string $psImgUrl, int $piLeft, int $piTop, int $piWidth, int $piHeight): cCropData {
-        //cDebug::enter();
+        //cTracing::enter();
         $sKey = self::BLOB_PREFIX . "{$psImgUrl}/{$piLeft}/{$piTop}/{$piWidth}/{$piHeight}";
         $oBlobber = self::$blobber;
         if (!$oBlobber->exists($sKey)) {
@@ -151,13 +151,13 @@ class cCropper {
             $oCrop->blob = $oBlob;
         }
 
-        //cDebug::leave();
+        //cTracing::leave();
         return $oCrop;
     }
 
     //************************************************************************************
     private static function pr_make_crop_blob(string $psUrl, int $piLeft, int $piTop, int $piWidth, int $piHeight): string {
-        cDebug::enter();
+        cTracing::enter();
         $oSource = null;
         $oCropped = null;
         $oJpgData = null;
@@ -187,18 +187,18 @@ class cCropper {
             imagedestroy($oSource);
         }
 
-        cDebug::leave();
+        cTracing::leave();
         return $oJpgData;
     }
 
 
     //************************************************************************************
     private static function pr_make_crop_obj(\GdImage $poImg, int $piLeft, int $piTop, int $piWidth, int $piHeight): \GdImage {
-        cDebug::enter();
+        cTracing::enter();
         $oDest = imagecreatetruecolor($piWidth, $piHeight);
         cDebug::write("cropping ($piLeft, $piTop), w=" . $piWidth . " h=" . $piHeight);
         imagecopy($oDest, $poImg, 0, 0, $piLeft, $piTop, $piWidth, $piHeight);
-        cDebug::leave();
+        cTracing::leave();
         return $oDest;
     }
 }
@@ -239,14 +239,14 @@ class cMosaicer {
 
     //************************************************************************************
     static function make(string $psKey, array $paBlobs, int $piTileWidth, int $piTileHeight, int $piCols): cBlobData {
-        cDebug::enter();
+        cTracing::enter();
 
         $oBlobber = self::$blobber;
 
         //----------check if mosaic exists ------------------------------------------------
         if ($oBlobber->exists($psKey))
             if (!cDebug::$IGNORE_CACHE) {
-                cDebug::leave();
+                cTracing::leave();
                 return self::get($psKey);
             } else {
                 cDebug::extra_debug("deleting existing mosaic");
@@ -308,7 +308,7 @@ class cMosaicer {
         $oBlob =  $oBlobber->get($psKey);
 
         //----------return the result ------------------------------------------------
-        cDebug::leave();
+        cTracing::leave();
         return $oBlob;
     }
 }

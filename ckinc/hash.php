@@ -147,9 +147,9 @@ class cHash {
 
     //************************************************************************
     public static function delete($psAnything) {
-        cDebug::enter();
+        cTracing::enter();
         $sHash = self::hash($psAnything);
         self::delete_hash($sHash);
-        cDebug::leave();
+        cTracing::leave();
     }
 }

@@ -97,14 +97,14 @@ class c2DArray {
 
     //********************************************************************
     public function set($psRow, $psCol, $pvData) {
-        cDebug::enter();
+        cTracing::enter();
 
         $oRow = $this->pr__get_row($psRow, true);
         $oRow->set($psCol, $pvData);
 
         if (!$this->caColNames->key_exists($psCol))        $this->caColNames->set($psCol, 1);
 
-        cDebug::leave();
+        cTracing::leave();
     }
 
     //********************************************************************
@@ -126,7 +126,7 @@ class c2DArray {
 
     //********************************************************************
     public function add_col_data($psCol, $pvData) {
-        cDebug::enter();
+        cTracing::enter();
         $sType = gettype($pvData);
         switch ($sType) {
             case "array":
@@ -138,7 +138,7 @@ class c2DArray {
             default:
                 cDebug::error("unexpected type: $sType");
         }
-        cDebug::leave();
+        cTracing::leave();
     }
 
     public function set_col_info($psCol, $pvInfo) {

@@ -57,19 +57,19 @@ class cObjStore {
 
     //********************************************************************
     public static function kill_folder($psFolder) {
-        cDebug::enter();
+        cTracing::enter();
 
         self::pr_show_obsolete_msg();
         $sPath = self::get_folder_path($psFolder);
         cDebug::write("killing folder $sPath");
         cCommonFiles::delTree($sPath);
 
-        cDebug::leave();
+        cTracing::leave();
     }
 
     //********************************************************************
     public static function kill_file($psFolder, $psFile) {
-        //cDebug::enter();
+        //cTracing::enter();
 
         self::pr_show_obsolete_msg();
         $num_args = func_num_args();
@@ -81,7 +81,7 @@ class cObjStore {
             @unlink($file);
             cDebug::write("deleted file $file");
         }
-        //cDebug::leave();
+        //cTracing::leave();
     }
 
     //********************************************************************
@@ -98,7 +98,7 @@ class cObjStore {
     //********************************************************************
     public static function get_file($psFolder, $psFile) {
         $aData = null;
-        //cDebug::enter();
+        //cTracing::enter();
 
         self::pr_show_obsolete_msg();
         $num_args = func_num_args();
@@ -116,13 +116,13 @@ class cObjStore {
             $aData = cHash::get($sFile);
         }
 
-        //cDebug::leave();
+        //cTracing::leave();
         return $aData;
     }
 
     //********************************************************************
     public static function put_file($psFolder, $psFile, $poData) {
-        cDebug::enter();
+        cTracing::enter();
 
         self::pr_show_obsolete_msg();
         $num_args = func_num_args();
@@ -141,12 +141,12 @@ class cObjStore {
         cDebug::write("writing to: $sFile");
         cGzip::writeObj($sFile, $poData);
 
-        cDebug::leave();
+        cTracing::leave();
     }
 
     //********************************************************************
     static function push_to_array($psFolder, $psFile, $poData) {
-        cDebug::enter();
+        cTracing::enter();
         //always get the latest file
         $aData = self::get_file($psFolder, $psFile);
         //update the data
@@ -155,7 +155,7 @@ class cObjStore {
         //put the data back
         self::put_file($psFolder, $psFile, $aData);
 
-        cDebug::leave();
+        cTracing::leave();
         return $aData;
     }
 }

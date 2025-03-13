@@ -30,7 +30,7 @@ class cBlobber {
 
     //*************************************************************
     function __construct(string $pDBFilename = null) {
-        //cDebug::enter();
+        //cTracing::enter();
         if (!cCommon::is_string_empty($pDBFilename)) {
             $sExtension = substr($pDBFilename, -3);
             if ($sExtension !== ".db") cDebug::error("database filename must end with '.db'");
@@ -43,13 +43,13 @@ class cBlobber {
             $this->oSqlDB = $oSqlDB;
         }
         self::pr_create_table();
-        //cDebug::leave();
+        //cTracing::leave();
     }
 
     //*************************************************************
     //*************************************************************
     private function pr_create_table() {
-        //cDebug::enter();
+        //cTracing::enter();
         /** @var cSQLLite $oSqlDB  */
         $oSqlDB = $this->oSqlDB;
         $bTableExists = $oSqlDB->table_exists(self::BLOB_TABLE);
@@ -69,7 +69,7 @@ class cBlobber {
         cDebug::extra_debug("table created");
         // index and uniqueness are implicit for primary keys
 
-        //cDebug::leave();
+        //cTracing::leave();
     }
 
     //*************************************************************

@@ -32,26 +32,26 @@ class cAuth {
 
     //**********************************************************
     public static function get_user() {
-        cDebug::enter();
+        cTracing::enter();
 
         $sUser = cFacebook_ServerSide::getSessionUser();
         cDebug::write("user is $sUser");
-        cDebug::leave();
+        cTracing::leave();
         return $sUser;
     }
 
     //**********************************************************
     public static function get_user_id() {
-        cDebug::enter();
+        cTracing::enter();
         $sUserID = cFacebook_ServerSide::getSessionUserID();
         cDebug::write("user ID is $sUserID");
-        cDebug::leave();
+        cTracing::leave();
         return $sUserID;
     }
 
     //**********************************************************
     public static function add_to_role($psUserID, $psRole) {
-        cDebug::enter();
+        cTracing::enter();
 
         $oDB = self::$objstoreDB;
         $aRoleDetails = $oDB->get(self::ROLES_FOLDER . "/" . $psRole);
@@ -62,13 +62,13 @@ class cAuth {
             $oDB->put(self::ROLES_FOLDER . "/$psRole", $aRoleDetails);
         } else
             cDebug::write("user $psUserID allready has role $psRole ");
-        cDebug::leave();
+        cTracing::leave();
     }
 
     //**********************************************************
     public static function is_role($psRole) {
 
-        cDebug::enter();
+        cTracing::enter();
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
 
@@ -76,36 +76,36 @@ class cAuth {
         $sUserID = self::get_user_id();
         if ($sUserID == null) {
             cDebug::write("no user ID found in session");
-            cDebug::leave();
+            cTracing::leave();
             return false;
         }
 
         $aRoleDetails = $oDB->get(self::ROLES_FOLDER . "/$psRole");
         if (!$aRoleDetails) {
             cDebug::write("role '$psRole' is not known");
-            cDebug::leave();
+            cTracing::leave();
             return false;
         }
 
         $bResult = isset($aRoleDetails[$sUserID]);
         cDebug::write("user '$sUserID' role '$psRole' result '$bResult'");
-        cDebug::leave();
+        cTracing::leave();
         return $bResult;
     }
 
     //**********************************************************
     public static function must_get_user() {
-        cDebug::enter();
+        cTracing::enter();
         $sUser = self::get_user();
         if (!$sUser) cDebug::error("user not logged in");
 
-        cDebug::leave();
+        cTracing::leave();
         return $sUser;
     }
 
     //**********************************************************
     public static function current_user_is_admin() {
-        cDebug::enter();
+        cTracing::enter();
         $sUser = self::get_user();
 
         if (!$sUser)
@@ -117,13 +117,13 @@ class cAuth {
             $sIsAdmin = self::YES;
 
         cDebug::extra_debug("result is $sIsAdmin");
-        cDebug::leave();
+        cTracing::leave();
         return $sIsAdmin;
     }
 
     //**********************************************************
     public static function check_for_admin_id_file() {
-        cDebug::enter();
+        cTracing::enter();
 
         //--------check that file is there -------------------------
         $filename = cAppGlobals::$appConfig . "/" . self::ID_FILENAME;
@@ -162,7 +162,7 @@ class cAuth {
         unlink($filename);
 
 
-        cDebug::leave();
+        cTracing::leave();
     }
 }
 cAuth::init_obj_store_db();

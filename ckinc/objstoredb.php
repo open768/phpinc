@@ -88,14 +88,14 @@ class cOBjStoreDB {
     }
 
     private function pr_create_table() {
-        //cDebug::enter();
+        //cTracing::enter();
         $oSQL = self::$oSQLite;
 
         //check if table exists
         $bTableExists = $oSQL->table_exists($this->table);
         if ($bTableExists) {
             //cDebug::extra_debug("table '{$this->table}' exists");
-            //cDebug::leave();
+            //cTracing::leave();
             return;
         }
 
@@ -120,7 +120,7 @@ class cOBjStoreDB {
         $sNow = date('d-m-Y H:i:s');
         $oObj = new cOBjStoreDB(self::OBJSTORE_REALM);
         $oObj->put(self::OBJSTORE_CREATE_KEY, $sNow);
-        //cDebug::leave();
+        //cTracing::leave();
     }
 
     //********************************************************************************
@@ -147,13 +147,13 @@ class cOBjStoreDB {
     //#####################################################################
     //********************************************************************************
     public function put_oldstyle($psFolder, $psFile, $poData) {
-        //cDebug::enter();
+        //cTracing::enter();
         self::pr_warn_deprecated();
 
         $this->pr_check_realm();
         $sFullpath = $psFolder . "/" . $psFile;
         $this->put($sFullpath, $poData);
-        //cDebug::leave();		
+        //cTracing::leave();		
     }
 
     /**
@@ -172,18 +172,18 @@ class cOBjStoreDB {
      * @return void
      */ //********************************************************************************
     public function add_to_array($psKey, $poData) {
-        //cDebug::enter();
+        //cTracing::enter();
         self::pr_warn_deprecated();
         $aData = $this->get($psKey);
         if (!$aData) $aData = [];
         $aData[] = $poData; //add to the array
         $this->put($psKey, $aData, true);
-        //cDebug::leave();
+        //cTracing::leave();
     }
 
     //********************************************************************************
     public function get_oldstyle($psFolder, $psFile) {
-        //cDebug::enter();
+        //cTracing::enter();
 
         self::pr_warn_deprecated();
         $this->pr_check_realm();
@@ -200,7 +200,7 @@ class cOBjStoreDB {
             $oData = $this->get($sFullpath);
         }
 
-        //cDebug::leave();
+        //cTracing::leave();
         return $oData;
     }
 
@@ -224,7 +224,7 @@ class cOBjStoreDB {
 
     //********************************************************************************
     public function set_table($psTable) {
-        //cDebug::enter();
+        //cTracing::enter();
 
         cDebug::extra_debug("setting table to $psTable");
         if ($this->table !== $psTable) {
@@ -232,12 +232,12 @@ class cOBjStoreDB {
             $this->pr_create_table();
         }
 
-        //cDebug::leave();		
+        //cTracing::leave();		
     }
 
     //********************************************************************************
     public function put($psKey, $pvAnything, $pbOverride = true) {
-        //cDebug::enter();
+        //cTracing::enter();
         $this->pr_check_realm();
         $oSQL = self::$oSQLite;
 
@@ -256,12 +256,12 @@ class cOBjStoreDB {
         $oStmt->bindValue(":date", date('d-m-Y H:i:s'));
         $oSQL->exec_stmt($oStmt);
 
-        //cDebug::leave();		
+        //cTracing::leave();		
     }
 
     //********************************************************************************
     public function get($psKey, $pbCheckExpiry = false) {
-        //cDebug::enter();
+        //cTracing::enter();
         //cDebug::extra_debug("Checking Realm");
         $this->pr_check_realm();
 
@@ -280,7 +280,7 @@ class cOBjStoreDB {
         $oStmt->bindValue(":hash", $sHash);
         $oResultSet = $oSQL->exec_stmt($oStmt);
         if ($oResultSet == null) {
-            cDebug::leave();
+            cTracing::leave();
             return null;
         }
 
@@ -304,14 +304,14 @@ class cOBjStoreDB {
             }
         }
 
-        //cDebug::leave();		
+        //cTracing::leave();		
         return $vResult;
     }
 
 
     //********************************************************************************
     public function kill($psKey) {
-        //cDebug::enter();
+        //cTracing::enter();
         $this->pr_check_realm();
         $oSQL = self::$oSQLite;
 
@@ -327,6 +327,6 @@ class cOBjStoreDB {
         $oStmt->bindValue(":hash", $sHash);
         $oSQL->exec_stmt($oStmt);
 
-        //cDebug::leave();
+        //cTracing::leave();
     }
 }

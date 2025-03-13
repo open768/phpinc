@@ -67,20 +67,20 @@ class cFacebook_ServerSide {
 
     //*******************************************************************
     private static function pr_setSessionUser($poGraphObject) {
-        cDebug::enter();
+        cTracing::enter();
         $sClass = get_class($poGraphObject);
         if ($sClass !== "Facebook\GraphObject") cDebug::error("class Facebook\GraphObject expected, found $sClass");
         $sUser = $poGraphObject->getProperty("name");
         $sID = $poGraphObject->getProperty("id");
         $_SESSION[self::FB_SESS_USER] = $sUser;
         $_SESSION[self::FB_SESS_USERID] = $sID;
-        cDebug::leave();
+        cTracing::leave();
         return $sUser;
     }
 
     //*******************************************************************
     public static function getSessionUser() {
-        //cDebug::enter();
+        //cTracing::enter();
         $sUser = null;
         //get the user from the session
         if (isset($_SESSION[self::FB_SESS_USER]))
@@ -92,7 +92,7 @@ class cFacebook_ServerSide {
         else
             cDebug::write("no facebook session user");
 
-        //cDebug::leave();
+        //cTracing::leave();
         return $sUser;
     }
 
@@ -109,7 +109,7 @@ class cFacebook_ServerSide {
 
     //*******************************************************************
     public static function getStoredUser($psUserID) {
-        cDebug::enter();
+        cTracing::enter();
         $sUser = null;
 
         if (cDebug::$IGNORE_CACHE)
@@ -129,13 +129,13 @@ class cFacebook_ServerSide {
             }
         }
 
-        cDebug::leave();
+        cTracing::leave();
         return $sUser;
     }
 
     //*******************************************************************
     private static function pr_storeUserDetails($psUserID, $poData) {
-        cDebug::enter();
+        cTracing::enter();
 
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
@@ -144,21 +144,21 @@ class cFacebook_ServerSide {
         $oDB->put(self::FB_USER_FOLDER . "/$psUserID", $poData);
         self::add_to_index($psUserID);
 
-        cDebug::leave();
+        cTracing::leave();
     }
 
     //*******************************************************************
     static function add_to_index($psUserID) {
-        cDebug::enter();
+        cTracing::enter();
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
         $oDB->add_to_array(self::FB_USER_FOLDER . "/" . self::FB_ALL_USERS, $psUserID);
-        cDebug::leave();
+        cTracing::leave();
     }
 
     //*******************************************************************
     static function get_userDetails($psUserID) {
-        cDebug::enter();
+        cTracing::enter();
         if (cCommon::is_string_empty($psUserID)) cDebug::error("no user ID");
 
         /** @var cObjStoreDB $oDB **/
@@ -168,37 +168,37 @@ class cFacebook_ServerSide {
 
         $oUser = $oDB->get(self::FB_USER_FOLDER . "/$psUserID");
 
-        cDebug::leave();
+        cTracing::leave();
         return $oUser;
     }
 
     //*******************************************************************
     static function get_index() {
-        cDebug::enter();
+        cTracing::enter();
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
         $aData = $oDB->get(self::FB_USER_FOLDER . "/" . self::FB_ALL_USERS);
-        cDebug::leave();
+        cTracing::leave();
         return $aData;
     }
 
     //*******************************************************************
     public static function getAppID() {
         $sID = null;
-        //cDebug::enter();
+        //cTracing::enter();
         if (cDebug::is_localhost()) {
             cDebug::write("using FB development credentials for localhost");
             $oID = new cFacebookID(cAppSecret::FB_DEV_APP, cAppSecret::FB_DEV_SECRET);
         } else
             $oID = new cFacebookID(cAppSecret::FB_APP, cAppSecret::FB_SECRET);
 
-        //cDebug::leave();
+        //cTracing::leave();
         return $oID;
     }
 
     //*******************************************************************
     public static function getUserName($psUserID, $psToken) {
-        cDebug::enter();
+        cTracing::enter();
         $oAppID = self::getAppID();
 
         cDebug::extra_debug("-- validating session");
@@ -225,7 +225,7 @@ class cFacebook_ServerSide {
         cDebug::write("User is '$sUser'");
         self::pr_storeUserDetails($psUserID, $oGraph);
 
-        cDebug::leave();
+        cTracing::leave();
         return $sUser;
     }
 }

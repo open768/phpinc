@@ -49,15 +49,15 @@ class cCachedHttp {
 
     //*****************************************************************************
     public function getCachedUrl($psURL) {
-        cDebug::enter();
+        cTracing::enter();
         $oResult = $this->pr_do_get($psURL, false);
-        cDebug::leave();
+        cTracing::leave();
         return $oResult;
     }
 
     //*****************************************************************************
     public function getXML($psURL) {
-        cDebug::enter();
+        cTracing::enter();
 
         cDebug::write("Getting XML from: $psURL");
         $sXML = $this->getCachedUrl($psURL);
@@ -65,7 +65,7 @@ class cCachedHttp {
         $oXML = simplexml_load_string($sXML);
         cDebug::write("finished conversion");
 
-        cDebug::leave();
+        cTracing::leave();
 
         return $oXML;
     }
@@ -82,7 +82,7 @@ class cCachedHttp {
 
     //*****************************************************************************
     public function getCachedUrltoFile($psURL) {    //for large files too big for sql
-        cDebug::enter();
+        cTracing::enter();
         $sHash = cHash::hash($psURL);
         cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;        //dangerous fudge TODO
         $sPath = cHash::getPath($sHash);
@@ -94,15 +94,15 @@ class cCachedHttp {
             $oHttp->show_progress = true;
             $oHttp->fetch_to_file($psURL, $sPath, true, 60, true);
         }
-        cDebug::leave();
+        cTracing::leave();
         return $sPath;
     }
 
     //*****************************************************************************
     public function getCachedJson($psURL, $pbCheckExpiry = true) {
-        //cDebug::enter();
+        //cTracing::enter();
         $oResult = $this->pr_do_get($psURL, true, $pbCheckExpiry);
-        //cDebug::leave();
+        //cTracing::leave();
         return $oResult;
     }
 
@@ -110,7 +110,7 @@ class cCachedHttp {
     //*
     //*****************************************************************************
     private function pr_do_get($psURL, $pbJson, $pbCheckExpiry = true) {
-        //cDebug::enter();
+        //cTracing::enter();
 
         $oHttp = new cHttp();
         $oHttp->USE_CURL = $this->USE_CURL;
@@ -140,7 +140,7 @@ class cCachedHttp {
                     $oData = json_decode($oData);
         }
 
-        //cDebug::leave();
+        //cTracing::leave();
         return $oData;
     }
 }

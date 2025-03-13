@@ -57,7 +57,7 @@ class cEloquentORM {
     //* TABLES
     //**********************************************************************************************
     static function create_table(string $psConnection, string $psTableName,  Closure $pfnCreate) {
-        //cDebug::enter();
+        //cTracing::enter();
         /** @var oSchemaBuilder $oSchemaBuilder */
         $oCapsule = self::$capsule;
         if (!self::is_connection_defined($psConnection)) {
@@ -75,7 +75,7 @@ class cEloquentORM {
             });
             cDebug::write("created table " . $psTableName);
         }
-        //cDebug::leave();
+        //cTracing::leave();
     }
 
     static function add_relationship(Blueprint $poTable, string $psSourceCol, string $psForeignTable, string $psForeignCol) {
@@ -119,7 +119,7 @@ class cEloquentORM {
      */
     static function add_connection($psDbName, $psConnectionName = null) {
         // Check if the connection already exists
-        //cDebug::enter();
+        //cTracing::enter();
 
         $sConnectionName = $psConnectionName;
         if ($sConnectionName == null) $sConnectionName = $psDbName;
@@ -149,7 +149,7 @@ class cEloquentORM {
 
         // Add the new connection
         cDebug::extra_debug("added new connection - name is $sConnectionName");
-        //cDebug::leave();
+        //cTracing::leave();
     }
 
     //**********************************************************************************

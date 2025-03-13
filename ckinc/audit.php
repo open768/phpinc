@@ -35,7 +35,7 @@ class cAudit {
 
     //**************************************************************************************
     public static function audit($poCredentials, $psEvent) {
-        cDebug::enter();
+        cTracing::enter();
         if (!property_exists($poCredentials, "host")) cDebug::error("no host in credentials");
         if (!property_exists($poCredentials, "account")) cDebug::error("no account in credentials");
         if (!method_exists($poCredentials, "get_username")) cDebug::error("no user in credentials");
@@ -65,7 +65,7 @@ class cAudit {
         //finally add the user audit entry
         cDebug::write("writing audit entry");
         self::pr_add_user_entry($oAccount);
-        cDebug::leave();
+        cTracing::leave();
     }
 
 
