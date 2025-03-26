@@ -3,8 +3,8 @@
 //ORM is eloquent: https://github.com/illuminate/database
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Connection;
-use Illuminate\Database\Schema\Builder;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Database\Schema\Blueprint;
 
 class cEloquentORM {
@@ -45,7 +45,7 @@ class cEloquentORM {
     //**********************************************************************************************
     /**
      * @param string $psConnectionName 
-     * @return Builder 
+     * @return SchemaBuilder 
      */
     static function get_schema($psConnectionName) {
         $oCapsule = self::$capsule;
@@ -58,7 +58,7 @@ class cEloquentORM {
     //**********************************************************************************************
     static function create_table(string $psConnection, string $psTableName,  Closure $pfnCreate) {
         //cTracing::enter();
-        /** @var oSchemaBuilder $oSchemaBuilder */
+        /** @var SchemaBuilder $oSchemaBuilder */
         $oCapsule = self::$capsule;
         if (!self::is_connection_defined($psConnection)) {
             cDebug::vardump($oCapsule->getDatabaseManager()->getConnections());
@@ -150,6 +150,22 @@ class cEloquentORM {
         // Add the new connection
         cDebug::extra_debug("added new connection - name is $sConnectionName");
         //cTracing::leave();
+    }
+
+    //**********************************************************************************
+    //* override the get function
+    //**********************************************************************************
+    /**
+     * writes out the SQL if extra debugging
+     * @return Collection 
+     */
+    static function get(QueryBuilder $poBuilder) {
+        if (cDebug::is_extra_debugging()) {
+            $sSQL = $poBuilder->toRawSql();
+            cDebug::vardump($sSQL);
+        }
+        $oCollection = $poBuilder->get();
+        return $oCollection;
     }
 
     //**********************************************************************************
