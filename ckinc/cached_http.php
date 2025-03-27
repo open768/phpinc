@@ -119,7 +119,7 @@ class cCachedHttp {
         $oHttp->HTTPS_CERT_FILENAME = $this->HTTPS_CERT_FILENAME;
 
         $oResponse = null;
-        cDebug::write("requested url:$psURL");
+        //cDebug::write("requested url:$psURL");
 
         /** @var cObjStoreDB $oDB **/
         $oDB = self::$objstoreDB;
