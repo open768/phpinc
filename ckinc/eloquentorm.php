@@ -168,6 +168,15 @@ class cEloquentORM {
         return $oCollection;
     }
 
+    static function pluck(QueryBuilder $poBuilder, $psColumn) {
+        if (cDebug::is_extra_debugging()) {
+            $sSQL = $poBuilder->toRawSql();
+            cDebug::vardump($sSQL);
+        }
+        $oCollection = $poBuilder->pluck($psColumn);
+        return $oCollection;
+    }
+
     //**********************************************************************************
     //* transactions
     //**********************************************************************************
