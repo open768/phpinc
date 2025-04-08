@@ -6,6 +6,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Eloquent\Collection;
 
 class cEloquentORM {
     const ELOQUENT_CLASSNAME = "Illuminate\Database\Capsule\Manager";
