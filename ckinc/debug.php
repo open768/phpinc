@@ -33,7 +33,10 @@ class cTracing {
                 $sCaller = "$sClass.$sFunc";
             }
 
-            cDebug::extra_debug("<font color='#3b3c36' face='courier' size=2>Enter&gt; $sCaller</font>", $pbOnce);
+            cDebug::extra_debug(
+                "<span class='tracing'>Enter &gt; {$sCaller}</span>",
+                $pbOnce
+            );
             self::$ENTER_DEPTH++;
         }
     }
@@ -57,7 +60,10 @@ class cTracing {
                 self::$ENTER_DEPTH = 0;
                 //self::write("too many leave calls");
             }
-            cDebug::extra_debug("<font color='#3b3c36' face='courier' size=2>Leave &gt; $sCaller</font>", $pbOnce);
+            cDebug::extra_debug(
+                "<span class='tracing'>Leave &gt; {$sCaller}</span>",
+                $pbOnce
+            );
         }
     }
 }
@@ -71,10 +77,8 @@ class cDebug {
     public static $IGNORE_CACHE = false;
     public static $IGNORE_SESSION_USER = false;
     private static $aThings = [];
-    const EXTRA_DEBUGGING_SYMBOL = "&#10070";
+    const EXTRA_DEBUGGING_SYMBOL = "&#10070;";
     private static $one_time_debug = false;
-    const EXTRA_DEBUG_FONT_COLOUR = "#483D8B";
-    const DEBUG_FONT_COLOUR = "#006400";
 
 
     //##############################################################################
@@ -108,7 +112,7 @@ class cDebug {
 
     //##############################################################################
     public static function extra_debug_warning($psThing) {
-        self::extra_debug("<font color='red'>$psThing</font>");
+        self::extra_debug("<span class='debug_extra_warning'>$psThing</span>");
     }
 
     //**************************************************************************
@@ -124,11 +128,9 @@ class cDebug {
         $sIndented = self::pr_indent(self::EXTRA_DEBUGGING_SYMBOL . " " . $psThing);
         if (cCommonEnvironment::is_cli())
             echo "{$sIndented}\n";
-        else {
-            echo "<p>";
-            echo "<font color='{", self::EXTRA_DEBUG_FONT_COLOUR, "}'><code>{$sIndented}</code></font>";
-            echo "<p>\n";
-        }
+        else
+            echo "<div class='debug_extra'><code>{$sIndented}</code></div>\n";
+
         self::flush();
     }
 
@@ -139,11 +141,9 @@ class cDebug {
             $sIndented = self::pr_indent($poThing);
             if (cCommonEnvironment::is_cli())
                 print $sIndented . "\n";
-            else {
-                echo "<p>";
-                echo "<font color='", self::DEBUG_FONT_COLOUR, "'><code>{$sIndented}</code></font>";
-                echo "<p>\n";
-            }
+            else
+                echo "<div class='debug'><code>{$sIndented}</code></div>";
+
             self::flush();
         }
     }
@@ -157,8 +157,11 @@ class cDebug {
     //**************************************************************************
     public static function vardump($poThing, $pbForce = false) {
         if (self::is_extra_debugging() || $pbForce) {
+            ob_start();                  // Start output buffering
+            var_dump($poThing);         // Dump the variable
+            $sRaw = ob_get_clean();    // Get buffer contents and clean buffer
             echo "<div><PRE style='background-color: #f0f0f0;font-name: courier;'>";
-            var_dump($poThing);
+            echo (htmlspecialchars($sRaw)); // Encode for HTML
             cCommon::flushprint("</PRE></div>");
         } else
             self::write(__FUNCTION__ . " only available in debug2");
