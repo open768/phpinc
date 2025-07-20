@@ -160,19 +160,23 @@ class cEloquentORM {
      * writes out the SQL if extra debugging
      * @return Collection 
      */
-    static function get(QueryBuilder $poBuilder) {
+    static function get(QueryBuilder $poBuilder, ?array $paWhat = Null) {
         if (cDebug::is_extra_debugging()) {
             $sSQL = $poBuilder->toRawSql();
-            cDebug::vardump($sSQL);
+            cDebug::extra_debug($sSQL);
         }
-        $oCollection = $poBuilder->get();
+
+        $oCollection = $poBuilder->get($paWhat);
         return $oCollection;
     }
 
-    static function pluck(QueryBuilder $poBuilder, $psColumn) {
+    /**
+     * gets a single column
+     * @return Collection 
+     */    static function pluck(QueryBuilder $poBuilder, $psColumn) {
         if (cDebug::is_extra_debugging()) {
             $sSQL = $poBuilder->toRawSql();
-            cDebug::vardump($sSQL);
+            cDebug::extra_debug($sSQL);
         }
         $oCollection = $poBuilder->pluck($psColumn);
         return $oCollection;
