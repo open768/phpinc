@@ -161,7 +161,7 @@ class cEloquentORM {
      * @return Collection 
      */
     static function get(QueryBuilder $poBuilder, ?array $paWhat = Null) {
-        cTracing::enter();
+        //cTracing::enter();
         if (cDebug::is_extra_debugging()) {
             $sSQL = $poBuilder->toRawSql();
             cDebug::extra_debug($sSQL);
@@ -172,7 +172,7 @@ class cEloquentORM {
         else
             $oCollection = $poBuilder->get($paWhat);
 
-        cTracing::leave();
+        //cTracing::leave();
         return $oCollection;
     }
 
