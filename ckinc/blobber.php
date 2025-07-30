@@ -29,7 +29,8 @@ class cBlobber {
     const COL_DATE_ADDED = "da";
 
     //*************************************************************
-    function __construct(string $pDBFilename = null) {
+    //#TODO: - move to eloquent
+    function __construct(?string $pDBFilename = null) {
         //cTracing::enter();
         if (!cCommon::is_string_empty($pDBFilename)) {
             $sExtension = substr($pDBFilename, -3);
@@ -87,7 +88,7 @@ class cBlobber {
     function exists(string $psKey) {
         /** @var cSQLLite $oSqlDB  */
         $oSqlDB = $this->oSqlDB;
-        $sKeyHash = cHash::hash($psKey);
+        $sKeyHash = cHasher::hash($psKey);
 
         $sQL = "SELECT :key_col from `:table` where :key_col=:key";
         $sQL = self::pr_replace_sql_params($sQL);
@@ -102,7 +103,7 @@ class cBlobber {
     function remove(string $psKey) {
         /** @var cSQLLite $oSqlDB  */
         $oSqlDB = $this->oSqlDB;
-        $sKeyHash = cHash::hash($psKey);
+        $sKeyHash = cHasher::hash($psKey);
 
         $sQL = "DELETE from `:table` where :key_col=:key";
         $sQL = self::pr_replace_sql_params($sQL);
@@ -115,7 +116,7 @@ class cBlobber {
     function put_obj(string $psKey, string $psMimeType, string $psBlobData) {
         /** @var cSQLLite $oSqlDB  */
         $oSqlDB = $this->oSqlDB;
-        $sKeyHash = cHash::hash($psKey);
+        $sKeyHash = cHasher::hash($psKey);
 
         $sQL = "INSERT into `:table` (:key_col, :mime_col, :blob_col, :date_col ) VALUES ( :key,  :mime, :data, :epoch)";
         $sQL = self::pr_replace_sql_params($sQL);
@@ -133,7 +134,7 @@ class cBlobber {
     function get(string $psKey): cBlobData {
         /** @var cSQLLite $oSqlDB  */
         $oSqlDB = $this->oSqlDB;
-        $sKeyHash = cHash::hash($psKey);
+        $sKeyHash = cHasher::hash($psKey);
 
         $sSQL = "SELECT :blob_col,:mime_col from `:table` where :key_col=:key";
         $sSQL = self::pr_replace_sql_params($sSQL);

@@ -12,7 +12,7 @@ require_once  cAppGlobals::$ckPhpInc . "/hash.php";
 require_once  cAppGlobals::$ckPhpInc . "/objstoredb.php";
 
 
-//TBD functions to be made non static so that a different realm can be used by different 
+//TODO: functions to be made non static so that a different realm can be used by different 
 class cObjStore {
     public static $rootFolder = "";
     public static $OBJDATA_REALM = null;

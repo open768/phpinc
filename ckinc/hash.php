@@ -21,6 +21,13 @@ require_once  cAppGlobals::$ckPhpInc . "/debug.php";
 require_once  cAppGlobals::$ckPhpInc . "/gz.php";
 require_once  cAppGlobals::$ckPhpInc . "/sqlite.php";
 
+class cHasher {
+    public static function hash($psAnything) {
+        //unique md5 - impossible that the reverse hash is the same as hash
+        return  md5($psAnything) . md5(strrev($psAnything));
+    }
+}
+
 class cHash {
     const HASH_FOLDER = "[cache]/[hash]";
     const FOREVER = -1;
@@ -128,27 +135,27 @@ class cHash {
 
     //************************************************************************
     public static function get($psAnything, $pbCached = false) {
-        $sHash = self::hash($psAnything);
+        $sHash = cHasher::hash($psAnything);
         $oThing = self::pr__get_obj($sHash, $pbCached);
         return $oThing;
     }
 
     //************************************************************************
     public static function put($psAnything, $poObj, $pbOverwrite = false, $pbCached = false) {
-        $sHash = self::hash($psAnything);
+        $sHash = cHasher::hash($psAnything);
         self::pr__put_obj($sHash, $poObj, $pbOverwrite);
     }
 
     //************************************************************************
     public static function exists($psAnything, $pbCached = false) {
-        $sHash = self::hash($psAnything);
+        $sHash = cHasher::hash($psAnything);
         return self::pr__exists_hash($sHash, $pbCached);
     }
 
     //************************************************************************
     public static function delete($psAnything) {
         cTracing::enter();
-        $sHash = self::hash($psAnything);
+        $sHash = cHasher::hash($psAnything);
         self::delete_hash($sHash);
         cTracing::leave();
     }

@@ -16,7 +16,7 @@ require_once  cAppGlobals::$ckPhpInc . "/debug.php";
 require_once  cAppGlobals::$ckPhpInc . "/common.php";
 require_once  cAppGlobals::$ckPhpInc . "/objstoredb.php";
 
-// @todo the following is deprecated FB now only supports their graph API
+// TODO: the following is deprecated FB now only supports their graph API
 // https://github.com/facebookarchive/php-graph-sdk
 //load facebook classes
 require_once  cAppGlobals::$phpInc . "/extra/facebook/autoload.php";

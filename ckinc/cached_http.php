@@ -83,7 +83,7 @@ class cCachedHttp {
     //*****************************************************************************
     public function getCachedUrltoFile($psURL) {    //for large files too big for sql
         cTracing::enter();
-        $sHash = cHash::hash($psURL);
+        $sHash = cHasher::hash($psURL);
         cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;        //dangerous fudge TODO
         $sPath = cHash::getPath($sHash);
 

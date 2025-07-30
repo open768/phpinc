@@ -20,13 +20,12 @@ or leave a message on github
 require_once  cAppGlobals::$ckPhpInc . "/objstore.php";
 require_once  cAppGlobals::$ckPhpInc . "/common.php";
 require_once  cAppGlobals::$ckPhpInc . "/gz.php";
-require_once  cAppGlobals::$ckPhpInc . "/hash.php";
 require_once  cAppGlobals::$ckPhpInc . "/sqlite.php";
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%% Database 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-class cOBjStoreDB {
+class cObjStoreDB {
     //statics and constants
     private static $warned_oldstyle = false;
     private static $oSQLite = null; //static as same database obj used between instances
@@ -48,7 +47,10 @@ class cOBjStoreDB {
     public $check_expiry = false;
     public $table = null;
 
-
+    public static function hash($psAnything) {
+        //unique md5 - impossible that the reverse hash is the same as hash
+        return  md5($psAnything) . md5(strrev($psAnything));
+    }
 
     //#####################################################################
     //# constructor
@@ -118,7 +120,7 @@ class cOBjStoreDB {
         //add an Audit timestamp to say when this database was created
         cDebug::extra_debug("writing creation timestamp");
         $sNow = date('d-m-Y H:i:s');
-        $oObj = new cOBjStoreDB(self::OBJSTORE_REALM);
+        $oObj = new cObjStoreDB(self::OBJSTORE_REALM);
         $oObj->put(self::OBJSTORE_CREATE_KEY, $sNow);
         //cTracing::leave();
     }
@@ -132,7 +134,7 @@ class cOBjStoreDB {
     /**
      * private function to warn tyhat oldstyle functions are deprecated.
      * These functions should be converted to ->get and ->put after migration from cobjstore
-     * @todo
+     * TODO:
      * @return void
      */
     private function pr_warn_deprecated() {
@@ -165,7 +167,7 @@ class cOBjStoreDB {
      * 		the count used as part of the key to store the data
      * there should be an equivalent function to read an array.
      *
-     * @todo rewrite function to remove dumbness
+     * TODO: rewrite function to remove dumbness
      * @param [type] $psFolder
      * @param [type] $psFile
      * @param [type] $poData
@@ -207,14 +209,14 @@ class cOBjStoreDB {
     //********************************************************************************
     /**
      * @param string $psFolder
-     * @todo make this work on the objstore
+     * TODO:: make this work on the objstore
      * @return void
      */
     public function kill_folder_oldstyle($psFolder) {
         //delete any physical files
         cObjStore::kill_folder($psFolder);
 
-        //* @todo implement this */
+        //* TODO: implement this */
         // find all folders that match and delete them 
     }
 
@@ -242,7 +244,7 @@ class cOBjStoreDB {
         $oSQL = self::$oSQLite;
 
         //write the compressed string to the database
-        $sHash = cHash::hash($psKey);
+        $sHash = self::hash($psKey);
         //cDebug::extra_debug("hash: $sHash");
 
         $sSQL = "REPLACE INTO `:table` (:realm_col, :hash_col, :data_col, :date_col ) VALUES (:realm, :hash, :data, :date)";
@@ -267,7 +269,7 @@ class cOBjStoreDB {
 
         //read from the database and decompress
         //cDebug::extra_debug("reading from table");
-        $sHash = cHash::hash($psKey);
+        $sHash = self::hash($psKey);
         $oSQL = self::$oSQLite;
 
         $sSQL = "SELECT :realm_col,:data_col,:date_col FROM `:table` where :realm_col=:realm AND :hash_col=:hash";
@@ -316,7 +318,7 @@ class cOBjStoreDB {
         $oSQL = self::$oSQLite;
 
         //read from the database and decompress
-        $sHash = cHash::hash($psKey);
+        $sHash = self::hash($psKey);
 
         $sSQL = "DELETE from `:table` where :realm_col=:realm AND :hash_col=:hash";
         $sSQL = self::replace_sql($sSQL);

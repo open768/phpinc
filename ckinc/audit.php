@@ -17,7 +17,7 @@ require_once  cAppGlobals::$ckPhpInc . "/hash.php";
 
 //#################################################################
 //# Auditing for users of the application
-//# TBD move to using objstoreDB
+//# TODO: move to using objstoreDB
 //#################################################################
 class cAuditAccount {
     public $host = null;
@@ -27,7 +27,7 @@ class cAuditAccount {
     public $IP = null;
 }
 
-//TBD move to using objstoredb
+//TODO: move to using objstoredb
 class cAudit {
     const ACCOUNTS_KEY = "cAudit.accounts.key";
     const ACCOUNT_BASE_KEY = "cAudit.account.basekey.";
