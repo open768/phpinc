@@ -15,12 +15,15 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 // ** Currently this is set to cache folders **
 //
 //TODO: switch this to use sqllite in a single file - reduce the number of inodes used
+//after switching to sqllite, move to use eloquent ORM
  **************************************************************************/
 
 require_once  cAppGlobals::$ckPhpInc . "/debug.php";
 require_once  cAppGlobals::$ckPhpInc . "/gz.php";
 require_once  cAppGlobals::$ckPhpInc . "/sqlite.php";
+require_once cAppGlobals::$ckPhpInc . "/eloquentorm.php";
 
+//##########################################################################
 class cHasher {
     public static function hash($psAnything) {
         //unique md5 - impossible that the reverse hash is the same as hash
@@ -28,7 +31,12 @@ class cHasher {
     }
 }
 
+//##########################################################################
 class cHash {
+    private static $oSqlDB = null;
+    const CACHE_TABLE = "CACHE";
+    public static $db_filename = "cache.db";
+
     const HASH_FOLDER = "[cache]/[hash]";
     const FOREVER = -1;
     private $HASH_REALM = "general";
@@ -37,6 +45,57 @@ class cHash {
     public static $show_hashes = false;
     public static $show_cache_hit = false;
     public static $shown_deprecated_warning = false;
+    const COL_KEY =  "ky";
+    const COL_MIME_TYPE = "mt";
+    const COL_BLOB = "bl";
+    const COL_DATE_ADDED = "da";
+    const COL_TEXT = "txt";
+
+    //####################################################################
+    //####################################################################
+    static function init() {
+        if (self::$oSqlDB == null) {
+            // cDebug::extra_debug("opening cSqlLite database: " . $this->db_filename);
+            $oSqlDB = new cSqlLite(self::$db_filename);
+            self::$oSqlDB = $oSqlDB;
+        }
+        self::pr_create_table();
+    }
+
+    //*************************************************************
+    private static function pr_replace_sql_params(string $psSQL) {
+        $sSQL = str_replace(":table", self::CACHE_TABLE, $psSQL);
+        $sSQL = str_replace(":key_col", self::COL_KEY, $sSQL);
+        $sSQL = str_replace(":mime_col", self::COL_MIME_TYPE, $sSQL);
+        $sSQL = str_replace(":blob_col", self::COL_BLOB, $sSQL);
+        $sSQL = str_replace(":date_col", self::COL_DATE_ADDED, $sSQL);
+        $sSQL = str_replace(":text_col", self::COL_TEXT, $sSQL);
+        return $sSQL;
+    }
+
+    //*************************************************************
+    private static function pr_create_table() {
+        //cTracing::enter();
+        /** @var cSQLLite $oSqlDB  */
+        $oSqlDB = self::$oSqlDB;
+        $bTableExists = $oSqlDB->table_exists(self::CACHE_TABLE);
+        if ($bTableExists) {
+            cDebug::extra_debug("table exists: " . self::CACHE_TABLE);
+            return;
+        }
+
+        //--------------- create the table
+        cDebug::extra_debug("table doesnt exist " . self::CACHE_TABLE);
+        $sSQL =
+            "CREATE TABLE `:table` ( " .
+            ":key_col TEXT PRIMARY KEY, :mime_col TEXT, :blob_col BLOB, :text_col TEXT, :date_col INTEGER" .
+            ")";
+        $sSQL = self::pr_replace_sql_params($sSQL);
+        $oSqlDB->querySQL($sSQL);
+        cDebug::extra_debug("table created");
+
+        //cTracing::leave();
+    }
 
     //####################################################################
     //####################################################################
@@ -62,10 +121,6 @@ class cHash {
 
     //####################################################################
     //####################################################################
-    public static function hash($psAnything) {
-        //unique md5 - impossible that the reverse hash is the same as hash
-        return  md5($psAnything) . md5(strrev($psAnything));
-    }
 
     //************************************************************************
     public static function delete_hash($psHash) {
@@ -160,3 +215,4 @@ class cHash {
         cTracing::leave();
     }
 }
+cHash::init();
