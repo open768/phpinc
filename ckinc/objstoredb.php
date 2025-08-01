@@ -27,11 +27,12 @@ require_once  cAppGlobals::$ckPhpInc . "/sqlite.php";
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class cObjStoreDB {
     //statics and constants
+    //TODO: move to an instantiable class
     private static $warned_oldstyle = false;
-    private static $oSQLite = null; //static as same database obj used between instances
+    private $oSQLite = null;
 
-    const DB_FILENAME = "objstore.db";
-    const TABLE_NAME = "objstore";
+    const DEFAULT_DB_FILENAME = "objstore.db";
+    const DEFAULT_TABLE_NAME = "objstore";
     const COL_REALM = "RE";
     const COL_HASH = "HA";
     const COL_CONTENT = "CO";
@@ -56,21 +57,24 @@ class cObjStoreDB {
     //# constructor
     // by default all entries go into _objstore_
     //#####################################################################
-    function __construct($psRealm, $psTable = null) {
+    function __construct(string $psRealm, ?string $psTable = null, ?string $psDBFileName = null) {
         $this->realm = $psRealm;
-        $this->table = $psTable;
 
-        //check whether DB has been opened
-        if (self::$oSQLite == null) {
-            cDebug::extra_debug("objstore SQL database is: " . self::DB_FILENAME);
-            $oDB = new cSqlLite(self::DB_FILENAME);
-            self::$oSQLite = $oDB;
-        }
+        //open  DB
+        $sDBFileName = self::DEFAULT_DB_FILENAME;
+        if ($psDBFileName != null)
+            $sDBFileName = $psDBFileName;
 
-        if ($this->table == null) {
+        $oDB = new cSqlLite($sDBFileName);
+        $this->oSQLite = $oDB;
+
+        //create table
+        if ($psTable == null) {
             cPageOutput::warning("table not provided for objstoredb realm $psRealm");
-            $this->table = self::TABLE_NAME;
-        }
+            $this->table = self::DEFAULT_DB_FILENAME;
+        } else
+            $this->table = $psTable;
+
         $this->pr_create_table();
     }
 
@@ -91,7 +95,7 @@ class cObjStoreDB {
 
     private function pr_create_table() {
         //cTracing::enter();
-        $oSQL = self::$oSQLite;
+        $oSQL = $this->oSQLite;
 
         //check if table exists
         $bTableExists = $oSQL->table_exists($this->table);
@@ -241,7 +245,7 @@ class cObjStoreDB {
     public function put($psKey, $pvAnything, $pbOverride = true) {
         //cTracing::enter();
         $this->pr_check_realm();
-        $oSQL = self::$oSQLite;
+        $oSQL = $this->oSQLite;
 
         //write the compressed string to the database
         $sHash = self::hash($psKey);
@@ -270,7 +274,7 @@ class cObjStoreDB {
         //read from the database and decompress
         //cDebug::extra_debug("reading from table");
         $sHash = self::hash($psKey);
-        $oSQL = self::$oSQLite;
+        $oSQL = $this->oSQLite;
 
         $sSQL = "SELECT :realm_col,:data_col,:date_col FROM `:table` where :realm_col=:realm AND :hash_col=:hash";
         $sSQL = self::replace_sql($sSQL);
@@ -315,7 +319,7 @@ class cObjStoreDB {
     public function kill($psKey) {
         //cTracing::enter();
         $this->pr_check_realm();
-        $oSQL = self::$oSQLite;
+        $oSQL = $this->oSQLite;
 
         //read from the database and decompress
         $sHash = self::hash($psKey);
