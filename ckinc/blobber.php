@@ -19,6 +19,7 @@ class cBlobData {
 }
 
 class cBlobber {
+    //TODO: switch to use eloquent
     /** @var cSQLLite $oSqlDB  */
     private $oSqlDB = null;
     const BLOB_TABLE = "BLOBS";
