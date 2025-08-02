@@ -87,7 +87,7 @@ class cCachedHttp {
         cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;        //dangerous fudge TODO
         $sPath = cHash::getPath($sHash);
 
-        if (!cHash::exists($sHash)) {
+        if (!cHash::exists_old_style($sHash)) {
             cHash::make_hash_folder($sHash);
             $oHttp = new cHttp();
             $oHttp->ALLOW_SELF_SIGNED_CERT = $this->ALLOW_SELF_SIGNED_CERT;

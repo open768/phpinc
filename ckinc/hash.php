@@ -189,7 +189,7 @@ class cHash {
     }
 
     //************************************************************************
-    public static function get($psAnything, $pbCached = false) {
+    public static function get_old_style($psAnything, $pbCached = false) {
         $sHash = cHasher::hash($psAnything);
         $oThing = self::pr__get_obj($sHash, $pbCached);
         return $oThing;
@@ -202,7 +202,7 @@ class cHash {
     }
 
     //************************************************************************
-    public static function exists($psAnything, $pbCached = false) {
+    public static function exists_old_style($psAnything, $pbCached = false) {
         $sHash = cHasher::hash($psAnything);
         return self::pr__exists_hash($sHash, $pbCached);
     }

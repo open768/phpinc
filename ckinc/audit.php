@@ -13,7 +13,7 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
  **************************************************************************/
 
 //see 
-require_once  cAppGlobals::$ckPhpInc . "/hash.php";
+require_once  cAppGlobals::$ckPhpInc . "/objstoredb.php";
 
 //#################################################################
 //# Auditing for users of the application
@@ -29,9 +29,17 @@ class cAuditAccount {
 
 //TODO: move to using objstoredb
 class cAudit {
+    static $objdb = null;
     const ACCOUNTS_KEY = "cAudit.accounts.key";
     const ACCOUNT_BASE_KEY = "cAudit.account.basekey.";
     const MAX_ENTRIES_PER_USER = 100;
+    const REALM = "audit";
+    const TABLE = "AUDIT";
+    const DATABASE = "audit.db";
+
+    public static function init() {
+        self::$objdb = new cObjStoreDb(self::REALM, self::TABLE, self::DATABASE);
+    }
 
     //**************************************************************************************
     public static function audit($poCredentials, $psEvent) {
@@ -45,19 +53,20 @@ class cAudit {
         $oAccount->account = $poCredentials->account;
         $oAccount->user = $poCredentials->get_username();
         $oAccount->timestamp = $sDate = date('d-m-Y H:i:s');
+        $oObjDB = self::$objdb;
 
         //if this this account hasnt been audited before add to the Audited customers table
         cDebug::write("checking known accounts");
-        $sAccountHash = self::pr__get_account_key($oAccount);
-        if (!cHash::exists($sAccountHash)) {
+        $sAccountKey = self::pr__get_account_key($oAccount);
+        if (!$oObjDB->exists($sAccountKey)) {
             cDebug::write("adding to Audited Customers table");
             self::pr__add_audited_account($oAccount);
         }
 
         //if this username hasnt been audited before, add to the known accounts for the account
         cDebug::write("checking known users of account");
-        $sUserHash = self::pr__get_user_key($oAccount);
-        if (!cHash::exists($sUserHash)) {
+        $sUserKey = self::pr__get_user_key($oAccount);
+        if (!$oObjDB->exists($sUserKey)) {
             cDebug::write("adding username to known Customers table");
             self::pr__add_known_user($oAccount);
         }
@@ -71,27 +80,34 @@ class cAudit {
 
     //**************************************************************************************
     public static function get_audited_accounts() {
-        return cHash::get(self::ACCOUNTS_KEY);
+        $oObjDB = self::$objdb;
+        return $oObjDB->get(self::ACCOUNTS_KEY);
     }
 
     //**************************************************************************************
     public static function get_known_users($poAccount) {
-        return cHash::get(self::pr__get_account_key($poAccount));
+        /** @var cObjStoreDB $oObjDB*/
+        $oObjDB = self::$objdb;
+        return $oObjDB->get(self::pr__get_account_key($poAccount));
     }
 
 
     //**************************************************************************************
     public static function get_user_entries($poAccount) {
-        return cHash::get(self::pr__get_user_key($poAccount));
+        /** @var cObjStoreDB $oObjDB*/
+        $oObjDB = self::$objdb;
+        return $oObjDB->get(self::pr__get_user_key($poAccount));
     }
 
     //**************************************************************************************
     //*
     //**************************************************************************************
     private static function pr_add_user_entry($poAccount) {
-        $sHash = self::pr__get_user_key($poAccount);
+        /** @var cObjStoreDB $oObjDB*/
+        $oObjDB = self::$objdb;
+        $sUserKey = self::pr__get_user_key($poAccount);
 
-        $aAuditLines = cHash::get($sHash);
+        $aAuditLines = $oObjDB->get($sUserKey);
         if ($aAuditLines == null) $aAuditLines = [];
 
         //check size of array - mustnt grow too large
@@ -102,7 +118,7 @@ class cAudit {
         }
 
         $aAuditLines[] = $poAccount;
-        cHash::put($sHash, $aAuditLines, true);
+        $oObjDB->put($sUserKey, $aAuditLines, true);
     }
 
     //**************************************************************************************
@@ -117,19 +133,24 @@ class cAudit {
 
     //**************************************************************************************
     private static function pr__add_known_user($poAccount) {
-        $sHash = self::pr__get_account_key($poAccount);
-        $aUsers = cHash::get($sHash);
+        /** @var cObjStoreDB $oObjDB*/
+        $oObjDB = self::$objdb;
+        $sAccountKey = self::pr__get_account_key($poAccount);
+        $aUsers = $oObjDB->get($sAccountKey);
         if ($aUsers == null) $aUsers = [];
         $aUsers[] = $poAccount;
-        cHash::put($sHash, $aUsers, true);
+        $oObjDB->put($sAccountKey, $aUsers, true);
     }
 
     //**************************************************************************************
     private static function pr__add_audited_account($poAccount) {
+        /** @var cObjStoreDB $oObjDB*/
+        $oObjDB = self::$objdb;
         $aAccounts = self::get_audited_accounts();
         if ($aAccounts == null) $aAccounts = [];
 
         $aAccounts[] = $poAccount;
-        cHash::put(self::ACCOUNTS_KEY, $aAccounts, true);
+        $oObjDB->put(self::ACCOUNTS_KEY, $aAccounts, true);
     }
 }
+cAudit::init();

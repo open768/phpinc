@@ -111,9 +111,9 @@ class cObjStore {
         if ($sReal) {
             cDebug::write("file exists: $sReal");
             $aData = cGzip::readObj($sReal);
-        } elseif (cHash::exists($sFile)) {
+        } elseif (cHash::exists_old_style($sFile)) {
             cDebug::write("found in hash");
-            $aData = cHash::get($sFile);
+            $aData = cHash::get_old_style($sFile);
         }
 
         //cTracing::leave();

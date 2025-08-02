@@ -314,6 +314,10 @@ class cObjStoreDB {
         return $vResult;
     }
 
+    public function exists($psKey) {
+        $vResult = $this->get($psKey);
+        return ($vResult !== null);
+    }
 
     //********************************************************************************
     public function kill($psKey) {
