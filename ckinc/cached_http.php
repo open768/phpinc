@@ -30,6 +30,7 @@ class cCachedHttp {
     public  $HTTPS_CERT_FILENAME = null;
     const OBJDB_REALM = "CACHTTP";
     const DEFAULT_CACHE_EXPIRY = 3600;
+    const HUGE_CACHE_FOLDER = "[cache]/[hugefiles]";
 
     //********************************************************************
     public static function init_obj_store_db() {
@@ -81,14 +82,14 @@ class cCachedHttp {
     }
 
     //*****************************************************************************
-    public function getCachedUrltoFile($psURL) {    //for large files too big for sql
+    public function getHugeCachedUrltoFile($psURL) {    //for large files too big for sql
         cTracing::enter();
         $sHash = cHasher::hash($psURL);
         cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;        //dangerous fudge TODO
-        $sPath = cHash::getPath($sHash);
+        $sPath = cFileHasher::getPath($sHash);
 
         if (!cHash::exists_old_style($sHash)) {
-            cHash::make_hash_folder($sHash);
+            cFileHasher::make_hash_folder($sHash);
             $oHttp = new cHttp();
             $oHttp->ALLOW_SELF_SIGNED_CERT = $this->ALLOW_SELF_SIGNED_CERT;
             $oHttp->show_progress = true;

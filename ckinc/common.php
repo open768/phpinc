@@ -50,6 +50,12 @@ class cCommon {
         return get_object_vars($poThing);
     }
 
+    public static function random_string(int $piLength) {
+        $sRandom = random_bytes($piLength / 2);
+        $sHex = bin2hex($sRandom);
+        return $sHex;
+    }
+
 
     //**************************************************************************
     public static function flushprint($psWhat = self::PROGRESS_CHAR) {

@@ -19,6 +19,8 @@ class DebugException extends Exception {
 
 class cTracing {
     static $ENTER_DEPTH = 0;
+    const CSS_CLASS_NAME = "tracing_button_class";
+    private static $b_output_js = false;
 
     public static function enter($psOverrideName = null, $pbOnce = false) {
         if (cDebug::is_extra_debugging() || $pbOnce) {
@@ -32,9 +34,24 @@ class cTracing {
                 }
                 $sCaller = "$sClass.$sFunc";
             }
+            if (! self::$b_output_js) {
+                self::$b_output_js = true;
+?>
+                <script>
+                    //BEGIN tracing JS
+                    $(function() {
+                        $('.<?= self::CSS_CLASS_NAME ?>').on('click', function() {
+                            const targetId = $(this).data('target');
+                            $('#' + targetId).toggle(); // Automatically opens if hidden, closes if shown
+                        });
+                    });
+                </script>
+<?php
+            }
 
+            $sID = cCommon::random_string(12);
             cDebug::extra_debug(
-                "<span class='tracing'>Enter &gt; {$sCaller}</span>",
+                "<div><button class='" . self::CSS_CLASS_NAME . "' data-target='$sID'>X</button><span id='$sID'><span class='tracing'>Enter &gt; {$sCaller}</span>",
                 $pbOnce
             );
             self::$ENTER_DEPTH++;
@@ -61,7 +78,7 @@ class cTracing {
                 //self::write("too many leave calls");
             }
             cDebug::extra_debug(
-                "<span class='tracing'>Leave &gt; {$sCaller}</span>",
+                "<span class='tracing'>Leave &gt; {$sCaller}</span></span></div>",
                 $pbOnce
             );
         }

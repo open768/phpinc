@@ -31,13 +31,51 @@ class cHasher {
     }
 }
 
+class cFileHasher {
+    const HASH_FOLDER = "[cache]/[hash]";
+    //************************************************************************
+    public static function get_folder($psHash, ?string $psRoot = null) {
+        $d1 = substr($psHash, 0, 2);
+        $d2 = substr($psHash, 2, 2);
+        $sRootFolder = self::HASH_FOLDER;
+        if ($psRoot !== null)
+            $sRootFolder = $psRoot;
+
+        return cAppGlobals::$root . "/$sRootFolder/$d1/$d2";
+    }
+
+    //************************************************************************
+    public static function getPath($psHash, ?string $psRoot = null) {
+        $sFolder = self::get_folder($psHash, $psRoot);
+        $sFile = "$sFolder/$psHash";
+
+        return $sFile;
+    }
+
+    //************************************************************************
+    public static function exists($psHash, ?string $psRoot = null) {
+        $sPath = cFileHasher::getPath($psHash, $psRoot);
+        $bExists = file_exists($sPath);
+        return $bExists;
+    }
+
+    //************************************************************************
+    public static function make_hash_folder($psHash) {
+        $sFolder = self::get_folder($psHash);
+        if (!is_dir($sFolder)) {
+            cDebug::write("making folder: for hash $psHash");
+            mkdir($sFolder, 0700, true);
+        }
+        return $sFolder;
+    }
+}
+
 //##########################################################################
 class cHash {
     private static $oSqlDB = null;
     const CACHE_TABLE = "CACHE";
     public static $db_filename = "cache.db";
 
-    const HASH_FOLDER = "[cache]/[hash]";
     const FOREVER = -1;
     private $HASH_REALM = "general";
     public static $CACHE_EXPIRY =  3600;  //(1 hour)
@@ -100,7 +138,7 @@ class cHash {
     //####################################################################
     //####################################################################
     private static function pr__exists_hash($psHash, $pbCached = false) {
-        $sFile = self::getPath($psHash);
+        $sFile = cFileHasher::getPath($psHash);
         $bExists = file_exists($sFile);
         if (self::$show_hashes) cDebug::write("hash: $bExists - $psHash");
 
@@ -125,52 +163,20 @@ class cHash {
     //************************************************************************
     public static function delete_hash($psHash) {
         if (self::pr__exists_hash($psHash)) {
-            $sFile = self::getPath($psHash);
+            $sFile = cFileHasher::getPath($psHash);
             cDebug::write("deleting hash $psHash");
             unlink($sFile);
         }
     }
 
-    //************************************************************************
-    public static function get_folder($psHash) {
-
-
-        $d1 = substr($psHash, 0, 2);
-        $d2 = substr($psHash, 2, 2);
-        return cAppGlobals::$root . "/" . self::HASH_FOLDER . "/$d1/$d2";
-    }
-
-
-    //************************************************************************
-    public static function getPath($psHash) {
-        if (!self::$shown_deprecated_warning) {
-            cPageOutput::warning("file based hash will be deprecated");
-            self::$shown_deprecated_warning = true;
-        }
-        $sFolder = self::get_folder($psHash);
-        $sFile = "$sFolder/$psHash";
-        if (self::$show_filenames) cDebug::write("hash_file: $sFile");
-
-        return $sFile;
-    }
-
-    //************************************************************************
-    public static function make_hash_folder($psHash) {
-        $sFolder = self::get_folder($psHash);
-        if (!is_dir($sFolder)) {
-            cDebug::write("making folder: for hash $psHash");
-            mkdir($sFolder, 0700, true);
-        }
-        return $sFolder;
-    }
 
     //************************************************************************
     public static function pr__put_obj($psHash, $poObj, $pbOverwrite = false, $pbCached = false) {
-        $sFile = self::getPath($psHash);
+        $sFile = cFileHasher::getPath($psHash);
         if (!$pbOverwrite && self::pr__exists_hash($psHash))
             cDebug::error("hash exists: $psHash");
         else {
-            self::make_hash_folder($psHash);
+            cFileHasher::make_hash_folder($psHash);
             cGzip::writeObj($sFile, $poObj);
         }
     }
@@ -180,7 +186,7 @@ class cHash {
         $oResponse = null;
         if (self::pr__exists_hash($psHash)) {
             if (self::$show_cache_hit) cDebug::write("exists in cache");
-            $sFile = self::getPath($psHash);
+            $sFile = cFileHasher::getPath($psHash);
             //cDebug::extra_debug("$sFile");
             $oResponse = cGzip::readObj($sFile);
         } else
