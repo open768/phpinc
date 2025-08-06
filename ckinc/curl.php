@@ -34,7 +34,8 @@ class cCurl {
 
     public function exec() {
         $sUrl = $this->url;
-        cDebug::extra_debug("curl getting: $sUrl");
+        if (cDebug::$SHOW_CURL)
+            cDebug::extra_debug("curl getting: $sUrl");
         $response = curl_exec($this->oCurl);
         $iErr = curl_errno($this->oCurl);
         if ($iErr != 0) {

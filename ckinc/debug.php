@@ -17,6 +17,9 @@ require_once  cAppGlobals::$ckPhpInc . "/common.php";
 class DebugException extends Exception {
 }
 
+//##############################################################################
+//#
+//##############################################################################
 class cTracing {
     static $ENTER_DEPTH = 0;
     const CSS_CLASS_NAME = "tracing_button_class";
@@ -85,12 +88,16 @@ class cTracing {
     }
 }
 
+//##############################################################################
+//#
+//##############################################################################
 class cDebug {
     private static $DEBUGGING = false;
     private static $EXTRA_DEBUGGING = false;
     private static $MEM_DEBUGGING = false;
 
-    static $SHOW_SQL = false;
+    public static $SHOW_CURL = false;
+    public static $SHOW_SQL = false;
     public static $IGNORE_CACHE = false;
     public static $IGNORE_SESSION_USER = false;
     private static $aThings = [];
@@ -98,7 +105,6 @@ class cDebug {
     private static $one_time_debug = false;
 
 
-    //##############################################################################
     public static function is_debugging() {
         $bOnce = self::$one_time_debug;
         self::$one_time_debug = false;
@@ -109,6 +115,8 @@ class cDebug {
         return self::$EXTRA_DEBUGGING;
     }
 
+    //**************************************************************************
+    //**************************************************************************
     public static function on($pbExtraDebugging = false) {
         ini_set("display_errors", "on"); //needed otherwise 500 error in prod
         self::$DEBUGGING = true;
@@ -127,7 +135,8 @@ class cDebug {
         self::$EXTRA_DEBUGGING = false;
     }
 
-    //##############################################################################
+    //**************************************************************************
+    //**************************************************************************
     public static function extra_debug_warning($psThing) {
         self::extra_debug("<span class='debug_extra_warning'>$psThing</span>");
     }
@@ -165,7 +174,8 @@ class cDebug {
         }
     }
 
-    //##############################################################################
+    //**************************************************************************
+    //**************************************************************************
     public static function flush() {
         @ob_flush();
         @flush();
@@ -233,7 +243,8 @@ class cDebug {
         return $bOut;
     }
 
-    //##############################################################################
+    //**************************************************************************
+    //**************************************************************************
     public static function check_GET_or_POST() {
         global $_GET, $_POST, $_SERVER;
 
@@ -247,23 +258,26 @@ class cDebug {
             self::on(true);
             self::write("Extra debugging is on - shown by " . self::EXTRA_DEBUGGING_SYMBOL);
             self::write("URI is " . $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"]);
-
-            self::$SHOW_SQL = self::pr__check_param("showsql");
         } else
             self::write("for extra debugging use debug2");
 
+        if (self::is_debugging()) {
+            self::$SHOW_SQL = self::pr__check_param("showsql");
+            self::$SHOW_CURL = self::pr__check_param("showcurl");
+        }
         self::$IGNORE_CACHE = self::pr__check_param("nocache");
         self::$IGNORE_SESSION_USER = self::pr__check_param("nouser");
         self::$MEM_DEBUGGING = self::pr__check_param("mem");
     }
 
-    //##############################################################################
+    //**************************************************************************
+    //**************************************************************************
     static function get_caller($piLimit = 0) {
         return @debug_backtrace(0, $piLimit + 2)[$piLimit + 1];
     }
 
     //**************************************************************************
-    private static function pr_stacktrace() {
+    public static function stacktrace() {
         if (self::is_extra_debugging()) {
             echo "<pre>";
             debug_print_backtrace();
