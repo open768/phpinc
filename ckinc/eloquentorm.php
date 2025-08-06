@@ -162,7 +162,7 @@ class cEloquentORM {
      */
     static function get(QueryBuilder $poBuilder, ?array $paWhat = Null) {
         //cTracing::enter();
-        if (cDebug::is_extra_debugging()) {
+        if (cDebug::$SHOW_SQL) {
             $sSQL = $poBuilder->toRawSql();
             cDebug::extra_debug($sSQL);
         }
@@ -180,7 +180,7 @@ class cEloquentORM {
      * gets a single column
      * @return Collection 
      */    static function pluck(QueryBuilder $poBuilder, $psColumn) {
-        if (cDebug::is_extra_debugging()) {
+        if (cDebug::$SHOW_SQL) {
             $sSQL = $poBuilder->toRawSql();
             cDebug::extra_debug($sSQL);
         }

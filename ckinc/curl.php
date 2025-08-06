@@ -41,10 +41,9 @@ class cCurl {
             print curl_error($this->oCurl) . "<p>";
             curl_close($this->oCurl);
             cDebug::error("ERROR URL was: $sUrl <p>");
-        } else {
-            cDebug::extra_debug("no error reported by Curl");
+        } else
             curl_close($this->oCurl);
-        }
+
         return $response;
     }
 }

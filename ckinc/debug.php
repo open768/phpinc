@@ -247,12 +247,12 @@ class cDebug {
             self::on(true);
             self::write("Extra debugging is on - shown by " . self::EXTRA_DEBUGGING_SYMBOL);
             self::write("URI is " . $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"]);
+
+            self::$SHOW_SQL = self::pr__check_param("showsql");
         } else
             self::write("for extra debugging use debug2");
 
-
         self::$IGNORE_CACHE = self::pr__check_param("nocache");
-        self::$SHOW_SQL = self::pr__check_param("showsql");
         self::$IGNORE_SESSION_USER = self::pr__check_param("nouser");
         self::$MEM_DEBUGGING = self::pr__check_param("mem");
     }
