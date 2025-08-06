@@ -161,10 +161,10 @@ class cEloquentORM {
      * @return Collection 
      */
     static function get(QueryBuilder $poBuilder, ?array $paWhat = Null) {
-        //cTracing::enter();
+        cTracing::enter();
         if (cDebug::$SHOW_SQL) {
             $sSQL = $poBuilder->toRawSql();
-            cDebug::extra_debug($sSQL);
+            cDebug::write($sSQL);
         }
 
         if ($paWhat == null)
@@ -172,7 +172,7 @@ class cEloquentORM {
         else
             $oCollection = $poBuilder->get($paWhat);
 
-        //cTracing::leave();
+        cTracing::leave();
         return $oCollection;
     }
 
@@ -182,7 +182,7 @@ class cEloquentORM {
      */    static function pluck(QueryBuilder $poBuilder, $psColumn) {
         if (cDebug::$SHOW_SQL) {
             $sSQL = $poBuilder->toRawSql();
-            cDebug::extra_debug($sSQL);
+            cDebug::write($sSQL);
         }
         $oCollection = $poBuilder->pluck($psColumn);
         return $oCollection;
