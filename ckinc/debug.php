@@ -98,6 +98,8 @@ class cDebug {
 
     public static $SHOW_CURL = false;
     public static $SHOW_SQL = false;
+    public static $SHOW_HASHES = false;
+    public static $SHOW_CACHE_HIT = false;
     public static $IGNORE_CACHE = false;
     public static $IGNORE_SESSION_USER = false;
     private static $aThings = [];
@@ -262,11 +264,13 @@ class cDebug {
             self::write("for extra debugging use debug2");
 
         if (self::is_debugging()) {
-            self::$SHOW_SQL = self::pr__check_param("showsql");
-            self::$SHOW_CURL = self::pr__check_param("showcurl");
+            self::$SHOW_SQL = self::pr__check_param("show-sql");
+            self::$SHOW_CURL = self::pr__check_param("show-curl");
+            self::$SHOW_HASHES = self::pr__check_param("show-hash");
+            self::$SHOW_CACHE_HIT = self::pr__check_param("show-cache-hit");
         }
-        self::$IGNORE_CACHE = self::pr__check_param("nocache");
-        self::$IGNORE_SESSION_USER = self::pr__check_param("nouser");
+        self::$IGNORE_CACHE = self::pr__check_param("no-cache");
+        self::$IGNORE_SESSION_USER = self::pr__check_param("no-user");
         self::$MEM_DEBUGGING = self::pr__check_param("mem");
     }
 

@@ -85,11 +85,11 @@ class cCachedHttp {
     public function getHugeCachedUrltoFile($psURL) {    //for large files too big for sql
         cTracing::enter();
         $sHash = cHasher::hash($psURL);
-        cHash::$CACHE_EXPIRY = $this->CACHE_EXPIRY;        //dangerous fudge TODO
-        $sPath = cFileHasher::getPath($sHash);
+        cFileHasher::$CACHE_EXPIRY = $this->CACHE_EXPIRY;        //dangerous fudge TODO:
+        $sPath = cFileHasher::getPath($sHash, self::HUGE_CACHE_FOLDER);
 
-        if (!cHash::exists_old_style($sHash)) {
-            cFileHasher::make_hash_folder($sHash);
+        if (!cFileHasher::exists_hash($sHash)) {
+            cFileHasher::make_hash_folder($sHash, self::HUGE_CACHE_FOLDER);
             $oHttp = new cHttp();
             $oHttp->ALLOW_SELF_SIGNED_CERT = $this->ALLOW_SELF_SIGNED_CERT;
             $oHttp->show_progress = true;
