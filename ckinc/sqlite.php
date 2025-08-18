@@ -275,6 +275,7 @@ class  cSqlLite {
      */
     public function prepare($psSQL) {
         //cTracing::enter();
+        if (cDebug::$SHOW_SQL) cDebug::write("preparing: $psSQL");
         $oAction = new cSQLPrepareAction($psSQL);
         /** @var SQLite3Stmt $oResultSet */
         $oResultSet = $this->pr_do_action($oAction);
@@ -285,6 +286,7 @@ class  cSqlLite {
     //********************************************************************************
     public function querySQL(string $psSQL) {
         //cTracing::enter();
+        if (cDebug::$SHOW_SQL) cDebug::write("Query: $psSQL");
         $oAction = new cSQLQueryAction($psSQL);
         $oResultSet = $this->pr_do_action($oAction);
         //cTracing::leave();	
@@ -301,8 +303,10 @@ class  cSqlLite {
      */
     public function exec_stmt(SQLite3Stmt $poStmt) {
         //cTracing::enter();
-        if (cDebug::$SHOW_SQL)
-            cDebug::extra_debug($poStmt->getSQL(TRUE));
+        if (cDebug::$SHOW_SQL) {
+            $sSQL = $poStmt->getSQL(TRUE);
+            cDebug::write("exec: $sSQL");
+        }
 
         $oAction = new cSQLExecStmtAction($poStmt);
         $oResultSet = $this->pr_do_action($oAction);

@@ -94,14 +94,14 @@ class cObjStoreDB {
     }
 
     private function pr_create_table() {
-        //cTracing::enter();
+        cTracing::enter();
         $oSQL = $this->oSQLite;
 
         //check if table exists
         $bTableExists = $oSQL->table_exists($this->table);
         if ($bTableExists) {
-            //cDebug::extra_debug("table '{$this->table}' exists");
-            //cTracing::leave();
+            cDebug::extra_debug("table '{$this->table}' exists");
+            cTracing::leave();
             return;
         }
 
@@ -109,15 +109,14 @@ class cObjStoreDB {
         cDebug::extra_debug("table '{$this->table}' does not exist");
         $sSQL = "CREATE TABLE ':table' ( ':realm_col' TEXT not null, ':hash_col' TEXT not null, ':data_col' TEXT, ':user_col' TEXT,':date_col' DATETIME DEFAULT CURRENT_TIMESTAMP, primary key ( ':realm_col', ':hash_col'))";
         $sSQL = self::replace_sql($sSQL);
-        if (cDebug::$SHOW_SQL) cDebug::write($sSQL);
 
         $oSQL->querySQL($sSQL);
         cDebug::extra_debug("table created");
 
         //create an index on the table
-        $sSQL = "CREATE INDEX idx_users_:table on ':table' ( :realm_col, :user_col )";
+        $sTable = preg_replace("/[\d\W]/", "", $this->table);
+        $sSQL = "CREATE INDEX idx_users_$sTable on ':table' ( :realm_col, :user_col )";
         $sSQL = self::replace_sql($sSQL);
-        if (cDebug::$SHOW_SQL) cDebug::write($sSQL);
         $oSQL->querySQL($sSQL);
         cDebug::extra_debug("index created");
 
@@ -126,7 +125,7 @@ class cObjStoreDB {
         $sNow = date('d-m-Y H:i:s');
         $oObj = new cObjStoreDB(self::OBJSTORE_REALM);
         $oObj->put(self::OBJSTORE_CREATE_KEY, $sNow);
-        //cTracing::leave();
+        cTracing::leave();
     }
 
     //********************************************************************************
@@ -254,7 +253,6 @@ class cObjStoreDB {
         $sSQL = "REPLACE INTO `:table` (:realm_col, :hash_col, :data_col, :date_col ) VALUES (:realm, :hash, :data, :date)";
         if (!$pbOverride) $sSQL = "INSERT INTO `:table` (:realm_col, :hash_col, :data_col, :date_col ) VALUES (:realm, :hash, :data, :date)";
         $sSQL = self::replace_sql($sSQL);
-        if (cDebug::$SHOW_SQL) cDebug::write($sSQL);
         $oStmt = $oSQL->prepare($sSQL);
         $oStmt->bindValue(":realm", $this->realm);
         $oStmt->bindValue(":hash", $sHash);
@@ -278,7 +276,6 @@ class cObjStoreDB {
 
         $sSQL = "SELECT :realm_col,:data_col,:date_col FROM `:table` where :realm_col=:realm AND :hash_col=:hash";
         $sSQL = self::replace_sql($sSQL);
-        if (cDebug::$SHOW_SQL) cDebug::write(__CLASS__ . ": $sSQL");
 
         //bind the values
         $oStmt = $oSQL->prepare($sSQL);
@@ -330,7 +327,6 @@ class cObjStoreDB {
 
         $sSQL = "DELETE from `:table` where :realm_col=:realm AND :hash_col=:hash";
         $sSQL = self::replace_sql($sSQL);
-        if (cDebug::$SHOW_SQL) cDebug::write("SQL: $sSQL");
 
         $oStmt = $oSQL->prepare($sSQL);
         $oStmt->bindValue(":realm", $this->realm);
