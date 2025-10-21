@@ -112,13 +112,24 @@ class cEloquentORM {
     }
 
     //**********************************************************************************************
+    static function remove_connection(string $psDbName, $psConnectionName = null) {
+        $sConnectionName = $psConnectionName;
+        if ($psConnectionName == null) $sConnectionName = $psDbName;
+        if (self::is_connection_defined($sConnectionName)) {
+            $oCapsule = self::$capsule;
+            $oCapsule->getDatabaseManager()->purge($sConnectionName);
+            cDebug::extra_debug("removed connection - name is $sConnectionName");
+        }
+    }
+
+    //**********************************************************************************************
     /**
      * 
      * @param string $psDbName 
      * @param string $psConnectionName 
      * @return void 
      */
-    static function add_connection($psDbName, $psConnectionName = null) {
+    static function add_connection(string $psDbName, $psConnectionName = null) {
         // Check if the connection already exists
         //cTracing::enter();
 
