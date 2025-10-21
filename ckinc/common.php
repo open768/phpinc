@@ -34,6 +34,8 @@ class cCommon {
     const MINS_IN_WEEK = self::MINS_IN_DAY * self::DAY_IN_WEEK;
     const MINS_IN_MONTH = self::MINS_IN_DAY * 31;
     const PROGRESS_CHAR = "&#8667;";
+    const DELETE_SLEEP_USEC = 1;
+    const MAX_DELETE_RETRIES = 10;
 
     //**************************************************************************
     public static function write_json($poThing) {
@@ -56,6 +58,24 @@ class cCommon {
         return $sHex;
     }
 
+    public static function add_filename_to_dir($directory, $filename) {
+        return rtrim($directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
+    }
+
+    //****************************************************************
+    static function force_delete_file(string $psFilename) {
+        $iCounter = 0;
+
+        unlink($psFilename);
+        while (file_exists($psFilename)) {
+            usleep(self::DELETE_SLEEP_USEC);
+            @unlink($psFilename);
+            $iCounter++;
+            if ($iCounter > self::MAX_DELETE_RETRIES) {
+                cDebug::error("could not delete $psFilename after " . self::MAX_DELETE_RETRIES . " attempts");
+            }
+        }
+    }
 
     //**************************************************************************
     public static function flushprint($psWhat = self::PROGRESS_CHAR) {
