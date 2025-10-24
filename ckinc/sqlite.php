@@ -37,7 +37,7 @@ class cSQLPrepareAction extends cSQLAction {
      * @param SQLite3 $oDB 
      * @return SQLite3Stmt|false 
      */
-    public function execute(SQLite3 $oDB) {
+    public function execute(?SQLite3 $oDB) {
         /** @var SQLite3Stmt $oResultset */
         $oResultset = $oDB->prepare($this->sSQL);
         return $oResultset;
@@ -153,9 +153,6 @@ class  cSqlLite {
     //# PRIVATES
     //#####################################################################
     static function open_sql_db(string $psDBFilename) {
-
-        //cDebug::extra_debug("opening database");
-
         //check if folder exists for database
         $sFolder = cAppGlobals::$dbRoot;
         if (!is_dir($sFolder)) {
@@ -184,7 +181,6 @@ class  cSqlLite {
 
     //********************************************************************************
     private function pr_check_for_db(string $psDBFilename) {
-
         //cTracing::enter();
         if ($this->database == null) {
             $oDB = self::open_sql_db($psDBFilename);

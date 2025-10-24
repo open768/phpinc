@@ -25,6 +25,10 @@ require_once  cAppGlobals::$ckPhpInc . "/sqlite.php";
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%% Database 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+class cObjStoreTables {
+    const AUTH_TABLE = "CKAUTH";
+}
+
 class cObjStoreDB {
     //statics and constants
     //TODO: move to an instantiable class
@@ -47,6 +51,7 @@ class cObjStoreDB {
     public $expire_time = null;
     public $check_expiry = false;
     public $table = null;
+    public $db_unavailable = false;
 
     public static function hash($psAnything) {
         //unique md5 - impossible that the reverse hash is the same as hash
@@ -58,12 +63,19 @@ class cObjStoreDB {
     // by default all entries go into _objstore_
     //#####################################################################
     function __construct(string $psRealm, ?string $psTable = null, ?string $psDBFileName = null) {
+
         $this->realm = $psRealm;
 
         //open  DB
         $sDBFileName = self::DEFAULT_DB_FILENAME;
         if ($psDBFileName != null)
             $sDBFileName = $psDBFileName;
+
+        if (cAppStatus::$site_down && $psTable !== cObjStoreTables::AUTH_TABLE) {
+            cDebug::write("site is down, not opening database $sDBFileName");
+            $this->db_unavailable = true;
+            return;
+        }
 
         $oDB = new cSqlLite($sDBFileName);
         $this->oSQLite = $oDB;
@@ -94,6 +106,10 @@ class cObjStoreDB {
     }
 
     private function pr_create_table() {
+        if ($this->db_unavailable) {
+            cDebug::write("site is down, not creating creating table $this->table");
+            return null;
+        }
         cTracing::enter();
         $oSQL = $this->oSQLite;
 
