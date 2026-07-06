@@ -105,6 +105,8 @@ class cDebug {
     private static $aThings = [];
     const EXTRA_DEBUGGING_SYMBOL = "&#10070;";
     private static $one_time_debug = false;
+    const DEBUG_STR = "debug";
+    const DEBUG2_STR = "debug2";
 
 
     public static function is_debugging() {
@@ -250,18 +252,18 @@ class cDebug {
     public static function check_GET_or_POST() {
         global $_GET, $_POST, $_SERVER;
 
-        if (cCommonHeader::is_set("debug")) {
+        if (cCommonHeader::is_set(self::DEBUG_STR)) {
             self::on();
             self::write("Debugging is on");
         }
 
 
-        if (cCommonHeader::is_set("debug2")) {
+        if (cCommonHeader::is_set(self::DEBUG2_STR)) {
             self::on(true);
             self::write("Extra debugging is on - shown by " . self::EXTRA_DEBUGGING_SYMBOL);
             self::write("URI is " . $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"]);
         } else
-            self::write("for extra debugging use debug2");
+            self::write("for extra debugging use ".self::DEBUG2_STR);
 
         if (self::is_debugging()) {
             self::$SHOW_SQL = self::pr__check_param("show-sql");
