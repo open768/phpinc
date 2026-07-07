@@ -20,3 +20,7 @@ phpshell/
 pubsub/
 php-openssl-crypt/
 sbbcode/
+
+#composer stuff
+/vendor/
+composer.lock

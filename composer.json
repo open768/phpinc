@@ -1,0 +1,15 @@
+{
+    "name": "chicken_katsu/phpinc",
+    "description": "useful php functions",
+    "type": "library",
+    "require": {
+        "illuminate/database": "^12.63"
+    },
+    "license": "CC-BY-NC-ND-4.0",
+    "authors": [
+        {
+            "name": "sunil",
+            "email": "cluck@chickenkatsu.co.uk"
+        }
+    ]
+}
