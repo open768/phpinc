@@ -3,7 +3,8 @@
     "description": "useful php functions",
     "type": "library",
     "require": {
-        "illuminate/database": "^12.63"
+        "illuminate/database": "^12.63",
+        "sebastian/diff": "^6.0"
     },
     "license": "CC-BY-NC-ND-4.0",
     "authors": [

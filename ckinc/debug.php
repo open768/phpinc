@@ -11,8 +11,11 @@ For licenses that allow for commercial use please contact cluck@chickenkatsu.co.
 
 // USE AT YOUR OWN RISK - NO GUARANTEES OR ANY FORM ARE EITHER EXPRESSED OR IMPLIED
  **************************************************************************/
-require_once  cAppGlobals::$ckPhpInc . "/session.php";
-require_once  cAppGlobals::$ckPhpInc . "/common.php";
+require_once cAppGlobals::$ckPhpInc . "/session.php";
+require_once cAppGlobals::$ckPhpInc . "/common.php";
+
+//initialise composer
+require_once cAppGlobals::$phpInc . "/vendor/autoload.php";
 
 class DebugException extends Exception {
 }
@@ -263,7 +266,7 @@ class cDebug {
             self::write("Extra debugging is on - shown by " . self::EXTRA_DEBUGGING_SYMBOL);
             self::write("URI is " . $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"]);
         } else
-            self::write("for extra debugging use ".self::DEBUG2_STR);
+            self::write("for extra debugging use " . self::DEBUG2_STR);
 
         if (self::is_debugging()) {
             self::$SHOW_SQL = self::pr__check_param("show-sql");
