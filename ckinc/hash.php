@@ -32,6 +32,9 @@ class cHasher {
 }
 
 //##########################################################################
+/**
+ * @deprecated Use cObjStoreDB instead.
+ */
 class cFileHasher {
     const HASH_FOLDER = "[cache]/[hash]";
     public static $CACHE_EXPIRY =  3600;  //(1 hour)

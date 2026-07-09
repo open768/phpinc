@@ -3,7 +3,6 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-test/
 *.orig
 *.lnk
 
@@ -11,14 +10,6 @@ test/
 \[backup\]/
 extra/
 secret.php
-facebook/
-phpminify/
-phpquery/
-phpshell/
-pubsub/
-php-openssl-crypt/
-sbbcode/
-
-#composer stuff
-/vendor/
+test/
+vendor/
 composer.lock
