@@ -30,6 +30,7 @@ class cTracing {
 
     public static function enter($psOverrideName = null, $pbOnce = false) {
         if (cDebug::is_extra_debugging() || $pbOnce) {
+
             $sCaller = $psOverrideName;
             if ($psOverrideName == null) {
                 $aCaller = cDebug::get_caller(1);
@@ -40,7 +41,8 @@ class cTracing {
                 }
                 $sCaller = "$sClass.$sFunc";
             }
-            if (! self::$b_output_js) {
+
+            if (! self::$b_output_js) {                    
                 self::$b_output_js = true;
 ?>
                 <script>
