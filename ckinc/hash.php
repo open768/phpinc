@@ -39,7 +39,14 @@ class cFileHasher {
     const HASH_FOLDER = "[cache]/[hash]";
     public static $CACHE_EXPIRY =  3600;  //(1 hour)
     const FOREVER = -1;
+    private static $bShownMessage = false;
 
+    public static function deprecated(){
+        if (!static::$bShownMessage){
+            cPageOutput::messagebox("*** cFilehasher is deprecated use cObjStoreDB ***");
+            static::$bShownMessage  = true;
+        }
+    }
     //************************************************************************
     public static function get_folder($psHash, ?string $psRoot = null) {
         $d1 = substr($psHash, 0, 2);
@@ -84,6 +91,7 @@ class cFileHasher {
 
     //************************************************************************
     public static function get(string $psAnything, ?string $psRoot = null) {
+        static::deprecated();
         $sHash = cHasher::hash($psAnything);
         $oThing = self::get_hash($sHash, $psRoot);
         return $oThing;
@@ -126,6 +134,7 @@ class cFileHasher {
 
     //************************************************************************
     public static function put_hash(string $psHash, $poObj, $pbOverwrite = false, ?string $psRoot = null) {
+        static::deprecated();
         if (!$pbOverwrite && cFileHasher::exists_hash($psHash, $psRoot))
             cDebug::error("hash exists: $psHash");
         else {
